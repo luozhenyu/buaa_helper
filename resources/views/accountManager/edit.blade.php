@@ -1,0 +1,174 @@
+@extends('layouts.app')
+@php($auth_user = Auth::user())
+
+@push('cssLink')
+<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+@endpush
+
+@push('jsLink')
+<script src="//cdn.bootcss.com/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="//cdn.bootcss.com/bootstrap-select/1.12.1/js/i18n/defaults-zh_CN.js"></script>
+@endpush
+
+@push('js')
+<script>
+    $(function () {
+        $("#department").selectpicker("val", "{{ $user->department_id }}");
+        $("#role").selectpicker("val", "{{ $user->role_id }}");
+    });
+
+    function del() {
+        if (confirm('你真的要删除此账号吗？')) {
+            $.ajax({
+                url: "{{ route('accountManager').'/'.$user->id }}",
+                type: "DELETE",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                error: function (event) {
+                    alert("您没有权限访问！");
+                },
+                success: function (data) {
+                    alert(data);
+                    window.close();
+                }
+            });
+        }
+    }
+
+</script>
+@endpush
+
+@push("crumb")
+<li><a href="{{ url("/") }}">主页</a></li>
+<li><a href="{{ url("/account_manager") }}">用户管理</a></li>
+<li class="active">用户信息修改</li>
+@endpush
+
+@section('content')
+    <div class="panel panel-default">
+        <div class="panel-heading">用户{{$user->number}}</div>
+
+        <div class="panel-body">
+            <form class="form-horizontal" role="form" method="POST"
+                  action="{{ route('accountManager').'/'.$user->id }}">
+                <input type="hidden" name="_method" value="PUT"/>
+                {{ csrf_field() }}
+
+                <div class="form-group">
+                    <label for="number" class="col-md-4 control-label">学号／工号</label>
+                    <div class="col-md-6">
+                        <input id="number" type="text" class="form-control" value="{{ $user->number }}"
+                               disabled>
+                    </div>
+                </div>
+
+                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                    <label for="name" class="col-md-4 control-label">姓名</label>
+                    <div class="col-md-6">
+                        <input id="name" type="text" class="form-control" name="name"
+                               value="{{ $user->name }}" required autocomplete="off">
+                        @if ($errors->has('name'))
+                            <span class="help-block">
+                                            <strong>{{ $errors->first('name') }}</strong>
+                                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
+                    <label for="department" class="col-md-4 control-label">院系或部门</label>
+                    <div class="col-md-6">
+                        <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                                id="department" name="department">
+                            @if($auth_user->canDo(\App\Func\PrivilegeDef::VIEW_ALL_USER))
+                                @foreach(\App\Models\Department::get() as $department)
+                                    <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                                @endforeach
+                            @else
+                                @php($department = $auth_user->department)
+                                <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                            @endif
+                        </select>
+                        @if ($errors->has('department'))
+                            <span class="help-block">
+                                            <strong>{{ $errors->first('department') }}</strong>
+                                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                    <label for="email" class="col-md-4 control-label">邮箱</label>
+
+                    <div class="col-md-6">
+                        <input id="email" type="email" class="form-control" name="email"
+                               value="{{ $user->email }}" autocomplete="off">
+
+                        @if ($errors->has('email'))
+                            <span class="help-block">
+                                            <strong>{{ $errors->first('email') }}</strong>
+                                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                    <label for="phone" class="col-md-4 control-label">手机号</label>
+                    <div class="col-md-6">
+                        <input id="phone" type="text" class="form-control" name="phone"
+                               value="{{ $user->phone }}" autocomplete="off">
+                        @if ($errors->has('phone'))
+                            <span class="help-block">
+                                            <strong>{{ $errors->first('phone') }}</strong>
+                                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
+                    <label for="role" class="col-md-4 control-label">账号类型</label>
+                    <div class="col-md-6">
+                        <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                                id="role" name="role">
+                            @foreach(\App\Func\RoleDef::dict as $role)
+                                @if(\App\Func\RoleDef::isChild($auth_user->role_id, $role['id']) || ($auth_user->id===$user->id&&$auth_user->role_id === $role['id']))
+                                    <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @if ($errors->has('role'))
+                            <span class="help-block">
+                                            <strong>{{ $errors->first('role') }}</strong>
+                                        </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-6 col-md-offset-4">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="clear_pwd"
+                                       name="clear_pwd" {{old('clear_pwd')?'checked':''}}>清除此账户密码
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-8 col-md-offset-4">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-ok"></span> 保存信息
+                        </button>
+                        @if($auth_user->canDo(\App\Func\PrivilegeDef::DELETE_USER))
+                            <button type="button" class="btn btn-danger" onclick="del()">
+                                <span class="glyphicon glyphicon-remove-circle"></span> 删除账号
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection
