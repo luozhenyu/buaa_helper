@@ -86,50 +86,49 @@ class PermissionAndRoleSeeder extends Seeder
             'display_name' => '超级管理员',
             'description' => '',
         ]);
-        $admin->attachPermission(
-            [$create_user, $delete_user, $modify_all_user, $view_all_user] +
-            [$create_notification, $delete_all_notification, $modify_all_notification]
-        );
+        $admin->attachPermission([
+            $create_user, $delete_user, $modify_all_user, $view_all_user,
+            $create_notification, $delete_all_notification, $modify_all_notification
+        ]);
 
         $representative = Role::create([
             'name' => 'representative',
             'display_name' => '客服代表',
             'description' => '',
         ]);
-        $representative->attachPermission(
-            [$view_all_user, $modify_all_user] +
-            [$create_notification, $delete_all_notification, $modify_all_notification]
-        );
+        $representative->attachPermission([
+            $view_all_user, $modify_all_user,
+            $create_notification, $delete_all_notification, $modify_all_notification
+        ]);
 
         $department_admin = Role::create([
             'name' => 'department.admin',
             'display_name' => '部门管理员',
             'description' => '',
         ]);
-        $department_admin->attachPermission(
-            [$view_all_user] +
-            [$create_notification, $delete_owned_notification, $modify_owned_notification]
-        );
+        $department_admin->attachPermission([$view_all_user,
+            $create_notification, $delete_owned_notification, $modify_owned_notification
+        ]);
 
         $college_admin = Role::create([
             'name' => 'college.admin',
             'display_name' => '学院管理员',
             'description' => '',
         ]);
-        $college_admin->attachPermission(
-            [$view_owned_user, $modify_owned_user] +
-            [$create_notification, $delete_owned_notification, $modify_owned_notification]
-        );
-
-        $college_monitor = Role::create([
-            'name' => 'college.monitor',
-            'display_name' => '学院运营者',
-            'description' => '',
+        $college_admin->attachPermission([
+            $view_owned_user, $modify_owned_user,
+            $create_notification, $delete_owned_notification, $modify_owned_notification
         ]);
-        $college_monitor->attachPermission(
-            [$view_owned_user] +
-            [$create_notification, $delete_owned_notification, $modify_owned_notification]
-        );
+
+//        $college_monitor = Role::create([
+//            'name' => 'college.monitor',
+//            'display_name' => '学院运营者',
+//            'description' => '',
+//        ]);
+//        $college_monitor->attachPermission([
+//            $view_owned_user,
+//            $create_notification, $delete_owned_notification, $modify_owned_notification
+//        ]);
 
         $normal = Role::create([
             'name' => 'normal',

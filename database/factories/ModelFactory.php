@@ -30,7 +30,7 @@ $factory->define(App\Models\Notification::class, function (Faker\Generator $fake
         'content' => $faker->paragraph,
         'files' => '[]',
         'department_id' => 21,
-        'start_time' => null,
-        'end_time' => null
+        'start_time' => '2017-01-01 00:00:00',
+        'end_time' => '2017-02-01 00:00:00',
     ];
 });

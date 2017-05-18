@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Department;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Zizaco\Entrust\EntrustFacade;
 
 class AccountManagerController extends Controller
 {
@@ -74,71 +78,52 @@ class AccountManagerController extends Controller
     {
         $auth_user = Auth::user();
 
-        if ($auth_user->canDo(PrivilegeDef::VIEW_ALL_USER)) {
+        if ($auth_user->can('view_all_user')) {
             $user = User::findOrFail($id);
-        } else if ($auth_user->canDo(PrivilegeDef::VIEW_DEPARTMENT_USER)) {
+        } else if ($auth_user->can('view_owned_user')) {
             $user = $auth_user->department->users()->findOrFail($id);
         } else {
-            throw new AccessDeniedHttpException();
+            abort(403);
         }
+        abort_unless($auth_user->can(['modify_all_user', 'modify_owned_user']), 403);
 
-        if ($auth_user->canDo(PrivilegeDef::MODIFY_USER)
-            && (RoleDef::isChild($auth_user->role_id, $user->role_id) || $auth_user->id === $user->id)
-        ) {
-            return view('accountManager.edit', [
-                'user' => $user,
-            ]);
-        }
-        throw new AccessDeniedHttpException();
+        return view('accountManager.edit', [
+            'user' => $user,
+        ]);
     }
 
 
     public function create()
     {
-        $auth_user = Auth::user();
-
-        if ($auth_user->canDo(PrivilegeDef::ADD_USER)) {
-            return view('accountManager.create');
-        }
-        throw new AccessDeniedHttpException();
+        abort_unless(EntrustFacade::can('create_user'), 403);
+        return view('accountManager.create');
     }
 
     public function store(Request $request)
     {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::ADD_USER)) {
-            if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-                $this->validate($request, [
-                    'number' => 'required|digits_between:4,8|unique:users,number',
-                    'name' => 'required',
-                    'department' => 'required|exists:departments,id',
-                    'email' => 'email|unique:users,email',
-                    'phone' => 'phone|unique:users,phone',
-                    'role' => 'required|role:' . $auth_user->role_id,
-                ]);
-            } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-                $this->validate($request, [
-                    'number' => 'required|digits_between:4,8|unique:users,number',
-                    'name' => 'required',
-                    'department' => 'required|in:' . $auth_user->department_id,
-                    'email' => 'email|unique:users,email',
-                    'phone' => 'phone|unique:users,phone',
-                    'role' => 'required|role:' . $auth_user->role_id,
-                ]);
-            } else
-                throw new AccessDeniedHttpException();
+        abort_unless(EntrustFacade::can('create_user'), 403);
 
-            $user = User::create([
-                'number' => $request->input('number'),
-                'name' => $request->input('name'),
-                'department_id' => $request->input('department'),
-                'email' => $request->has('email') ? $request->input('email') : null,
-                'phone' => $request->has('phone') ? $request->input('phone') : null,
-                'role_id' => $request->input('role'),
-            ]);
-            return redirect('/account_manager/' . $user->id);
-        }
-        throw new AccessDeniedHttpException();
+        $this->validate($request, [
+            'number' => 'required|digits_between:4,8|unique:users,number',
+            'name' => 'required',
+            'department' => 'required|exists:departments,id',
+            'email' => 'nullable|email|unique:users,email',
+            'phone' => 'nullable|phone|unique:users,phone',
+            'role' => 'required|exists:roles,name',
+        ]);
+
+        $user = User::create([
+            'number' => $request->input('number'),
+            'name' => $request->input('name'),
+            'department_id' => $request->input('department'),
+            'email' => $request->has('email') ? $request->input('email') : null,
+            'phone' => $request->has('phone') ? $request->input('phone') : null,
+        ]);
+
+        $role = Role::where('name', $request->input('role'))->firstOrFail();
+        $user->attachRole($role);
+
+        return redirect('/account_manager/' . $user->id);
     }
 
     public function update(Request $request, $id)
@@ -205,41 +190,39 @@ class AccountManagerController extends Controller
 
     public function getImportTemplate()
     {
-        $objPHPExcel = new PHPExcel();
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->fromArray(['学号／工号', '姓名', '院系', '邮箱', '手机号'])
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray(['学号／工号', '姓名', '院系', '邮箱', '手机号'])
             ->setTitle('Account');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="账号导入模板.xlsx"');
         header('Cache-Control: max-age=0');
-        header('Cache-Control: max-age=1');
 
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
-        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header('Pragma: public'); // HTTP/1.0
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
     }
 
     public function import(Request $request)
     {
         $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::ADD_USER)
+        if ($auth_user->can('create_user')
             && $request->hasFile('file')
             && ($file = $request->file('file'))->isValid()
         ) {
             $file->move($dirName = pathinfo($file->getRealPath())['dirname'], $fileName = $file->getClientOriginalName());
             $path = $dirName . '/' . $fileName;
-            $objPHPExcel = PHPExcel_IOFactory::load($path);
-            $sheetData = $objPHPExcel->setActiveSheetIndex()->toArray('', true, true, true);
+            $spreadsheet = IOFactory::load($path);
+            $sheetData = $spreadsheet->getActiveSheet()
+                ->toArray('', true, true, true);
             unlink($path);
 
             $success = 0;
             $skip = 0;
             $fail = 0;
+
+            $normal = Role::where('name', 'normal')->firstOrFail();
+
             foreach ($sheetData as $key => $value) {
                 if ($key === 1 || empty(current($value)))
                     continue;
@@ -264,14 +247,14 @@ class AccountManagerController extends Controller
                     continue;
                 }
 
-                User::create([
+                $user = User::create([
                     'number' => $value['A'],
                     'name' => $value['B'],
                     'department_id' => Department::where('number', $value['C'])->firstOrFail()->id,
                     'email' => empty($value['D']) ? null : $value['D'],
                     'phone' => empty($value['E']) ? null : $value['E'],
-                    'role_id' => RoleDef::NORMAL['id'],
                 ]);
+                $user->attachRole($normal);
                 $success++;
             }
 

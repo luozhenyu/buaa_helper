@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Func\PrivilegeDef;
 use App\Models\Department;
 use App\Models\Notification;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -77,7 +77,7 @@ class NotificationController extends Controller
             "ico" => "icon_jpg.gif",
             "bmp" => "icon_jpg.gif"
         ];
-        return $maps[$ext] ?? $maps['txt'];
+        return $maps[$ext] ?: $maps['txt'];
     }
 
     public function index(Request $request)
@@ -140,7 +140,7 @@ class NotificationController extends Controller
             $by = 'desc';
 
         $wd = null;
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+        if ($auth_user->can('modify_all_notification')) {
             if ($request->has('wd')) {
                 $wd = $request->input('wd');
                 $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
@@ -150,7 +150,7 @@ class NotificationController extends Controller
             } else {
                 $notifications = Notification::orderBy($sort, $by)->paginate(15);
             }
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
+        } else if ($auth_user->can('modify_owned_notification')) {
             if ($request->has('wd')) {
                 $wd = $request->input('wd');
                 $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
@@ -197,7 +197,7 @@ class NotificationController extends Controller
     {
         $auth_user = Auth::user();
 
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+        if ($auth_user->can('modify_all_notification')) {
             $this->validate($request, [
                 'title' => 'required',
                 'department' => 'required|exists:departments,id',
@@ -205,7 +205,7 @@ class NotificationController extends Controller
                 'content' => 'required',
                 'files' => 'required|json|files',
             ]);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
+        } else if ($auth_user->can('modify_owned_notification')) {
             $this->validate($request, [
                 'title' => 'required',
                 'department' => 'required|in:' . $auth_user->department_id,
@@ -216,7 +216,7 @@ class NotificationController extends Controller
         } else
             throw new AccessDeniedHttpException();
 
-        if ($auth_user->canDo(PrivilegeDef::ADD_NOTIFICATION)) {
+        if ($auth_user->can('create_notification')) {
 
             if ($request->has('time')) {
                 $time = explode(' to ', $request->input('time'));
@@ -244,8 +244,8 @@ class NotificationController extends Controller
     {
         $auth_user = Auth::user();
 
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)
-            || ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)
+        if ($auth_user->can('modify_all_notification')
+            || ($auth_user->can('modify_owned_notification')
                 && !is_null($auth_user->written_notifications()->find($notification_id)))
             || (!is_null($auth_user->notifications()->find($notification_id)))
         ) {

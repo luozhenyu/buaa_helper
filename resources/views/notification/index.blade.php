@@ -17,20 +17,20 @@
             <a type="button" class="btn btn-info" href="{{route('notification').'/stared'}}">
                 <span class="glyphicon glyphicon-star"></span>星标通知
             </a>
-            @if($auth_user->canDo(\App\Func\PrivilegeDef::ADD_NOTIFICATION))
-                <a type="button" class="btn btn-warning" href="{{route('notification').'/manage'}}">
-                    通知管理
-                </a>
-            @endif
+            @permission('create_notification')
+            <a type="button" class="btn btn-warning" href="{{ route('notification').'/manage' }}">
+                通知管理
+            </a>
+            @endpermission
             <form class="form-inline pull-right" role="form" method="get"
                   action="{{ route('notification') }}">
                 <div class="input-group">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default"
-                                                    onclick="window.location.href='{{ url('/notification/1')}};'">
-                                                <span class="glyphicon glyphicon-remove"></span>
-                                            </button>
-                                        </span>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default"
+                                onclick="window.location.href='{{ url('/notification/1')}};'">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </span>
 
                     <input type="search" class="form-control" name="wd" value="{{$wd}}" placeholder="题目">
 

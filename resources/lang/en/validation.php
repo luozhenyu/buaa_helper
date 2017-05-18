@@ -90,7 +90,6 @@ return [
 
     'uuid' => 'The :attribute must be a UUID.',
     'phone' => 'The :attribute must be a valid phone number.',
-    'role' => 'The :attribute is unable to change.',
     'files' => 'The :attribute must be json files.',
     'json_in_array' => 'The selected :attribute is invalid.',
     'time_range' => 'The format of time range is illegal.',

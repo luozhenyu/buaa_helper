@@ -23,6 +23,7 @@ class UserTableSeeder extends Seeder
         $user = User::create([
             'number' => 15211121,
             'name' => '罗震宇',
+            'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
         $user->attachRole(\App\Models\Role::where('name', 'normal')->firstOrFail());

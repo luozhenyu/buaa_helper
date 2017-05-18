@@ -21,8 +21,8 @@ class CreateNotificationsTable extends Migration
             $table->text('content');
             $table->json('files');
             $table->boolean('important')->default(false);
-            $table->timestamp('start_time')->nullable();
-            $table->timestamp('end_time')->nullable();
+            $table->timestamp('start_time')->default('2017-01-01 00:00:00');
+            $table->timestamp('end_time')->default('2017-01-02 00:00:00');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')

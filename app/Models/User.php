@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Func\RoleDef;
 use Faker\Provider\Uuid;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'number', 'name', 'email', 'phone', 'department_id', 'role_id'
+        'number', 'name', 'email', 'phone', 'department_id',
     ];
 
     /**
@@ -58,17 +57,6 @@ class User extends Authenticatable
     public function stared_notifications()
     {
         return $this->belongsToMany('App\Models\Notification', 'stars')->withTimestamps();
-    }
-
-    /**
-     * Judge whether the user has the privilege to do something.
-     *
-     * @param integer $order
-     * @return bool
-     */
-    public function canDo($order)//checked
-    {
-        return in_array($order, RoleDef::dict[$this->role_id]['privilege'], true);
     }
 
     /**

@@ -2,19 +2,19 @@
 @php($auth_user = Auth::user())
 
 @push('cssLink')
-<link rel="stylesheet" href="//cdn.bootcss.com/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="{{ url('/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push('jsLink')
-<script src="//cdn.bootcss.com/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
-<script src="//cdn.bootcss.com/bootstrap-select/1.12.1/js/i18n/defaults-zh_CN.js"></script>
+<script src="{{ url('/js/bootstrap-select.min.js') }}"></script>
+<script src="{{ url('/js/i18n/defaults-zh_CN.js') }}"></script>
 @endpush
 
 @push('js')
 <script>
     $(function () {
         $("#department").selectpicker("val", "{{ $user->department_id }}");
-        $("#role").selectpicker("val", "{{ $user->role_id }}");
+        $("#role").selectpicker("val", "{{ $user->roles->first() }}");
     });
 
     function del() {
@@ -70,8 +70,8 @@
                                value="{{ $user->name }}" required autocomplete="off">
                         @if ($errors->has('name'))
                             <span class="help-block">
-                                            <strong>{{ $errors->first('name') }}</strong>
-                                        </span>
+                                <strong>{{ $errors->first('name') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
@@ -81,19 +81,19 @@
                     <div class="col-md-6">
                         <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                                 id="department" name="department">
-                            @if($auth_user->canDo(\App\Func\PrivilegeDef::VIEW_ALL_USER))
+                            @if($auth_user->can('modify_all_user'))
                                 @foreach(\App\Models\Department::get() as $department)
                                     <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
                                 @endforeach
-                            @else
+                            @elseif($auth_user->can('modify_owned_user'))
                                 @php($department = $auth_user->department)
                                 <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
                             @endif
                         </select>
                         @if ($errors->has('department'))
                             <span class="help-block">
-                                            <strong>{{ $errors->first('department') }}</strong>
-                                        </span>
+                                <strong>{{ $errors->first('department') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
@@ -107,8 +107,8 @@
 
                         @if ($errors->has('email'))
                             <span class="help-block">
-                                            <strong>{{ $errors->first('email') }}</strong>
-                                        </span>
+                                <strong>{{ $errors->first('email') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
@@ -120,30 +120,30 @@
                                value="{{ $user->phone }}" autocomplete="off">
                         @if ($errors->has('phone'))
                             <span class="help-block">
-                                            <strong>{{ $errors->first('phone') }}</strong>
-                                        </span>
+                                <strong>{{ $errors->first('phone') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
 
+                @role('admin')
                 <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
                     <label for="role" class="col-md-4 control-label">账号类型</label>
                     <div class="col-md-6">
-                        <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                        <select class="selectpicker form-control{{ $errors->has('role') ? ' has-error' : '' }}"
                                 id="role" name="role">
-                            @foreach(\App\Func\RoleDef::dict as $role)
-                                @if(\App\Func\RoleDef::isChild($auth_user->role_id, $role['id']) || ($auth_user->id===$user->id&&$auth_user->role_id === $role['id']))
-                                    <option value="{{ $role['id'] }}">{{ $role['name'] }}</option>
-                                @endif
+                            @foreach(\App\Models\Role::get() as $role)
+                                <option value="{{ $role->name }}">{{ $role->display_name }}</option>
                             @endforeach
                         </select>
                         @if ($errors->has('role'))
                             <span class="help-block">
-                                            <strong>{{ $errors->first('role') }}</strong>
-                                        </span>
+                                <strong>{{ $errors->first('role') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
+                @endrole
 
                 <div class="form-group">
                     <div class="col-md-6 col-md-offset-4">
@@ -161,7 +161,7 @@
                         <button type="submit" class="btn btn-primary">
                             <span class="glyphicon glyphicon-ok"></span> 保存信息
                         </button>
-                        @if($auth_user->canDo(\App\Func\PrivilegeDef::DELETE_USER))
+                        @if($auth_user->can('delete_user'))
                             <button type="button" class="btn btn-danger" onclick="del()">
                                 <span class="glyphicon glyphicon-remove-circle"></span> 删除账号
                             </button>

@@ -27,15 +27,6 @@ class AppServiceProvider extends ServiceProvider
             return preg_match('/^\w{8}(-\w{4}){3}-\w{12}$/', $value) > 0;
         });
 
-        Validator::extend('role', function ($attribute, $value, $parameters, $validator) {
-            return array_key_exists($parent_id = intval($parameters[0]), RoleDef::dict)
-                && array_key_exists($child_id = intval($value), RoleDef::dict)
-                && (RoleDef::isChild($parent_id, $child_id)
-                    || (array_key_exists(1, $parameters)
-                        && $parameters[1]
-                        && $value === $parameters[0]));
-        });
-
         Validator::extend('files', function ($attribute, $value, $parameters, $validator) {
             $files = json_decode($value, true);
             if (!is_array($files)) {

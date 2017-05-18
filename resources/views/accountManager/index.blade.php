@@ -27,7 +27,7 @@
                 clock = Date.now();
             },
             success: function (resp) {
-                if (resp["errmsg"] == undefined) {
+                if (resp["errmsg"] === undefined) {
                     clock = Date.now() - clock;
                     $("#tips").text('成功：' + resp['success'] + ' 跳过：' + resp['skip'] + ' 失败：' + resp['fail'] + ' 耗时: ' + clock + 'ms');
                 } else {
