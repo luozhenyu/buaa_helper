@@ -15,44 +15,33 @@ class Notification extends Model
         'title', 'content', 'files', 'important', 'start_time', 'end_time', 'user_id', 'department_id',
     ];
 
-    public function user()//
+    public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo('App\Models\User');
     }
 
-    public function department()//
+    public function department()
     {
         return $this->belongsTo('App\Models\Department');
     }
 
-    public function notified_departments()//checked
+    public function notifiedUsers()
     {
-        return $this->belongsToMany('App\Models\Department');
+        return $this->belongsToMany('App\Models\User')
+            ->withPivot('star', 'read', 'stared_at', 'read_at');
     }
 
-    public function notified_users()//checked
+    public function staredUsers()
     {
-        return $this->belongsToMany('App\User');
+        return $this->belongsToMany('App\Models\User')
+            ->wherePivot('star', true)
+            ->withPivot('star', 'stared_at');
     }
 
-    public function notified_all()
+    public function readUsers()
     {
-        $collec = $this->notified_users;
-        foreach ($this->notified_departments as $department) {
-            $collec = $collec->merge($department->users);
-        }
-        return $collec;
+        return $this->belongsToMany('App\Models\User')
+            ->wherePivot('read', true)
+            ->withPivot('read', 'read_at');
     }
-
-    public function stared_users()
-    {
-        return $this->belongsToMany('App\User', 'stars')->withTimestamps();
-    }
-
-    public function read_users()
-    {
-        return $this->belongsToMany('App\User', 'reads')->withTimestamps();
-    }
-
-
 }

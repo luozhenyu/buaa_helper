@@ -2,11 +2,18 @@
 
 namespace App\Func;
 
+use Carbon\Carbon;
 
 class Time
 {
     public static function format($raw_time)
     {
+        if (is_string($raw_time)) {
+            $raw_time = new Carbon($raw_time);
+        }
+        if (!($raw_time instanceof Carbon)) {
+            throw new \Exception("The time must be a instance of Carbon");
+        }
         $strToDay = function ($str) {
             return date('Ymd', strtotime($str));
         };
@@ -61,5 +68,4 @@ class Time
         }
         return $prefix . $raw_time->format('H:i');
     }
-
 }

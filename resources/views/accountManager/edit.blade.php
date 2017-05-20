@@ -1,22 +1,21 @@
 @extends('layouts.app')
-@php($auth_user = Auth::user())
 
 @push('cssLink')
-<link rel="stylesheet" href="{{ url('/css/bootstrap-select.min.css') }}">
+<link rel="stylesheet" href="{{ url('components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/js/bootstrap-select.min.js') }}"></script>
-<script src="{{ url('/js/i18n/defaults-zh_CN.js') }}"></script>
+<script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+<script src="{{ url('components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 @endpush
 
 @push('js')
 <script>
     $(function () {
         $("#department").selectpicker("val", "{{ $user->department_id }}");
-        $("#role").selectpicker("val", "{{ $user->roles->first() }}");
+        $("#role").selectpicker("val", "{{ $user->roles->first()->name }}");
     });
-
+    @permission('delete_user')
     function del() {
         if (confirm('你真的要删除此账号吗？')) {
             $.ajax({
@@ -35,7 +34,7 @@
             });
         }
     }
-
+    @endpermission
 </script>
 @endpush
 
@@ -58,8 +57,7 @@
                 <div class="form-group">
                     <label for="number" class="col-md-4 control-label">学号／工号</label>
                     <div class="col-md-6">
-                        <input id="number" type="text" class="form-control" value="{{ $user->number }}"
-                               disabled>
+                        <input id="number" type="text" class="form-control" value="{{ $user->number }}" disabled>
                     </div>
                 </div>
 
@@ -79,17 +77,22 @@
                 <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
                     <label for="department" class="col-md-4 control-label">院系或部门</label>
                     <div class="col-md-6">
+                        @permission('modify_all_user')
                         <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                                 id="department" name="department">
-                            @if($auth_user->can('modify_all_user'))
-                                @foreach(\App\Models\Department::get() as $department)
-                                    <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
-                                @endforeach
-                            @elseif($auth_user->can('modify_owned_user'))
-                                @php($department = $auth_user->department)
+                            @foreach(\App\Models\Department::get() as $department)
                                 <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
-                            @endif
+                            @endforeach
                         </select>
+                        @endpermission
+                        @permission('modify_owned_user')
+                        <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                                id="department" name="department" disabled>
+                            @php($department = Auth::user()->department)
+                            <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                        </select>
+                        @endpermission
+
                         @if ($errors->has('department'))
                             <span class="help-block">
                                 <strong>{{ $errors->first('department') }}</strong>
@@ -145,27 +148,29 @@
                 </div>
                 @endrole
 
+                @permission('delete_user')
                 <div class="form-group">
                     <div class="col-md-6 col-md-offset-4">
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" id="clear_pwd"
-                                       name="clear_pwd" {{old('clear_pwd')?'checked':''}}>清除此账户密码
+                                       name="clear_pwd" {{ old('clear_pwd')?'checked':'' }}>清除此账户密码
                             </label>
                         </div>
                     </div>
                 </div>
+                @endpermission
 
                 <div class="form-group">
                     <div class="col-md-8 col-md-offset-4">
                         <button type="submit" class="btn btn-primary">
                             <span class="glyphicon glyphicon-ok"></span> 保存信息
                         </button>
-                        @if($auth_user->can('delete_user'))
-                            <button type="button" class="btn btn-danger" onclick="del()">
-                                <span class="glyphicon glyphicon-remove-circle"></span> 删除账号
-                            </button>
-                        @endif
+                        @permission('delete_user')
+                        <button type="button" class="btn btn-danger" onclick="del()">
+                            <span class="glyphicon glyphicon-remove-circle"></span> 删除账号
+                        </button>
+                        @endpermission
                     </div>
                 </div>
             </form>

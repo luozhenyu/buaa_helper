@@ -9,9 +9,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <link rel="stylesheet" href="{{ url('/css/bootstrap.min.css') }}">
-    <link href="//cdn.bootcss.com/highcharts/5.0.11/css/highcharts.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url('/components/bootstrap/dist/css/bootstrap.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ url('/components/highcharts/css/highcharts.css') }}"> --}}
 @stack('cssLink')
 @stack('css')
 <!-- 公共样式表 -->
@@ -34,57 +33,6 @@
             content: "\";
         }
     </style>
-
-    <script src="{{ url('/js/jquery.min.js') }}"></script>
-    <script src="{{ url('/js/bootstrap.min.js') }}"></script>
-    <script src="//cdn.bootcss.com/highcharts/5.0.11/highcharts.js"></script>
-    <!-- MathJac 配置信息 -->
-    <script type="text/x-mathjax-config">
-		MathJax.Hub.Config({
-			tex2jax: {
-			  inlineMath: [['$','$'], ['\\(','\\)']],
-			  processEscapes: true,
-			  skipTags: ['script', 'noscript', 'style', 'textarea','code','a','img','link'],
-			  ignoreClass: "no_math"
-			},
-			TeX: {
-					equationNumbers: {
-						autoNumber: ["AMS"],
-						useLabelIds: true
-					}
-				},
-			"HTML-CSS": {
-				linebreaks: {
-					automatic: true
-				},
-				scale: 85
-			},
-			SVG: {
-				linebreaks: {
-					automatic: true
-				}
-			}
-		});
-
-
-
-
-
-    </script>
-    <script type="text/javascript"
-            src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <!-- 公共script（以后可以放置心跳包和websocket等） -->
-    <script>
-        $(document).ready(function () {
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-        })
-    </script>
-    @stack('jsLink')
-    @stack('js')
-</head>
-<body>
-<div id="app">
-    <!-- Header -->
     <style>
         /* header背景色 北航蓝 */
         .navbar {
@@ -118,7 +66,41 @@
             padding-top: 8px;
         }
     </style>
+    <style>
+        ol.breadcrumb:empty {
+            display: none;
+        }
 
+        ol.breadcrumb {
+            background-color: #b4dcfc;
+        }
+
+        ol.breadcrumb li a {
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        ol.breadcrumb li.active {
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        footer.foot-wrap {
+            /* background-color: #373f48; */
+            border-top: 1px solid #dadada;
+        }
+    </style>
+
+    <script src="{{ url('/components/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    {{-- <script src="{{ url('/components/highcharts/js/highcharts.js') }}"></script> --}}
+
+    @stack('jsLink')
+    @stack('js')
+</head>
+<body>
+<div id="app">
+    <!-- Header -->
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
             <div class="navbar-header">
@@ -135,14 +117,22 @@
                 <!-- Branding Image -->
                 <a class="navbar-brand" href="{{ url('/') }}">
                 <!--{{ config('app.name', 'Laravel') }}-->
-                    <img src="{{ url('/img/bf1846a7275ad028.png') }}">
+                    <img src="{{ url('/img/buaa-logo.png') }}">
                 </a>
             </div>
 
             <div class="collapse navbar-collapse" id="app-navbar-collapse">
                 <!-- Left Side Of Navbar -->
                 <ul class="nav navbar-nav">
-                    @if (!Auth::guest())
+                </ul>
+
+                <!-- Right Side Of Navbar -->
+                <ul class="nav navbar-nav navbar-right">
+                    <!-- Authentication Links -->
+                    @if (Auth::guest())
+                        <li><a href="{{ url('/login') }}">登录</a></li>
+                        <li><a href="{{ url('/register') }}">注册</a></li>
+                    @else
                         @permission(['view_all_user','view_owned_user'])
                         <li>
                             <a href="{{ route('accountManager') }}">
@@ -154,7 +144,7 @@
 
                         <li>
                             <a href="{{ url('/inquiry') }}">
-                                <span class="	glyphicon glyphicon-comment"></span>
+                                <span class="glyphicon glyphicon-comment"></span>
                                 留言管理
                             </a>
                         </li>
@@ -166,17 +156,6 @@
                             </a>
                         </li>
 
-                    @endif
-
-                </ul>
-
-                <!-- Right Side Of Navbar -->
-                <ul class="nav navbar-nav navbar-right">
-                    <!-- Authentication Links -->
-                    @if (Auth::guest())
-                        <li><a href="{{ url('/login') }}">登录</a></li>
-                        <li><a href="{{ url('/register') }}">注册</a></li>
-                    @else
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                aria-expanded="false">
@@ -193,8 +172,7 @@
                                 <li class="divider"></li>
                                 <li>
                                     <a href="{{ url('/logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                       onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                                         登出
                                     </a>
 
@@ -211,53 +189,22 @@
         </div>
     </nav>
 
-
     <!-- Content Part -->
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">
-                <style>
-                    ol.breadcrumb:empty {
-                        display: none;
-                    }
-
-                    ol.breadcrumb {
-                        background-color: #b4dcfc;
-                    }
-
-                    ol.breadcrumb li a {
-                        font-weight: bold;
-                        text-decoration: none;
-                    }
-
-                    ol.breadcrumb li.active {
-                        font-weight: bold;
-                    }
-                </style>
                 <ol class="breadcrumb">@stack("crumb")</ol>
                 <div class="jumbotron" style="background-color: white;padding: 12px;">@yield('content')</div>
-
-
             </div>
         </div>
     </div>
 
-
     <!-- Footer Part -->
-    <style>
-        footer.foot-wrap {
-            /* background-color: #373f48; */
-            border-top: 1px solid #dadada;
-        }
-
-    </style>
-
-    <footer class="container-fluid foot-wrap">
-        <p align="center" style="margin-top: 5px;color:#878B91;">
-            Copyright &copy;2017 BeiHang University
-        </p>
+    <footer class="container-fluid foot-wrap text-center" style="color:#878B91;">
+        <p style="margin-top: 5px;">
+            Copyright &copy; 2017 - {{ date("Y") }} BeiHang University 保留所有权利。
+        <p>京ICP备****号-*</p>
     </footer>
-
 </div>
 
 </body>

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-@php($auth_user = Auth::user())
 
 @push('cssLink')
 <link rel="stylesheet" href="{{ url('/css/bootstrap-select.min.css') }}">

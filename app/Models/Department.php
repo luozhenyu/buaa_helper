@@ -15,13 +15,8 @@ class Department extends Model
         'number', 'name', 'description',
     ];
 
-    public function received_notifications()//checked
-    {
-        return $this->belongsToMany('App\Models\Notification');
-    }
-
     public function users()
     {
-        return $this->hasMany('App\User');
+        return $this->hasMany('App\Models\User');
     }
 }

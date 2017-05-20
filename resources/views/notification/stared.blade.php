@@ -1,11 +1,5 @@
 @extends('layouts.app')
 
-@php($auth_user=Auth::user())
-
-@push('css')
-@endpush
-
-
 @push('js')
 <script>
     $(function () {
@@ -20,7 +14,6 @@
                     location.reload();
                 }
             });
-
         });
     });
 </script>
@@ -54,20 +47,20 @@
                     <tr>
                         <td>
                             <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                                {{$notification->title}}
+                                {{ $notification->title }}
                             </a>
                         </td>
                         <td>{{$notification->department->name}}</td>
                         <td>
-                            <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                                {{strlen($content = strip_tags($notification->content))>50?substr($content,0,50).'...':$content}}
+                            <a href="{{ route('notification') . '/' . $notification->id }}" target="_blank">
+                                {{ str_limit(strip_tags($notification->content),50) }}
                             </a>
                         </td>
-                        <td>{{\App\Func\Time::format($notification->pivot->updated_at)}}</td>
+                        <td>{{ \App\Func\Time::format($notification->pivot->stared_at) }}</td>
                         <td>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-danger btn-xs destroy"
-                                        data-id="{{$notification->id}}">
+                                        data-id="{{ $notification->id }}">
                                     <span class="glyphicon glyphicon-star-empty">取消收藏</span>
                                 </button>
                             </div>

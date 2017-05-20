@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Func\PrivilegeDef;
 use App\Models\Department;
 use App\Models\Notification;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use PHPExcel;
-use PHPExcel_IOFactory;
-use PHPExcel_Worksheet;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class NotificationController extends Controller
@@ -82,7 +78,7 @@ class NotificationController extends Controller
 
     public function index(Request $request)
     {
-        $auth_user = Auth::user();
+        $authUser = Auth::user();
 
         if (!in_array($sort = $request->input('sort'), ['title', 'department_id', 'content', 'updated_at'], true))
             $sort = 'updated_at';
@@ -93,27 +89,15 @@ class NotificationController extends Controller
         if ($request->has('wd')) {
             $wd = $request->input('wd');
             $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-            $notifications = $auth_user->department->received_notifications()
-                ->where('title', 'like', $query_wd)->get()
-                ->merge($auth_user->received_notifications()->where('title', 'like', $wd)->get());
+            $notifications = $authUser->receivedNotifications()
+                ->where('title', 'like', $query_wd)
+                ->orderBy($sort, $by)
+                ->paginate(15);
         } else {
-            $notifications = $auth_user->notifications();
+            $notifications = $authUser->receivedNotifications()
+                ->orderBy($sort, $by)
+                ->paginate(15);
         }
-
-        if ($by === 'asc')
-            $notifications = $notifications->sortBy($sort);
-        else
-            $notifications = $notifications->sortByDesc($sort);
-
-        $currentPage = $request->input('page') ?: 1;
-        $perPage = 15;
-        $notifications = new LengthAwarePaginator(
-            $notifications->slice(($currentPage - 1) * $perPage, $perPage),
-            $notifications->count(),
-            $perPage,
-            $currentPage,
-            ['path' => $request->url()]
-        );
 
         if ($page = intval($request->input('page'))) {
             if ($page > ($lastPage = $notifications->lastPage()))
@@ -127,6 +111,24 @@ class NotificationController extends Controller
             'wd' => $wd,
             'sort' => $sort,
             'by' => $by,
+        ]);
+    }
+
+    public function show($id)
+    {
+        $notification = Auth::user()->receivedNotifications()->findOrFail($id);
+        $pivot = $notification->pivot;
+        if (!$notification->important) {
+            $pivot->read = true;
+            $pivot->read_at = Carbon::now();
+            $pivot->save();
+        }
+
+        return view('notification.show', [
+            'notification' => $notification,
+            'star' => $pivot->star,
+            'read' => $pivot->read,
+            'file' => $this->insertFile($notification->files),
         ]);
     }
 
@@ -164,7 +166,7 @@ class NotificationController extends Controller
                     ->paginate(15);
             }
         } else {
-            throw new AccessDeniedHttpException();
+            abort(403);
         }
 
         if ($page = intval($request->input('page'))) {
@@ -183,6 +185,7 @@ class NotificationController extends Controller
             'by' => $by,
         ]);
     }
+
 
     public function create()
     {
@@ -240,24 +243,6 @@ class NotificationController extends Controller
         throw new AccessDeniedHttpException();
     }
 
-    public function show($notification_id)
-    {
-        $auth_user = Auth::user();
-
-        if ($auth_user->can('modify_all_notification')
-            || ($auth_user->can('modify_owned_notification')
-                && !is_null($auth_user->written_notifications()->find($notification_id)))
-            || (!is_null($auth_user->notifications()->find($notification_id)))
-        ) {
-            $notification = Notification::findOrFail($notification_id);
-        } else {
-            throw new AccessDeniedHttpException();
-        }
-
-        return view('notification.show', [
-            'notification' => $notification,
-        ]);
-    }
 
     public function edit($notification_id)
     {
@@ -322,6 +307,7 @@ class NotificationController extends Controller
         return redirect(route('notification') . '/' . $notification->id);
     }
 
+
     public function delete($notification_id)
     {
         $auth_user = Auth::user();
@@ -335,6 +321,7 @@ class NotificationController extends Controller
         $notification->delete();
         return response('成功删除！');
     }
+
 
     public function selectPush($notification_id)
     {
@@ -407,6 +394,7 @@ class NotificationController extends Controller
         return redirect(route('notification') . '/' . $notification_id . '/push');
     }
 
+
     public function ajaxSearchUser(Request $request)
     {
         $auth_user = Auth::user();
@@ -446,61 +434,30 @@ class NotificationController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Finds whether the given variable is numeric.
-     *
-     * @param mixed $input
-     * @return bool
-     */
-    protected function isInteger($input)
+
+    public function star($id)
     {
-        return ctype_digit(strval($input));
+        abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
+        $pivot = $notification->pivot;
+        $pivot->star = true;
+        $pivot->stared_at = Carbon::now();
+        $pivot->save();
+        return response('Stared!');
     }
 
-    public static function unique_multidim_array($array, $key)
+    public function unstar($id)
     {
-        $temp_array = array();
-        $i = 0;
-        $key_array = array();
-
-        foreach ($array as $val) {
-            if (!in_array($val[$key], $key_array)) {
-                $key_array[$i] = $val[$key];
-                $temp_array[$i] = $val;
-            }
-            $i++;
-        }
-        return $temp_array;
-    }
-
-    public function star($notification_id)
-    {
-        $auth_user = Auth::user();
-
-        if (!is_null($auth_user->notifications()->find($notification_id))) {
-            $notification = Notification::findOrFail($notification_id);
-            $notification->stared_users()->syncWithoutDetaching([$auth_user->id]);
-            return response('Stared!');
-        }
-        throw new AccessDeniedHttpException();
-    }
-
-    public function unstar($notification_id)
-    {
-        $auth_user = Auth::user();
-
-        if (!is_null($auth_user->notifications()->find($notification_id))) {
-            $notification = Notification::findOrFail($notification_id);
-            $notification->stared_users()->detach([$auth_user->id]);
-            return response('Unstared!');
-        }
-        throw new AccessDeniedHttpException();
+        abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
+        $pivot = $notification->pivot;
+        $pivot->star = false;
+        $pivot->stared_at = Carbon::now();
+        $pivot->save();
+        return response('Stared!');
     }
 
     public function stared(Request $request)
     {
-        $auth_user = Auth::user();
-        $notifications = $auth_user->stared_notifications()->paginate(15);
+        $notifications = Auth::user()->staredNotifications()->paginate(15);
 
         if ($page = intval($request->input('page'))) {
             if ($page > ($lastPage = $notifications->lastPage())) {
@@ -516,16 +473,15 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function read($notification_id)
+    public function read($id)
     {
-        $auth_user = Auth::user();
-
-        if (!is_null($auth_user->notifications()->find($notification_id))) {
-            $notification = Notification::findOrFail($notification_id);
-            $notification->read_users()->syncWithoutDetaching([$auth_user->id]);
-            return response('已阅读!');
-        }
-        throw new AccessDeniedHttpException();
+        $notification = Auth::user()->receivedNotifications()->find($id);
+        abort_unless($notification && $notification->important, 403);
+        $pivot = $notification->pivot;
+        $pivot->read = true;
+        $pivot->read_at = Carbon::now();
+        $pivot->save();
+        return response('Read!');
     }
 
     public function statistic(Request $request, $id)
@@ -611,4 +567,33 @@ HTML;
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
     }
+
+
+    /**
+     * Finds whether the given variable is numeric.
+     *
+     * @param mixed $input
+     * @return bool
+     */
+    protected function isInteger($input)
+    {
+        return ctype_digit(strval($input));
+    }
+
+    public static function unique_multidim_array($array, $key)
+    {
+        $temp_array = array();
+        $i = 0;
+        $key_array = array();
+
+        foreach ($array as $val) {
+            if (!in_array($val[$key], $key_array)) {
+                $key_array[$i] = $val[$key];
+                $temp_array[$i] = $val;
+            }
+            $i++;
+        }
+        return $temp_array;
+    }
+
 }

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-@php($auth_user=Auth::user())
 
 @push('css')
 @endpush

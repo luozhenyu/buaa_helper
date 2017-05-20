@@ -10,9 +10,7 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 class User extends Authenticatable
 {
     use Notifiable;
-
     use EntrustUserTrait;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -31,12 +29,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function delete()
+
+    public function department()
     {
-        $this->access_tokens()->delete();
-        $this->received_notifications()->detach();
-        $this->stared_notifications()->detach();
-        return parent::delete();
+        return $this->belongsTo('App\Models\Department');
     }
 
     /**
@@ -44,19 +40,40 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function access_tokens()//
+    public function accessTokens()
     {
         return $this->hasMany('App\Models\AccessToken');
     }
 
-    public function received_notifications()//checked
+    public function writtenNotifications()
     {
-        return $this->belongsToMany('App\Models\Notification');
+        return $this->hasMany('App\Models\Notification');
     }
 
-    public function stared_notifications()
+    public function receivedNotifications()
     {
-        return $this->belongsToMany('App\Models\Notification', 'stars')->withTimestamps();
+        return $this->belongsToMany('App\Models\Notification')
+            ->withPivot('star', 'read', 'stared_at', 'read_at');
+    }
+
+    public function staredNotifications()
+    {
+        return $this->belongsToMany('App\Models\Notification')
+            ->wherePivot('star', true)
+            ->withPivot('star', 'stared_at');
+    }
+
+    public function readNotifications()
+    {
+        return $this->belongsToMany('App\Models\Notification')
+            ->wherePivot('read', true)
+            ->withPivot('read', 'read_at');
+    }
+
+    public function updatePassword($str)
+    {
+        $this->accessTokens()->delete();
+        $this->password = is_null($str) ? null : bcrypt($str);
     }
 
     /**
@@ -65,46 +82,15 @@ class User extends Authenticatable
      * @param integer $expires_in
      * @return string
      */
-    public function createAccessToken($expires_in = 0)//checked
+    public function createAccessToken($expires_in = 0)
     {
         do {
             $uuid = Uuid::uuid();
         } while (AccessToken::where('access_token', $uuid)->count() > 0);
 
-        return $this->access_tokens()->create([
+        return $this->accessTokens()->create([
             'access_token' => $uuid,
             'expires_in' => $expires_in,
         ]);
-    }
-
-    public function department()//
-    {
-        return $this->belongsTo('App\Models\Department');
-    }
-
-    public function written_notifications()//
-    {
-        return $this->hasMany('App\Models\Notification');
-    }
-
-    public function notifications()//checked
-    {
-        return $this->department->received_notifications->merge($this->received_notifications);
-    }
-
-    public function updatePassword($str)
-    {
-        $this->access_tokens()->delete();
-        $this->password = is_null($str) ? null : bcrypt($str);
-    }
-
-    public function read_notifications()
-    {
-        return $this->belongsToMany('App\Models\Notification', 'reads')->withTimestamps();
-    }
-
-    public function inquiries()
-    {
-        return $this->hasMany('App\Models\Inquiry');
     }
 }
