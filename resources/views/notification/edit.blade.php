@@ -48,6 +48,13 @@
 </script>
 @endpush
 
+@push("crumb")
+<li><a href = "{{ url("/") }}">主页</a></li>
+<li><a href = "{{ url("/notification") }}">通知中心</a></li>
+<li><a href = "{{ url("/notification/manage") }}">通知管理</a></li>
+<li class = "active">修改通知</li>
+@endpush
+
 @section('content')
                 <div class="panel panel-default">
                     <div class="panel-heading">修改通知</div>

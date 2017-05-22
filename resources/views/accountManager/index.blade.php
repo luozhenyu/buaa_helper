@@ -47,10 +47,7 @@
 @endpush
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">用户管理</div>
 
-        <div class="panel-body">
             <table class="table table-condensed table-hover">
                 <caption>
                     @permission('create_user')
@@ -166,7 +163,6 @@
                 </tbody>
             </table>
             <div class="text-center">{{ $users->links() }}</div>
-        </div>
-    </div>
+
 
 @endsection

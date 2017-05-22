@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Zizaco\Entrust\EntrustFacade;
 
 class NotificationController extends Controller
 {
@@ -189,15 +190,13 @@ class NotificationController extends Controller
 
     public function create()
     {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::ADD_NOTIFICATION)) {
-            return view('notification.create');
-        }
-        throw new AccessDeniedHttpException();
+        abort_unless(EntrustFacade::can('create_notification'), 403);
+        return view('notification.create');
     }
 
     public function store(Request $request)
     {
+        dd($request->all());
         $auth_user = Auth::user();
 
         if ($auth_user->can('modify_all_notification')) {

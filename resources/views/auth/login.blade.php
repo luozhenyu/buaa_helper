@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">登录</div>
-        <div class="panel-body">
+            <h2 style = "text-align: center;padding-bottom: 20px">用户登录</h2>
             <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
                 {{ csrf_field() }}
 
@@ -60,6 +58,4 @@
                     </div>
                 </div>
             </form>
-        </div>
-    </div>
 @endsection

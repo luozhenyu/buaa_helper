@@ -107,7 +107,7 @@ class PermissionAndRoleSeeder extends Seeder
             'description' => '',
         ]);
         $department_admin->attachPermission([$view_all_user,
-            $create_notification, $delete_owned_notification, $modify_owned_notification
+            $create_notification, $modify_owned_notification
         ]);
 
         $college_admin = Role::create([
@@ -117,7 +117,7 @@ class PermissionAndRoleSeeder extends Seeder
         ]);
         $college_admin->attachPermission([
             $view_owned_user, $modify_owned_user,
-            $create_notification, $delete_owned_notification, $modify_owned_notification
+            $create_notification, $modify_owned_notification
         ]);
 
 //        $college_monitor = Role::create([
@@ -127,7 +127,7 @@ class PermissionAndRoleSeeder extends Seeder
 //        ]);
 //        $college_monitor->attachPermission([
 //            $view_owned_user,
-//            $create_notification, $delete_owned_notification, $modify_owned_notification
+//            $create_notification, $modify_owned_notification
 //        ]);
 
         $normal = Role::create([

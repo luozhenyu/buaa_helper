@@ -93,4 +93,9 @@ class User extends Authenticatable
             'expires_in' => $expires_in,
         ]);
     }
+
+    public function files()
+    {
+        return $this->hasMany('App\Models\File');
+    }
 }

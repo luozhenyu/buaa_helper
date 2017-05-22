@@ -26,10 +26,7 @@
 @endpush
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">通知中心</div>
 
-        <div class="panel-body">
             <table class="table table-condensed table-hover">
                 <caption>
                     <a type="button" class="btn btn-info" href="{{ route('notification') }}">所有通知</a>
@@ -70,6 +67,5 @@
                 </tbody>
             </table>
             <div class="text-center">{{ $notifications->links() }}</div>
-        </div>
-    </div>
+
 @endsection

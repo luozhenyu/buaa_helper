@@ -24,9 +24,7 @@
 @endpush
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">个人中心</div>
-        <div class="panel-body">
+
             <ul id="myTab" class="nav nav-tabs">
                 <li class="active">
                     <a href="#tab_profile" data-toggle="tab">个人资料</a>
@@ -161,6 +159,4 @@
 
                 </div>
             </div>
-        </div>
-    </div>
 @endsection

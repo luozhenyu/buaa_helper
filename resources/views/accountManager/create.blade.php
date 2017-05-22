@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @push('cssLink')
-<link rel="stylesheet" href="{{ url('/css/bootstrap-select.min.css') }}">
+<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/js/bootstrap-select.min.js') }}"></script>
-<script src="{{ url('/js/i18n/defaults-zh_CN.js') }}"></script>
+<script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+<script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 @endpush
 
 @push('js')
@@ -26,10 +26,6 @@
 
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">新用户</div>
-
-        <div class="panel-body">
             <form class="form-horizontal" role="form" method="POST"
                   action="{{ route('accountManager') }}">
                 {{ csrf_field() }}
@@ -135,7 +131,5 @@
                     </div>
                 </div>
             </form>
-        </div>
-    </div>
 
 @endsection

@@ -19,7 +19,20 @@
             background-color: #ddeffd;
         }
 
-        a, button.btn {
+        tr th:not(:empty):hover {
+            background-color: #f6f6f6;
+        }
+
+        tr th a:hover {
+            text-decoration: none;
+            color: darkgreen;
+        }
+
+        tr th {
+            text-align: center;
+        }
+
+        a, button.btn, tr th {
             -webkit-transition-duration: 0.45s;
             transition-duration: 0.45s;
         }
@@ -33,6 +46,7 @@
             content: "\";
         }
     </style>
+
     <style>
         /* header背景色 北航蓝 */
         .navbar {
@@ -66,6 +80,7 @@
             padding-top: 8px;
         }
     </style>
+
     <style>
         ol.breadcrumb:empty {
             display: none;
@@ -93,10 +108,17 @@
 
     <script src="{{ url('/components/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-    {{-- <script src="{{ url('/components/highcharts/js/highcharts.js') }}"></script> --}}
 
+
+    <script>
+        $("li.active").click(function(){
+            alert("xxx");
+        })
+    </script>
     @stack('jsLink')
     @stack('js')
+
+
 </head>
 <body>
 <div id="app">
