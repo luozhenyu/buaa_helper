@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/img/favicon.png">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -20,6 +21,7 @@
         }
 
         tr th:not(:empty):hover {
+            cursor: pointer;
             background-color: #f6f6f6;
         }
 
@@ -82,7 +84,7 @@
     </style>
 
     <style>
-        ol.breadcrumb:empty {
+        ol.breadcrumb:empty, #main_content:empty {
             display: none;
         }
 
@@ -98,6 +100,18 @@
         ol.breadcrumb li.active {
             font-weight: bold;
         }
+
+        #crumb {
+            filter:alpha(opacity=1);
+            -moz-opacity:0.01;
+            opacity:0.01;
+        }
+        #main_content {
+            filter:alpha(opacity=1);
+            -moz-opacity:0.01;
+            opacity:0.01;
+        }
+
     </style>
     <style>
         footer.foot-wrap {
@@ -109,10 +123,28 @@
     <script src="{{ url('/components/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 
-
     <script>
-        $("li.active").click(function(){
-            alert("xxx");
+        $(function() {
+            $("tr th").on("click", function () {
+                var obj = $(this).find("a");
+                if (obj.length > 0) {
+                    obj[0].click();
+                }
+            });
+
+            $(document).ready(function(){
+                var ce = $("#crumb").is(":empty");
+                var me = $("#main_content").is(":empty");
+                if (!ce) {
+                    $("#crumb").fadeTo(300,1);
+                    setTimeout(function(){
+                        if (!me) $("#main_content").fadeTo(200,1);
+                    },100)
+                } else {
+                    if (!me) $("#main_content").fadeTo(200,1);
+                }
+
+            });
         })
     </script>
     @stack('jsLink')
@@ -215,11 +247,15 @@
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">
-                <ol class="breadcrumb">@stack("crumb")</ol>
-                <div class="jumbotron" style="background-color: white;padding: 12px;">@yield('content')</div>
+                <ol class="breadcrumb" id = "crumb">@stack("crumb")</ol>
+                <div id = "main_content" class="jumbotron" style="background-color: white;padding: 12px;">@yield('content')</div>
             </div>
         </div>
     </div>
+
+    <!-- Content2 Part-->
+    @yield("content2")
+
 
     <!-- Footer Part -->
     <footer class="container-fluid foot-wrap text-center" style="color:#878B91;">
