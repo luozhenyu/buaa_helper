@@ -61,16 +61,16 @@
 
                                 <form class="form-inline pull-right" role="form" method="get"
                                       action="{{ route('notification') . '/manage' }}">
-                                    <input type="search" class="form-control" name="wd" value="{{$wd}}"
-                                           placeholder="题目">
+                                    <div class="input-group">
+                                        <input type="search" class="form-control" name="wd" value="{{$wd}}"
+                                               placeholder="题目">
 
-                                    <a class="glyphicon glyphicon-remove"
-                                       style="color:red;text-decoration:none;display:inline-block"
-                                       href="{{route('notification') . '/manage'}}"></a>
-
-                                    <button type="submit" class="btn btn-primary">
-                                        <span class="glyphicon glyphicon-search"></span> 搜索
-                                    </button>
+                                        <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-primary">
+                                                <span class="glyphicon glyphicon-search"></span> 搜索
+                                            </button>
+                                        </span>
+                                    </div>
                                 </form>
                             </caption>
                             <thead>
@@ -130,6 +130,11 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        @if($notifications->count() === 0)
+                            <h2 style="color:gray;text-align:center;">(没有通知)</h2>
+                        @endif
+
                         <div class="text-center">{{ $notifications->links() }}</div>
 
 

@@ -103,12 +103,6 @@
                     <form class="form-inline pull-right " role="form" method="get"
                           action="{{ route('accountManager') }}">
                         <div class="input-group">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default"
-                                                    onclick="window.location.href='{{ route('accountManager') }}'">
-                                                <span class="glyphicon glyphicon-remove"></span>
-                                            </button>
-                                        </span>
 
                             <input type="search" class="form-control" name="wd" value="{{$wd}}" placeholder="学号／工号／姓名">
 
@@ -161,6 +155,10 @@
                 @endforeach
                 </tbody>
             </table>
+            @if($users->count() === 0)
+                <h2 style="color:gray;text-align:center;">(没有用户)</h2>
+            @endif
+
             <div class="text-center">{{ $users->links() }}</div>
 
 

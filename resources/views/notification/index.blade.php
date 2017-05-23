@@ -21,12 +21,6 @@
             <form class="form-inline pull-right" role="form" method="get"
                   action="{{ route('notification') }}">
                 <div class="input-group">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default"
-                                onclick="window.location.href='{{ url('/notification/1')}};'">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </button>
-                    </span>
 
                     <input type="search" class="form-control" name="wd" value="{{ $wd }}" placeholder="题目">
 

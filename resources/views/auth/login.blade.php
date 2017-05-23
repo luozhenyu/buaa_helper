@@ -134,7 +134,6 @@
 @endpush
 
 @section('content2')
-    <!-- url(https://mail.buaa.edu.cn/coremail/cmcu_var/index_cmxt30N1/bg1.jpg) -->
     <div id = "main_div">
         <div class = "container" style = "margin-bottom: 20px; padding: 0px;">
             <div class = "row" style = "margin: 20px;">

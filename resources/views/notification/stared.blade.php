@@ -66,6 +66,11 @@
                 @endforeach
                 </tbody>
             </table>
+
+            @if($notifications->count() === 0)
+                <h2 style="color:gray;text-align:center;">(没有通知)</h2>
+            @endif
+
             <div class="text-center">{{ $notifications->links() }}</div>
 
 @endsection

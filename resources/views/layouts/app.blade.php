@@ -55,17 +55,18 @@
             background-color: #0066cc;
         }
 
+
+        /* 标题链接（激活状态） */
+        ul.navbar-nav > li a:hover, ul.navbar-nav > li a:focus {
+            color: red;
+            text-decoration: none;
+        }
         /* 标题链接（正常状态） */
         ul.navbar-nav > li a:link, ul.navbar-nav > li a:visited, ul.navbar-nav > li a:active {
             color: #e3e3e3;
             text-decoration: none;
         }
 
-        /* 标题链接（激活状态） */
-        ul.navbar-nav > li a:hover {
-            color: red;
-            text-decoration: none;
-        }
 
         /* 下拉菜单（正常状态） */
         ul.dropdown-menu > li a:visited, ul.dropdown-menu > li a:link, ul.dropdown-menu > li a:active {
@@ -119,6 +120,33 @@
             border-top: 1px solid #dadada;
         }
     </style>
+    {{-- 浮标 --}}
+    <style>
+        #menu_helper {
+            position:fixed;
+            right: 20px;
+            bottom: 20px;
+            cursor:pointer
+        }
+        #menu_helper #circle {
+            height: 40px;
+            width: 40px;
+            border-radius:20px;
+            background-color:#eeeeee;
+            padding: 9px
+        }
+        #menu_helper #circle #circle_icon {
+            width:20px;
+            height:20px;
+            font-size: 20px;
+        }
+        @media (min-width: 768px) {
+            #menu_helper {
+                display: none;
+            }
+        }
+    </style>
+
 
     <script src="{{ url('/components/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
@@ -145,8 +173,17 @@
                 }
 
             });
-        })
+
+
+        });
+        //浮标
+        function jump(){
+            $('#top_btn').click();
+            window.scrollTo(0,0);
+        };
     </script>
+
+
     @stack('jsLink')
     @stack('js')
 
@@ -160,7 +197,7 @@
             <div class="navbar-header">
 
                 <!-- Collapsed Hamburger -->
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                <button id = "top_btn" type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                         data-target="#app-navbar-collapse">
                     <span class="sr-only">Toggle Navigation</span>
                     <span class="icon-bar"></span>
@@ -256,6 +293,17 @@
     <!-- Content2 Part-->
     @yield("content2")
 
+
+    <!-- -->
+
+
+
+    <div id = "menu_helper">
+        <div id = "circle" onclick = "jump();">
+            <span id = "circle_icon" class = "glyphicon glyphicon-th-list"></span>
+        </div>
+
+    </div>
 
     <!-- Footer Part -->
     <footer class="container-fluid foot-wrap text-center" style="color:#878B91;">
