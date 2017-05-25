@@ -169,6 +169,7 @@ return [
         Laravel\Tinker\TinkerServiceProvider::class,
 
         Zizaco\Entrust\EntrustServiceProvider::class,
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -228,6 +229,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'Entrust' => Zizaco\Entrust\EntrustFacade::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
     ],
 
 ];

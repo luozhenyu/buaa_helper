@@ -429,34 +429,15 @@ class NotificationController extends Controller
             abort(403);
         }
 
-        $title = $notification->title;
-        $url = route('notification') . '/' . $notification->id . '/statistic';
-
-        $user_all = $notification->notifiedUsers;
-        $user_all_cnt = $user_all->count();
-
-        $user_read = $notification->readUsers;
-        $user_read_cnt = $user_read->count();
-        $user_read_percent = $user_all_cnt === 0 ? 0 : round($user_read_cnt / $user_all_cnt * 100, 2);
-
-        $user_not_read = $notification->notReadUsers;
-        $user_not_read_cnt = $user_not_read->count();
-        $user_not_read_percent = $user_all_cnt === 0 ? 0 : round($user_not_read_cnt / $user_all_cnt * 100, 2);
-
-
-        $chunk = $user_not_read->take(50)->map(function ($item, $key) {
-            return $item->number;
-        })->implode(', ');
-        return <<<HTML
-<h3>$title</h3>
-<p>应读人数：{$user_all_cnt}</p>
-<p>已读人数：{$user_read_cnt} ({$user_read_percent}%)</p>
-<p>未读人数：{$user_not_read_cnt} ({$user_not_read_percent}%)</p>
-<a class="btn btn-primary" href="{$url}" target="_blank">统计表下载 [Excel]</a>
-<br>
-<h5>部分名单(前50人):</h5>
-{$chunk}
-HTML;
+        return response()->json([
+            'title' => $notification->title,
+            'link' => route('notification') . '/' . $notification->id . '/statistic',
+            'user_read_cnt' => $notification->readUsers->count(),
+            'user_not_read_cnt' => ($user_not_read = $notification->notReadUsers)->count(),
+            'users' => $user_not_read->take(50)->map(function ($item, $key) {
+                return $item->number;
+            }),
+        ]);
     }
 
     public function statisticExcel(Request $request, $id)
