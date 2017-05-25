@@ -29,9 +29,24 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                success: function (data) {
-                    $('#modalBody').html(data);
-                    $('#myModal').modal('show');
+                success: function (json) {
+                    var title = json["title"],
+                        link = json["link"],
+                        read = json["user_read_cnt"],
+                        notRead = json["user_not_read_cnt"],
+                        total = read + notRead,
+                        users = json["users"];
+
+                    $('#myModal').find(".modal-body").html(
+                        '<h3>' + title + '</h3>' +
+                        '<p>应读人数：' + total + '</p>' +
+                        '<p>已读人数：' + read + '(' + (total ? (read / total).toFixed(2) : 0) + '%)</p>' +
+                        '<p>已读人数：' + notRead + '(' + (total ? (notRead / total).toFixed(2) : 0) + '%)</p>' +
+                        '<a class="btn btn-primary" href="' + link + '" target="_blank">统计表下载 [Excel]</a>' +
+                        '<br><h5>部分未读名单(前50人):</h5>' +
+                        '<p>' + users.join(", ") + '...</p>'
+                    ).end()
+                        .modal("show");
                 }
             });
         });
@@ -141,7 +156,7 @@
                     </button>
                     <h4 class="modal-title" id="myModalLabel">阅读统计</h4>
                 </div>
-                <div class="modal-body" id="modalBody">
+                <div class="modal-body">
 
                 </div>
                 <div class="modal-footer">

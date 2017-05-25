@@ -202,8 +202,8 @@
                          class="panel-body{{ $errors->has('attachment') ? ' has-error' : '' }}">
                         @if ($errors->has('attachment'))
                             <span class="help-block">
-                                        <strong>{{ $errors->first('attachment') }}</strong>
-                                    </span>
+                                <strong>{{ $errors->first('attachment') }}</strong>
+                            </span>
                         @endif
                     </div>
                 </div>
