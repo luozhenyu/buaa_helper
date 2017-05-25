@@ -34,7 +34,7 @@
             text-align: center;
         }
 
-        a, button.btn, tr th {
+        a, button.btn, tr th, tbody tr {
             -webkit-transition-duration: 0.45s;
             transition-duration: 0.45s;
         }
@@ -85,6 +85,11 @@
     </style>
 
     <style>
+        li a .badge {
+            color: white;
+            background-color: #ff5409;
+        }
+
         ol.breadcrumb:empty, #main_content:empty {
             display: none;
         }
@@ -244,6 +249,9 @@
                             <a href="{{ url('/notification') }}">
                                 <span class="glyphicon glyphicon-bullhorn"></span>
                                 通知中心
+                                {{-- 预留：未读消息 --}}
+                                <!--<span class="badge">50</span>-->
+
                             </a>
                         </li>
 
