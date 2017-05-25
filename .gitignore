@@ -11,4 +11,3 @@ npm-debug.log
 .env
 /public/components/
 .DS_Store
-.bowerrc
