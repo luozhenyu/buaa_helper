@@ -61,90 +61,83 @@
 @endpush
 
 @section('content')
+    <table class="table table-condensed table-hover">
+        <caption>
+            <a type="button" class="btn btn-success" href="{{route('notification').'/create'}}"
+               style="text-shadow: black 2px 2px 2px;">
+                <span class="glyphicon glyphicon-plus"></span>
+                添加新通知
+            </a>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">通知管理</div>
+            <form class="form-inline pull-right" role="form" method="get"
+                  action="{{ route('notification') . '/manage' }}">
+                <input type="search" class="form-control" name="wd" value="{{$wd}}"
+                       placeholder="题目">
 
-        <div class="panel-body">
-            <table class="table table-condensed table-hover">
-                <caption>
-                    <a type="button" class="btn btn-success" href="{{route('notification').'/create'}}"
-                       style="text-shadow: black 2px 2px 2px;">
-                        <span class="glyphicon glyphicon-plus"></span>
-                        添加新通知
+                <a class="glyphicon glyphicon-remove"
+                   style="color:red;text-decoration:none;display:inline-block"
+                   href="{{route('notification') . '/manage'}}"></a>
+
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-search"></span> 搜索
+                </button>
+            </form>
+        </caption>
+        <thead>
+        <tr>
+            <th>
+                <a href="{{route('notification').'/manage?wd='.$wd.'&sort=title&by='.($sort==='title'&&$by==='asc'?'desc':'asc')}}">标题</a>
+            </th>
+            <th>
+                <a href="{{route('notification').'/manage?wd='.$wd.'&sort=department_id&by='.($sort==='department_id'&&$by==='asc'?'desc':'asc')}}">发布部门</a>
+            </th>
+            <th>
+                <a href="{{route('notification').'/manage?wd='.$wd.'&sort=content&by='.($sort==='content'&&$by==='asc'?'desc':'asc')}}">正文</a>
+            </th>
+            <th>
+                <a href="{{route('notification').'/manage?wd='.$wd.'&sort=updated_at&by='.($sort==='updated_at'&&$by==='asc'?'desc':'asc')}}">更新时间</a>
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($notifications as $notification)
+            <tr>
+                <td>
+                    @if($notification->important)
+                        <span class="label label-danger">必读</span>
+                    @endif
+                    <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
+                        {{$notification->title}}
                     </a>
-
-                    <form class="form-inline pull-right" role="form" method="get"
-                          action="{{ route('notification') . '/manage' }}">
-                        <input type="search" class="form-control" name="wd" value="{{$wd}}"
-                               placeholder="题目">
-
-                        <a class="glyphicon glyphicon-remove"
-                           style="color:red;text-decoration:none;display:inline-block"
-                           href="{{route('notification') . '/manage'}}"></a>
-
-                        <button type="submit" class="btn btn-primary">
-                            <span class="glyphicon glyphicon-search"></span> 搜索
+                </td>
+                <td>{{$notification->department->name}}</td>
+                <td>
+                    <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
+                        {{strlen($content = strip_tags($notification->content))>50?substr($content,0,50).'...':$content}}
+                    </a>
+                </td>
+                <td>{{\App\Func\Time::format($notification->updated_at)}}</td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger btn-xs destroy"
+                                data-id="{{$notification->id}}">
+                            删除
                         </button>
-                    </form>
-                </caption>
-                <thead>
-                <tr>
-                    <th>
-                        <a href="{{route('notification').'/manage?wd='.$wd.'&sort=title&by='.($sort==='title'&&$by==='asc'?'desc':'asc')}}">标题</a>
-                    </th>
-                    <th>
-                        <a href="{{route('notification').'/manage?wd='.$wd.'&sort=department_id&by='.($sort==='department_id'&&$by==='asc'?'desc':'asc')}}">发布部门</a>
-                    </th>
-                    <th>
-                        <a href="{{route('notification').'/manage?wd='.$wd.'&sort=content&by='.($sort==='content'&&$by==='asc'?'desc':'asc')}}">正文</a>
-                    </th>
-                    <th>
-                        <a href="{{route('notification').'/manage?wd='.$wd.'&sort=updated_at&by='.($sort==='updated_at'&&$by==='asc'?'desc':'asc')}}">更新时间</a>
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($notifications as $notification)
-                    <tr>
-                        <td>
-                            @if($notification->important)
-                                <span class="label label-danger">必读</span>
-                            @endif
-                            <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                                {{$notification->title}}
-                            </a>
-                        </td>
-                        <td>{{$notification->department->name}}</td>
-                        <td>
-                            <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                                {{strlen($content = strip_tags($notification->content))>50?substr($content,0,50).'...':$content}}
-                            </a>
-                        </td>
-                        <td>{{\App\Func\Time::format($notification->updated_at)}}</td>
-                        <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-danger btn-xs destroy"
-                                        data-id="{{$notification->id}}">
-                                    删除
-                                </button>
-                                <a type="button" class="btn btn-info btn-xs"
-                                   href="{{route('notification').'/'.$notification->id.'/modify'}}"
-                                   target="_blank">修改</a>
-                                <button type="button" class="btn btn-default btn-xs statistic"
-                                        data-id="{{$notification->id}}">
-                                    阅读统计
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-            <div class="text-center">{{ $notifications->links() }}</div>
-        </div>
-    </div>
+                        <a type="button" class="btn btn-info btn-xs"
+                           href="{{route('notification').'/'.$notification->id.'/modify'}}"
+                           target="_blank">修改</a>
+                        <button type="button" class="btn btn-default btn-xs statistic"
+                                data-id="{{$notification->id}}">
+                            阅读统计
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+    <div class="text-center">{{ $notifications->links() }}</div>
 
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
          aria-labelledby="myModalLabel" aria-hidden="true">

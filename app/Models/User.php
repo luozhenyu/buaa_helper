@@ -29,7 +29,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-
+    /**
+     * 此用户所属department
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function department()
     {
         return $this->belongsTo('App\Models\Department');
@@ -45,17 +48,29 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\AccessToken');
     }
 
+    /**
+     * 此用户编写的通知
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function writtenNotifications()
     {
         return $this->hasMany('App\Models\Notification');
     }
 
+    /**
+     * 此用户收到的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function receivedNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
             ->withPivot('star', 'read', 'stared_at', 'read_at');
     }
 
+    /**
+     * 此用户收藏的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function staredNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
@@ -63,6 +78,10 @@ class User extends Authenticatable
             ->withPivot('star', 'stared_at');
     }
 
+    /**
+     * 此用户已阅读的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function readNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
@@ -70,6 +89,29 @@ class User extends Authenticatable
             ->withPivot('read', 'read_at');
     }
 
+    /**
+     * 此用户未阅读的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function notReadNotifications()
+    {
+        return $this->belongsToMany('App\Models\Notification')
+            ->wherePivot('read', false);
+    }
+
+    /**
+     * 此用户上传的文件
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function files()
+    {
+        return $this->hasMany('App\Models\File');
+    }
+
+    /**
+     * 修改用户密码并清除token
+     * @param $str
+     */
     public function updatePassword($str)
     {
         $this->accessTokens()->delete();
@@ -92,10 +134,5 @@ class User extends Authenticatable
             'access_token' => $uuid,
             'expires_in' => $expires_in,
         ]);
-    }
-
-    public function files()
-    {
-        return $this->hasMany('App\Models\File');
     }
 }

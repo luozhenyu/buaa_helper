@@ -15,6 +15,10 @@ class Department extends Model
         'number', 'name', 'description',
     ];
 
+    /**
+     * 此department拥有的用户
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function users()
     {
         return $this->hasMany('App\Models\User');
