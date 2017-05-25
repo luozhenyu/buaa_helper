@@ -12,11 +12,16 @@ class File extends Model
      * @var array
      */
     protected $fillable = [
-        'sha1', 'name', 'path'
+        'sha1', 'fileName', 'path',
     ];
 
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function notifications()
+    {
+        return $this->belongsToMany('App\Models\Notification');
     }
 }

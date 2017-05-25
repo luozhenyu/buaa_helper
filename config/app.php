@@ -169,7 +169,6 @@ return [
         Laravel\Tinker\TinkerServiceProvider::class,
 
         Zizaco\Entrust\EntrustServiceProvider::class,
-        Laravel\Scout\ScoutServiceProvider::class,
         /*
          * Application Service Providers...
          */

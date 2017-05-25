@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\File;
 use App\Models\Notification;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Zizaco\Entrust\EntrustFacade;
 
@@ -16,65 +20,6 @@ class NotificationController extends Controller
     function __construct()
     {
         $this->middleware('auth');
-    }
-
-    public static function insertFile($json_files, $allowDelete = false)
-    {
-        if (is_null($json_files))
-            return null;
-        $html = '';
-        $URL = url('/ueditor');
-        $iconDir = $URL . (substr($URL, strlen($URL) - 1) == '/' ? '' : '/') . 'dialogs/attachment/fileTypeImages/';
-        $file_list = json_decode($json_files, true);
-
-        foreach ($file_list as $item) {
-            $icon = $iconDir . self::getFileIcon($item['href']);
-            $title = $item['title'];
-            $html .= '<p style="line-height: 16px;">' .
-                '<img style="vertical-align: middle; margin-right: 2px;" src="' . $icon . '" _src="' . $icon . '" />' .
-                '<a style="font-size:12px; color:#0066cc;" href="' . $item['href'] . '" title="' . $title . '">' . $title . '</a>'
-                . ($allowDelete ? '<span class="glyphicon glyphicon-remove" style="color:red;text-decoration:none;display:inline-block"' .
-                    'onclick="var parent=this.parentNode; parent.parentNode.removeChild(parent)"></span>' : ''
-                )
-                . '</p>';
-        }
-        return $html;
-    }
-
-    private static function getFileIcon($url)
-    {
-        $ext = strtolower(substr($url, strrpos($url, '.') + 1));
-        $maps = [
-            "rar" => "icon_rar.gif",
-            "zip" => "icon_rar.gif",
-            "tar" => "icon_rar.gif",
-            "gz" => "icon_rar.gif",
-            "bz2" => "icon_rar.gif",
-            "doc" => "icon_doc.gif",
-            "docx" => "icon_doc.gif",
-            "pdf" => "icon_pdf.gif",
-            "mp3" => "icon_mp3.gif",
-            "xls" => "icon_xls.gif",
-            "chm" => "icon_chm.gif",
-            "ppt" => "icon_ppt.gif",
-            "pptx" => "icon_ppt.gif",
-            "avi" => "icon_mv.gif",
-            "rmvb" => "icon_mv.gif",
-            "wmv" => "icon_mv.gif",
-            "flv" => "icon_mv.gif",
-            "swf" => "icon_mv.gif",
-            "rm" => "icon_mv.gif",
-            "exe" => "icon_exe.gif",
-            "psd" => "icon_psd.gif",
-            "txt" => "icon_txt.gif",
-            "jpg" => "icon_jpg.gif",
-            "png" => "icon_jpg.gif",
-            "jpeg" => "icon_jpg.gif",
-            "gif" => "icon_jpg.gif",
-            "ico" => "icon_jpg.gif",
-            "bmp" => "icon_jpg.gif"
-        ];
-        return $maps[$ext] ?: $maps['txt'];
     }
 
     public function index(Request $request)
@@ -129,7 +74,6 @@ class NotificationController extends Controller
             'notification' => $notification,
             'star' => $pivot->star,
             'read' => $pivot->read,
-            'file' => $this->insertFile($notification->files),
         ]);
     }
 
@@ -196,131 +140,125 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
-        $auth_user = Auth::user();
-
-        if ($auth_user->can('modify_all_notification')) {
-            $this->validate($request, [
-                'title' => 'required',
-                'department' => 'required|exists:departments,id',
-                'time' => 'nullable|time_range',
-                'content' => 'required',
-                'files' => 'required|json|files',
-            ]);
-        } else if ($auth_user->can('modify_owned_notification')) {
-            $this->validate($request, [
-                'title' => 'required',
-                'department' => 'required|in:' . $auth_user->department_id,
-                'time' => 'nullable|time_range',
-                'content' => 'required',
-                'files' => 'required|json|files',
-            ]);
-        } else
-            throw new AccessDeniedHttpException();
-
-        if ($auth_user->can('create_notification')) {
-
-            if ($request->has('time')) {
-                $time = explode(' to ', $request->input('time'));
-            } else {
-                $time = [null, null];
-            }
-
-            $notification = Notification::create([
-                'title' => $request->input('title'),
-                'department_id' => $request->input('department'),
-                'user_id' => Auth::user()->id,
-                'start_time' => $time[0],
-                'end_time' => $time[1],
-                'content' => $request->input('content'),
-                'files' => $request->input('files'),
-                'important' => $request->input('important') === 'on',
-            ]);
-            return redirect(route('notification') . '/' . $notification->id);
-        }
-
-        throw new AccessDeniedHttpException();
-    }
-
-
-    public function edit($notification_id)
-    {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-            $notification = Notification::findOrFail($notification_id);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-        } else {
-            throw new AccessDeniedHttpException();
-        }
-
-        return view('notification.edit', [
-            'notification' => $notification,
+        abort_unless(EntrustFacade::can('create_notification'), 403);
+        $this->validate($request, [
+            'title' => 'required',
+            'department' => 'required|exists:departments,id',
+            'time' => 'required|time_range',
+            'important' => 'required|in:0,1',
+            'content' => 'required',
+            'attachment' => 'required',
         ]);
-    }
 
-    public function update(Request $request, $notification_id)
-    {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-            $this->validate($request, [
-                'title' => 'required',
-                'department' => 'required|exists:departments,id',
-                'time' => 'nullable|time_range',
-                'content' => 'required',
-                'files' => 'required|json|files',
-            ]);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $this->validate($request, [
-                'title' => 'required',
-                'department' => 'required|in:' . $auth_user->department_id,
-                'time' => 'nullable|time_range',
-                'content' => 'required',
-                'files' => 'required|json|files',
-            ]);
-        } else
-            throw new AccessDeniedHttpException();
+        $time = explode(' ', $request->input('time'));
+        $start_time = $time[0] . ' ' . $time[1];
+        $end_time = $time[3] . ' ' . $time[4];
 
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION))
-            $notification = Notification::findOrFail($notification_id);
-        else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION))
-            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-        else
-            throw new AccessDeniedHttpException();
-
-        $notification->title = $request->input('title');
-        $notification->department_id = $request->input('department');
-        $notification->content = $request->input('content');
-        if ($request->has('time')) {
-            $time = explode(' to ', $request->input('time'));
-            $notification->start_time = $time[0];
-            $notification->end_time = $time[1];
-        } else {
-            $notification->start_time = null;
-            $notification->end_time = null;
+        $fileList = [];
+        foreach (explode(',', $request->input('attachment')) as $sha1) {
+            if ($file = File::where('sha1', $sha1)->first()) {
+                $fileList[] = $file->id;
+            }
         }
-        $notification->files = $request->input('files');
-        $notification->important = $request->input('important') === 'on';
-        $notification->save();
+
+        $user = Auth::user();
+        $notification = $user->writtenNotifications()->create([
+            'title' => $request->input('title'),
+            'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+            'important' => $request->input('important') === "1",
+            'content' => $request->input('content'),
+        ]);
+        $notification->files()->sync($fileList);
+
+
+        $users = User::get()->map(function ($item, $key) {
+            return $item->id;
+        });
+        $notification->notifiedUsers()->sync($users);
 
         return redirect(route('notification') . '/' . $notification->id);
     }
 
-
-    public function delete($notification_id)
+    public function delete($id)
     {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION))
-            $notification = Notification::findOrFail($notification_id);
-        else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION))
-            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-        else
-            throw new AccessDeniedHttpException();
-
+        abort_unless(EntrustFacade::can('delete_notification'), 403);
+        $notification = Notification::findOrFail($id);
         $notification->delete();
         return response('成功删除！');
     }
 
+
+    public function modify($id)
+    {
+        if (EntrustFacade::can('modify_all_notification')) {
+            $notification = Notification::findOrFail($id);
+        } else if (EntrustFacade::can('modify_owned_notification')) {
+            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        } else {
+            abort(403);
+        }
+        return view('notification.modify', [
+            'notification' => $notification,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (EntrustFacade::can('modify_all_notification')) {
+            $notification = Notification::findOrFail($id);
+            $this->validate($request, [
+                'title' => 'required',
+                'department' => 'required|exists:departments,id',
+                'time' => 'required|time_range',
+                'important' => 'required|in:0,1',
+                'content' => 'required',
+                'attachment' => 'required',
+            ]);
+        } else if (EntrustFacade::can('modify_owned_notification')) {
+            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+            $this->validate($request, [
+                'title' => 'required',
+                'time' => 'required|time_range',
+                'important' => 'required|in:0,1',
+                'content' => 'required',
+                'attachment' => 'required',
+            ]);
+        } else {
+            abort(403);
+        }
+
+        $time = explode(' ', $request->input('time'));
+        $start_time = $time[0] . ' ' . $time[1];
+        $end_time = $time[3] . ' ' . $time[4];
+
+        $fileList = [];
+        foreach (explode(',', $request->input('attachment')) as $sha1) {
+            if ($file = File::where('sha1', $sha1)->first()) {
+                $fileList[] = $file->id;
+            }
+        }
+
+        $user = Auth::user();
+
+        $notification->title = $request->input('title');
+        $notification->department_id = $user->hasRole('admin') ? $request->input('department') : $user->department_id;
+        $notification->start_time = $start_time;
+        $notification->end_time = $end_time;
+        $notification->important = $request->input('important') === "1";
+        $notification->content = $request->input('content');
+        $notification->save();
+        $notification->files()->sync($fileList);
+
+
+        $users = User::get()->map(function ($item, $key) {
+            return $item->id;
+        });
+        $notification->notifiedUsers()->sync($users);
+
+        return redirect(route('notification') . '/' . $notification->id);
+    }
 
     public function selectPush($notification_id)
     {
@@ -393,7 +331,6 @@ class NotificationController extends Controller
         return redirect(route('notification') . '/' . $notification_id . '/push');
     }
 
-
     public function ajaxSearchUser(Request $request)
     {
         $auth_user = Auth::user();
@@ -432,7 +369,6 @@ class NotificationController extends Controller
         sort($result);
         return response()->json($result);
     }
-
 
     public function star($id)
     {
@@ -485,88 +421,89 @@ class NotificationController extends Controller
 
     public function statistic(Request $request, $id)
     {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+        if (EntrustFacade::can('modify_all_notification')) {
             $notification = Notification::findOrFail($id);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $notification = $auth_user->written_notifications()->findOrFail($id);
-        } else
-            throw new AccessDeniedHttpException();
+        } else if (EntrustFacade::can('modify_owned_notification')) {
+            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        } else {
+            abort(403);
+        }
 
         $title = $notification->title;
         $url = route('notification') . '/' . $notification->id . '/statistic';
 
-        $user_all = $notification->notified_all();
+        $user_all = $notification->notifiedUsers;
         $user_all_cnt = $user_all->count();
 
-        $user_read = $notification->read_users;
+        $user_read = $notification->readUsers;
         $user_read_cnt = $user_read->count();
-        $user_read_percent = $user_read_cnt === 0 ? 0 : round($user_read_cnt / $user_all_cnt * 100, 2);
+        $user_read_percent = $user_all_cnt === 0 ? 0 : round($user_read_cnt / $user_all_cnt * 100, 2);
 
-        $user_not_read = $user_all->diff($user_read);
+        $user_not_read = $notification->notReadUsers;
         $user_not_read_cnt = $user_not_read->count();
-        $user_not_read_percent = $user_not_read_cnt === 0 ? 0 : round($user_not_read_cnt / $user_all_cnt * 100, 2);
+        $user_not_read_percent = $user_all_cnt === 0 ? 0 : round($user_not_read_cnt / $user_all_cnt * 100, 2);
 
+
+        $chunk = $user_not_read->take(50)->map(function ($item, $key) {
+            return $item->number;
+        })->implode(', ');
         return <<<HTML
 <h3>$title</h3>
 <p>应读人数：{$user_all_cnt}</p>
 <p>已读人数：{$user_read_cnt} ({$user_read_percent}%)</p>
 <p>未读人数：{$user_not_read_cnt} ({$user_not_read_percent}%)</p>
 <a class="btn btn-primary" href="{$url}" target="_blank">统计表下载 [Excel]</a>
+<br>
+<h5>部分名单(前50人):</h5>
+{$chunk}
 HTML;
     }
 
     public function statisticExcel(Request $request, $id)
     {
-        $auth_user = Auth::user();
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+        if (EntrustFacade::can('modify_all_notification')) {
             $notification = Notification::findOrFail($id);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $notification = $auth_user->written_notifications()->findOrFail($id);
-        } else
-            throw new AccessDeniedHttpException();
+        } else if (EntrustFacade::can('modify_owned_notification')) {
+            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        } else {
+            abort(403);
+        }
 
         $title = $notification->title;
 
-        $user_all = $notification->notified_all();
-        $user_read = $notification->read_users;
-        $user_not_read = $user_all->diff($user_read);
+        $user_read = $notification->readUsers;
+        $user_not_read = $notification->notReadUsers;
 
-        $objPHPExcel = new PHPExcel();
+        $spreadsheet = new Spreadsheet();
 
-        $sheet = [['学号', '姓名', '手机号']];
+        $data = [['学号', '姓名', '手机号']];
         foreach ($user_not_read as $item) {
-            $sheet[] = [$item->number, $item->name, $item->phone];
+            $data[] = [$item->number, $item->name, $item->phone];
         }
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->fromArray($sheet)
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray($data)
             ->setTitle('未读名单');
 
-        $sheet = [['学号', '姓名', '手机号']];
+
+        $data = [['学号', '姓名', '手机号']];
         foreach ($user_read as $item) {
-            $sheet[] = [$item->number, $item->name, $item->phone];
+            $data[] = [$item->number, $item->name, $item->phone];
         }
-        $objPHPExcel->addSheet(new PHPExcel_Worksheet());
-        $objPHPExcel->setActiveSheetIndex(1)
-            ->fromArray($sheet)
+
+        $sheet = $spreadsheet->addSheet(new Worksheet());
+        $sheet->fromArray($data)
             ->setTitle('已读名单');
 
-        $objPHPExcel->setActiveSheetIndex(0);
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $title . ' 阅读统计.xlsx' . '"');
-        header('Cache-Control: max-age=0');
-        header('Cache-Control: max-age=1');
-
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
-        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-        header('Pragma: public'); // HTTP/1.0
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
+        $dir = storage_path("app/cache");
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $path = $dir . '/' . str_random();
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save($path);
+        return response()->download($path, "{$title} 阅读统计.xlsx")
+            ->deleteFileAfterSend(true);
     }
-
 
     /**
      * Finds whether the given variable is numeric.

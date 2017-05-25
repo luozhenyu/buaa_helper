@@ -10,13 +10,8 @@ class FileController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth', ['except' => 'download']);
     }
-
-    const ALLOW_EXTS = [
-        'jpg', 'png',
-        'txt', 'docx'
-    ];
 
     const MAX_SIZE = 2 * 1024 * 1024;
 
@@ -37,28 +32,34 @@ class FileController extends Controller
             ]);
         }
 
-        $originalName = $uploadFile->getClientOriginalName();
+        $fileName = $uploadFile->getClientOriginalName();
         $sha1 = sha1_file($uploadFile->getRealPath());
         if (!$file = File::where('sha1', $sha1)->first()) {
             $path = $uploadFile->storeAs('upload/' . substr($sha1, 0, 2), $sha1);
             $file = Auth::user()->files()->create([
                 'sha1' => $sha1,
-                'name' => $originalName,
+                'fileName' => $fileName,
                 'path' => $path,
             ]);
         }
 
-        return $file;
-
-        return response()->json([
-            "uploaded" => 1,
-            "fileName" => "foo.jpg",
-            "url" => "/files/foo.jpg",
-        ]);
+        return response()->json(
+            array_merge(["uploaded" => 1], $this->getArray($file))
+        );
     }
 
-    public function download(Request $request)
+    public function download($sha1)
     {
+        $file = File::where('sha1', $sha1)->firstOrFail();
+        return response()->download(storage_path('app/' . $file->path), $file->fileName);
+    }
 
+    public static function getArray($file)
+    {
+        return [
+            "sha1" => $file->sha1,
+            "fileName" => $file->fileName,
+            "url" => url('/file/download/' . $file->sha1)
+        ];
     }
 }

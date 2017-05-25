@@ -13,8 +13,7 @@
                         <label for="user_id" class="col-md-4 control-label">学号</label>
 
                         <div class="col-md-6">
-                            <input id="user_id" type="text" class="form-control"
-                                   value="{{ $user->number }}" disabled>
+                            <input id="user_id" type="text" class="form-control" value="{{ $user->number }}" disabled>
                         </div>
                     </div>
 
@@ -22,8 +21,7 @@
                         <label for="name" class="col-md-4 control-label">姓名</label>
 
                         <div class="col-md-6">
-                            <input id="name" type="text" class="form-control"
-                                   value="{{ $user->name }}" disabled>
+                            <input id="name" type="text" class="form-control" value="{{ $user->name }}" disabled>
                         </div>
                     </div>
 
@@ -36,8 +34,8 @@
 
                             @if ($errors->has('password'))
                                 <span class="help-block">
-                                                <strong>{{ $errors->first('password') }}</strong>
-                                            </span>
+                                    <strong>{{ $errors->first('password') }}</strong>
+                                </span>
                             @endif
                         </div>
                     </div>
@@ -72,8 +70,8 @@
 
                             @if ($errors->has('number'))
                                 <span class="help-block">
-                                                <strong>{{ $errors->first('number') }}</strong>
-                                            </span>
+                                    <strong>{{ $errors->first('number') }}</strong>
+                                </span>
                             @endif
                         </div>
                     </div>

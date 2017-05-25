@@ -184,12 +184,15 @@ class AccountManagerController extends Controller
         $sheet->fromArray(['学号／工号', '姓名', '院系', '邮箱', '手机号'])
             ->setTitle('Account');
 
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="账号导入模板.xlsx"');
-        header('Cache-Control: max-age=0');
-
+        $dir = storage_path("app/cache");
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $path = $dir . '/' . str_random();
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $writer->save('php://output');
+        $writer->save($path);
+        return response()->download($path, "账号导入模板.xlsx")
+            ->deleteFileAfterSend(true);
     }
 
     public function import(Request $request)
