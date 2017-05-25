@@ -12,7 +12,7 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'content', 'files', 'important', 'start_time', 'end_time', 'user_id', 'department_id',
+        'title', 'user_id', 'department_id', 'start_time', 'end_time', 'important', 'content',
     ];
 
     public function user()
@@ -43,5 +43,16 @@ class Notification extends Model
         return $this->belongsToMany('App\Models\User')
             ->wherePivot('read', true)
             ->withPivot('read', 'read_at');
+    }
+
+    public function notReadUsers()
+    {
+        return $this->belongsToMany('App\Models\User')
+            ->wherePivot('read', false);
+    }
+
+    public function files()
+    {
+        return $this->belongsToMany('App\Models\File');
     }
 }

@@ -27,10 +27,10 @@ $factory->define(App\Models\Notification::class, function (Faker\Generator $fake
     return [
         'title' => $faker->name,
         'user_id' => 1,
-        'content' => $faker->paragraph,
-        'files' => '[]',
         'department_id' => 21,
         'start_time' => '2017-01-01 00:00:00',
         'end_time' => '2017-02-01 00:00:00',
+        'important' => false,
+        'content' => $faker->paragraph,
     ];
 });

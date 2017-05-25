@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php
+    $files = collect();
+    foreach ($notification->files as $file) {
+        $files->push(\App\Http\Controllers\FileController::getArray($file));
+    }
+@endphp
+
 @push('css')
 <style>
     .label-block {
@@ -17,11 +24,15 @@
     }
 
     @if(!$read)
-    #read:hover {
+    #confirmRead:hover {
         background-color: #39c05f;
     }
     @endif
 </style>
+@endpush
+
+@push('jsLink')
+<script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
@@ -55,6 +66,11 @@
             });
         };
         setStarState(star,{{ $star? 'true': 'false' }});
+
+        var files = JSON.parse("{!! addslashes($files->toJson()) !!}");
+        for (var i = 0; i < files.length; i++) {
+            $("#attachmentContainer").append(parseFile(files[i], false));
+        }
     });
 </script>
 @endpush
@@ -120,22 +136,24 @@
                                     <span class="glyphicon glyphicon-ok">已确认阅读</span>
                                 </label>
                             @else
-                                <label class="label label-danger" id="read" onclick="confirmRead();">
+                                <label class="label label-danger" id="confirmRead">
                                     <span class="glyphicon glyphicon-unchecked">我已仔细阅读</span>
                                 </label>
                                 <script>
-                                    function confirmRead() {
-                                        $.ajax({
-                                            url: "{{ route('notification').'/'.$notification->id .'/read' }}",
-                                            type: "POST",
-                                            headers: {
-                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                            },
-                                            success: function (data) {
-                                                window.location.reload();
-                                            }
+                                    $(function () {
+                                        $("#confirmRead").click(function () {
+                                            $.ajax({
+                                                url: "{{ route('notification').'/'.$notification->id .'/read' }}",
+                                                type: "POST",
+                                                headers: {
+                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                },
+                                                success: function (data) {
+                                                    window.location.reload();
+                                                }
+                                            });
                                         });
-                                    }
+                                    });
                                 </script>
                             @endif
                         </h2>
@@ -148,8 +166,7 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">附件列表</h3>
                     </div>
-                    <div id="filesContainer" class="panel-body">
-                        {!! $file !!}
+                    <div id="attachmentContainer" class="panel-body">
                     </div>
                 </div>
             </div>

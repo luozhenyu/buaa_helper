@@ -6,11 +6,7 @@
 @endpush
 
 @section('content')
-    <div class="panel panel-default">
-        <div class="panel-heading">留言管理</div>
 
-        <div class="panel-body">
-            主页
-        </div>
-    </div>
+    <h2>这个是留言面板qaq</h2>
+    <h3 style = "color:grey;">尚未完成，敬请期待</h3>
 @endsection
