@@ -48,7 +48,6 @@
         #title_one {
             font-size: 70px;
         }
-
         #title_two {
             font-weight: 800;
             font-size: 50px;
@@ -67,7 +66,6 @@
         #title_one {
             font-size: 50px;
         }
-
         #title_two {
             font-weight: 600;
             font-size: 30px;
@@ -148,5 +146,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 @endsection

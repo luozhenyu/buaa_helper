@@ -48,6 +48,7 @@
             xhr.setRequestHeader('X-CSRF-TOKEN', $("meta[name='csrf-token']").attr("content"));
         });
 
+
         $("#attachmentBtn").click(function () {
             $("<input>", {type: "file"}).change(function () {
                 var formData = new FormData();

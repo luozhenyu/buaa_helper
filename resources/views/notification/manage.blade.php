@@ -46,6 +46,7 @@
 @endpush
 
 @section('content')
+
     <div class="panel panel-default">
         <div class="panel-heading">通知管理</div>
 
@@ -53,8 +54,9 @@
             <table class="table table-condensed table-hover">
                 <caption>
                     <a type="button" class="btn btn-success" href="{{route('notification').'/create'}}"
-                       style="text-shadow: black 5px 3px 3px;">
+                       style="text-shadow: black 2px 2px 2px;">
                         <span class="glyphicon glyphicon-plus"></span>
+                        添加新通知
                     </a>
 
                     <form class="form-inline pull-right" role="form" method="get"
@@ -115,9 +117,6 @@
                                 <a type="button" class="btn btn-info btn-xs"
                                    href="{{route('notification').'/'.$notification->id.'/modify'}}"
                                    target="_blank">修改</a>
-                                <a type="button" class="btn btn-success btn-xs"
-                                   href="{{route('notification').'/'.$notification->id.'/push'}}"
-                                   target="_blank">推送</a>
                                 <button type="button" class="btn btn-default btn-xs statistic"
                                         data-id="{{$notification->id}}">
                                     阅读统计

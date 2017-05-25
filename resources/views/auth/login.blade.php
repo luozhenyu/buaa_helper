@@ -190,6 +190,7 @@
                                 <button type="submit" class="btn btn-primary col-xs-5 col-sm-offset-1 col-sm-4 ">
                                     登录
                                 </button>
+
                                 <a href="{{ url('/register') }}"
                                    class="btn btn-info col-xs-5 col-xs-offset-2 col-sm-offset-2 col-sm-4">
                                     注册

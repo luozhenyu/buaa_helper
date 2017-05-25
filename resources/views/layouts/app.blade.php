@@ -31,7 +31,7 @@
             text-align: center;
         }
 
-        a, button.btn, tr th, tbody tr {
+        a, button.btn, tr th, tbody tr, .slow_down {
             -webkit-transition-duration: 0.45s;
             transition-duration: 0.45s;
         }
@@ -44,7 +44,6 @@
             color: #285e8e;
             content: "\";
         }
-
         /* header背景色 北航蓝 */
         .navbar {
             background-color: #0066cc;
@@ -100,6 +99,7 @@
         }
 
         #crumb {
+
             filter: alpha(opacity=1);
             -moz-opacity: 0.01;
             opacity: 0.01;
@@ -185,6 +185,7 @@
             <div class="navbar-header">
 
                 <!-- Collapsed Hamburger -->
+
                 <button id="top_btn" type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                         data-target="#app-navbar-collapse">
                     <span class="sr-only">Toggle Navigation</span>
@@ -276,8 +277,7 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">
                 <ol class="breadcrumb" id="crumb">@stack("crumb")</ol>
-                <div id="main_content" class="jumbotron"
-                     style="background-color: white;padding: 12px;">@yield('content')</div>
+                <div id="main_content" class="jumbotron" style="background-color: white;padding: 12px;">@yield('content')</div>
             </div>
         </div>
     </div>
