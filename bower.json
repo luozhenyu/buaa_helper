@@ -1,0 +1,24 @@
+{
+  "name": "buaa_helper",
+  "description": "",
+  "main": "",
+  "authors": [
+    "luozhenyu <lzy@luozy.cn>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/luozhenyu/buaa_helper",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.2.1",
+    "bootstrap-select": "^1.12.2",
+    "highcharts": "^5.0.11",
+    "flatpickr": "^2.6.2"
+  }
+}

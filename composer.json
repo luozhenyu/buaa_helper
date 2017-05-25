@@ -9,10 +9,8 @@
   "type": "project",
   "require": {
     "php": ">=5.6.4",
-    "algolia/algoliasearch-client-php": "^1.17",
     "intervention/image": "^2.3",
     "laravel/framework": "5.4.*",
-    "laravel/scout": "^3.0",
     "laravel/tinker": "~1.0",
     "phpoffice/phpspreadsheet": "dev-develop",
     "phpoffice/phpword": "^0.13.0",
