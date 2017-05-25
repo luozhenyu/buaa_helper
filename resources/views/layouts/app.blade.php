@@ -31,7 +31,7 @@
             text-align: center;
         }
 
-        a, button.btn, tr th, tbody tr {
+        a, button.btn, tr th, tbody tr, .slow_down {
             -webkit-transition-duration: 0.45s;
             transition-duration: 0.45s;
         }
