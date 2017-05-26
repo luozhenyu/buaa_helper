@@ -148,6 +148,7 @@
 
     <script src="{{ url('/components/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+
     @stack('jsLink')
 
     <script>
