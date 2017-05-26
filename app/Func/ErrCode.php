@@ -5,6 +5,9 @@ namespace App\Func;
 
 final class ErrCode
 {
+    //服务器异常
+    const SERVER_ERROR = -1;
+
     //正常
     const OK = 0;
 
@@ -13,6 +16,7 @@ final class ErrCode
     const ACCESS_TOKEN_INVALID = 40002;
     const RESOURCE_NOT_FOUND = 40003;
     const INDEX_ILLEGAL = 40004;
+    const FORM_ILLEGAL =40005;
 
     //缺少参数
     const USER_ID_MISSING = 41001;

@@ -44,7 +44,7 @@ class FileController extends Controller
         }
 
         return response()->json(
-            array_merge(["uploaded" => 1], $this->getArray($file))
+            array_merge(["uploaded" => 1], $file->downloadInfo())
         );
     }
 
@@ -52,14 +52,5 @@ class FileController extends Controller
     {
         $file = File::where('sha1', $sha1)->firstOrFail();
         return response()->download(storage_path('app/' . $file->path), $file->fileName);
-    }
-
-    public static function getArray($file)
-    {
-        return [
-            "sha1" => $file->sha1,
-            "fileName" => $file->fileName,
-            "url" => url('/file/download/' . $file->sha1)
-        ];
     }
 }

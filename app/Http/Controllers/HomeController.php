@@ -34,7 +34,7 @@ class HomeController extends Controller
         $auth_user = Auth::user();
         $this->validate($request, [
             'email' => 'email|unique:users,email,' . $auth_user->id,
-            'phone' => 'digits:11|unique:users,phone,' . $auth_user->id,
+            'phone' => 'phone|unique:users,phone,' . $auth_user->id,
         ]);
 
         if ($request->has('email')) {

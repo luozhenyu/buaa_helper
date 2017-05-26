@@ -32,4 +32,13 @@ class File extends Model
     {
         return $this->belongsToMany('App\Models\Notification');
     }
+
+    public function downloadInfo()
+    {
+        return [
+            "sha1" => $this->sha1,
+            "fileName" => $this->fileName,
+            "url" => url('/file/download/' . $this->sha1)
+        ];
+    }
 }

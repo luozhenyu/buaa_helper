@@ -3,7 +3,7 @@
 @php
     $files = collect();
     foreach ($notification->files as $file) {
-        $files->push(\App\Http\Controllers\FileController::getArray($file));
+        $files->push($file->downloadInfo());
     }
 @endphp
 

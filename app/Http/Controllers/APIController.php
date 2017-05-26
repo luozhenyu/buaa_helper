@@ -18,7 +18,7 @@ class APIController extends Controller
      */
     function __construct(Request $request)
     {
-        $this->middleware('auth.api', ['except' => ['login', 'register']]);
+        $this->middleware('auth.api', ['except' => 'login']);
     }
 
     /**
@@ -38,7 +38,6 @@ class APIController extends Controller
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-
         $validator = Validator::make($request->all(), [
             'password' => 'required',
         ]);
@@ -48,14 +47,12 @@ class APIController extends Controller
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-
         if (!Auth::once($this->credentials($request))) {
             return response()->json([
                 'errcode' => ErrCode::CREDENTIALS_ERROR,
                 'errmsg' => Lang::get('auth.failed'),
             ]);
         }
-
         $access_token = Auth::user()->createAccessToken();
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -73,7 +70,7 @@ class APIController extends Controller
     protected function credentials(Request $request)
     {
         $user = $request->input('user');
-        if ($this->isInteger($user)) {
+        if (ctype_digit($user)) {
             if (strlen($user) == 11) {
                 $credential_type = 'phone';
             } else {
@@ -82,34 +79,21 @@ class APIController extends Controller
         } else {
             $credential_type = 'email';
         }
-
         return [
             $credential_type => $user,
             'password' => $request->input('password'),
         ];
     }
 
-    /**
-     * Finds whether the given variable is numeric.
-     *
-     * @param mixed $input
-     * @return bool
-     */
-    protected function isInteger($input)
-    {
-        return ctype_digit(strval($input));
-    }
-
     public function userInfo(Request $request)
     {
         $user = $request->get('user');
-
         return response()->json([
             'errcode' => ErrCode::OK,
             'user' => [
                 'number' => $user->number,
                 'name' => $user->name,
-                'department' => $user->department_id,
+                'department' => $user->department->number,
                 'department_name' => $user->department->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
@@ -117,100 +101,133 @@ class APIController extends Controller
         ]);
     }
 
+    public function modifyUserInfo(Request $request)
+    {
+        $user = $request->get('user');
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|phone|unique:users,phone,' . $user->id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errcode' => ErrCode::FORM_ILLEGAL,
+                'errmsg' => $validator->errors()->first(),
+            ]);
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->input('email');
+        }
+        if ($request->has('phone')) {
+            $user->phone = $request->input('phone');
+        }
+        $user->save();
+
+        return response()->json([
+            'errcode' => ErrCode::OK,
+        ]);
+    }
+
     public function listNotification(Request $request)
     {
         $user = $request->get('user');
-        $notifications = [];
-        foreach ($user->notifications() as $notification) {
-            $notifications[] = [
-                'id' => $notification->id,
-                'updated_at' => intval($notification->updated_at->format('U')),
+        $notifications = $user->receivedNotifications->map(function ($item, $key) {
+            return [
+                'id' => $item->id,
+                'updated_at' => $item->updated_at->timestamp,
+                'read' => (boolean)$item->pivot->read,
+                'star' => (boolean)$item->pivot->star,
             ];
-        }
+        });
+
         return response()->json([
             'errcode' => ErrCode::OK,
             'notifications' => $notifications,
         ]);
     }
 
-    public function showNotification(Request $request, $notification_id)
+    public function showNotification(Request $request, $id)
     {
         $user = $request->get('user');
-        $notification = $user->notifications()->find(intval($notification_id));
 
-        if (is_null($notification)) {
+        if (!$notification = $user->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
             ]);
         }
-
         return response()->json([
             'errcode' => ErrCode::OK,
             'notification' => [
                 'id' => $notification->id,
                 'title' => $notification->title,
                 'author' => $notification->user->name,
-                'department' => $notification->department_id,
+                'department' => $notification->department->number,
+                'department_name' => $notification->department->name,
                 'content' => $notification->content,
-                'files' => $notification->files,
-                'updated_at' => intval($notification->updated_at->format('U')),
+                'files' => $notification->files->map(function ($item, $key) {
+                    return $item->downloadInfo();
+                }),
+                'read' => (boolean)$notification->pivot->read,
+                'star' => (boolean)$notification->pivot->star,
+                'updated_at' => $notification->updated_at->timestamp,
             ]
         ]);
     }
 
-    public function star(Request $request, $notification_id)
+    public function read(Request $request, $id)
     {
         $user = $request->get('user');
-        $notification = $user->notifications()->find($notification_id);
-
-        if (is_null($notification)) {
+        if (!$notification = $user->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
             ]);
         }
+        $pivot = $notification->pivot;
+        $pivot->read = true;
+        $pivot->save();
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'msg' => 'Read!',
+        ]);
+    }
 
-        $notification->stared_users()->syncWithoutDetaching([$user->id]);
+    public function star(Request $request, $id)
+    {
+        $user = $request->get('user');
+        if (!$notification = $user->receivedNotifications()->find($id)) {
+            return response()->json([
+                'errcode' => ErrCode::RESOURCE_NOT_FOUND,
+                'errmsg' => Lang::get('errmsg.resource_not_found'),
+            ]);
+        }
+        $pivot = $notification->pivot;
+        $pivot->star = true;
+        $pivot->save();
         return response()->json([
             'errcode' => ErrCode::OK,
             'msg' => 'Stared!',
         ]);
     }
 
-    public function unstar(Request $request, $notification_id)
+    public function unstar(Request $request, $id)
     {
         $user = $request->get('user');
-        $notification = $user->notifications()->find($notification_id);
-
-        if (is_null($notification)) {
+        if (!$notification = $user->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
             ]);
         }
-
-        $notification->stared_users()->detach([$user->id]);
+        $pivot = $notification->pivot;
+        $pivot->star = false;
+        $pivot->save();
         return response()->json([
             'errcode' => ErrCode::OK,
             'msg' => 'Unstared!',
-        ]);
-    }
-
-    public function stared(Request $request)
-    {
-        $user = $request->get('user');
-
-        $notifications = [];
-        foreach ($user->stared_notifications as $notification) {
-            $notifications[] = [
-                'id' => $notification->id,
-                'stared_at' => intval($notification->pivot->updated_at->format('U')),
-            ];
-        }
-        return response()->json([
-            'errcode' => ErrCode::OK,
-            'notifications' => $notifications,
         ]);
     }
 }

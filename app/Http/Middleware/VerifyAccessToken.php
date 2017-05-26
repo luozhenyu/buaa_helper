@@ -25,7 +25,6 @@ class VerifyAccessToken
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-
         $validator = Validator::make($request->all(), ['access_token' => 'uuid']);
         if ($validator->fails()) {
             return response()->json([
@@ -33,7 +32,6 @@ class VerifyAccessToken
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-
         $validator = Validator::make($request->all(), ['access_token' => 'exists:access_tokens,access_token']);
         if ($validator->fails()) {
             return response()->json([

@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-$this->get('/test', 'TestController@test');
+//$this->get('/test', 'TestController@test');
 
 
 $this->get('/', 'HomeController@viewIndex');
@@ -82,4 +82,3 @@ $this->post('password/reset', 'Auth\ResetPasswordController@reset');
 //File upload
 $this->post('file/upload', 'FileController@upload');
 $this->get('file/download/{id}', 'FileController@download');
-

@@ -4,7 +4,7 @@
     $files = collect();
     foreach (explode(',', old('attachment')) as $sha1) {
         if ($file = \App\Models\File::where('sha1', $sha1)->first()) {
-            $files->push(\App\Http\Controllers\FileController::getArray($file));
+            $files->push($file->downloadInfo());
         }
     }
 @endphp
