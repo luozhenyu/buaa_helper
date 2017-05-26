@@ -233,8 +233,14 @@
                             <a href="{{ url('/notification') }}">
                                 <span class="glyphicon glyphicon-bullhorn"></span>
                                 通知中心
-                            {{-- 预留：未读消息 --}}
-                            <!--<span class="badge">50</span>-->
+                                @php
+                                    if (!Auth::guest()) $unread_count = Auth::user()->notReadNotifications()->count(); else $unread_count = 0;
+                                    if ($unread_count > 99) $unread_tip = "99+"; else
+                                    if ($unread_count > 0) $unread_tip = $unread_count; else $unread_tip = "0";
+                                @endphp
+                                @if($unread_count > 0)
+                                    <span class = "badge">{{ $unread_tip }}</span>
+                                @endif
 
                             </a>
                         </li>

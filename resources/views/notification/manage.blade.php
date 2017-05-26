@@ -36,8 +36,14 @@
                         notRead = json["user_not_read_cnt"],
                         total = read + notRead,
                         users = json["users"];
+                    $("#myModal").find("#modal_title").html(title);
+                    $("#myModal").find("#modal_total").html("应读人数：" + total);
+                    $("#myModal").find("#modal_read").html("已读人数：" + read + ' (' + (total ? (read / total).toFixed(2) : 0) + '%)');
+                    $("#myModal").find("#modal_notread").html("未读人数：" + notRead + ' (' + (total ? (notRead / total).toFixed(2) : 0) + '%)');
+                    $("#myModal").find("#modal_download").attr("href", link);
+                    $("#myModal").find("#modal_users").html(users.join(", "));
 
-                    $('#myModal').find(".modal-body").html(
+                    /*$('#myModal').find(".modal-body").html(
                         '<h3>' + title + '</h3>' +
                         '<p>应读人数：' + total + '</p>' +
                         '<p>已读人数：' + read + '(' + (total ? (read / total).toFixed(2) : 0) + '%)</p>' +
@@ -46,7 +52,8 @@
                         '<br><h5>部分未读名单(前50人):</h5>' +
                         '<p>' + users.join(", ") + '...</p>'
                     ).end()
-                        .modal("show");
+                        .modal("show");*/
+                    $("#myModal").modal("show");
                 }
             });
         });
@@ -150,7 +157,13 @@
                     <h4 class="modal-title" id="myModalLabel">阅读统计</h4>
                 </div>
                 <div class="modal-body">
-
+                    <h3 id = "modal_title" style = "text-align: center;"></h3>
+                    <p id = "modal_total"></p>
+                    <p id = "modal_read"></p>
+                    <p id = "modal_notread"></p>
+                    <a class="btn btn-primary" href="" target="_blank" id = "modal_download">统计表下载 [Excel]</a>
+                    <br><h5>部分未读名单(前50人):</h5>
+                    <p id = "modal_users"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default"

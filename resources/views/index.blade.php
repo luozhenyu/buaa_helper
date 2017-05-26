@@ -136,8 +136,12 @@
                                     @endpermission
                                     <a href="{{ url('/notification') }}" class="btn btn-info">
                                         通知
-                                    {{-- 预留：未读消息 --}}
-                                    <!--<span class="badge">50</span>-->
+                                        @php
+                                            if (!Auth::guest()) $unread_count = Auth::user()->notReadNotifications()->count(); else $unread_count = 0;
+                                            if ($unread_count > 0) {
+                                                echo "<span class=\"badge\">$unread_count</span>";
+                                            }
+                                        @endphp
                                     </a>
                                 @endif
                             </div>
