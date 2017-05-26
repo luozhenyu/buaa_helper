@@ -166,6 +166,8 @@ class APIController extends Controller
                 'author' => $notification->user->name,
                 'department' => $notification->department->number,
                 'department_name' => $notification->department->name,
+                'start_time' => $notification->start_time->toDateTimeString(),
+                'end_time' => $notification->end_time->toDateTimeString(),
                 'content' => $notification->content,
                 'files' => $notification->files->map(function ($item, $key) {
                     return $item->downloadInfo();
