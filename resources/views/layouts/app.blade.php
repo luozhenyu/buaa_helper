@@ -143,6 +143,15 @@
                 display: none;
             }
         }
+
+        #main_content {
+            background-color: white;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
     </style>
     @stack('css')
 
@@ -154,7 +163,8 @@
     <script>
         $(function () {
             $("tr th").click(function () {
-                $(this).find("a").click();
+                var a_sign = $(this).find("a");
+                if (a_sign.length > 0) window.location.href = a_sign.attr("href");
             });
 
             var ce = $("#crumb").is(":empty");
@@ -284,7 +294,7 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">
                 <ol class="breadcrumb" id="crumb">@stack("crumb")</ol>
-                <div id="main_content" class="jumbotron" style="background-color: white;padding: 12px;">@yield('content')</div>
+                <div id="main_content" class="jumbotron">@yield('content')</div>
             </div>
         </div>
     </div>

@@ -219,4 +219,41 @@
         </div>
     </form>
 
+
+    {{-- 勿删，临时用于测试的modal --}}
+    <!--
+    <script>
+        function fuck(){
+
+            $("#pp").html($("#content").html());
+            $("#myModal").modal("show");
+        }
+    </script>
+    <button onclick = "fuck();">
+        保存通知233
+    </button>
+
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">阅读统计</h4>
+                </div>
+                <div class="modal-body">
+                    <article class="col-md-12" id = "pp"></article>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info"
+                            data-dismiss="modal">关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
 @endsection

@@ -192,7 +192,10 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             附件列表
-                            <span class="btn btn-sm btn-default pull-right" id="attachmentBtn">📎添加附件</span>
+                            <span class="btn btn-sm btn-default" id="attachmentBtn">
+                                <span class = "glyphicon glyphicon-file"></span>
+                                添加附件
+                            </span>
                         </h3>
                     </div>
                     <div class="panel-body{{ $errors->has('attachment') ? ' has-error' : '' }}">
@@ -209,10 +212,14 @@
 
         <div class="form-group">
             <div class="col-md-3 pull-right">
+
                 <button type="submit" class="btn btn-primary" onclick="window.onbeforeunload=null;">
                     保存通知
                 </button>
             </div>
         </div>
+
     </form>
+
+
 @endsection

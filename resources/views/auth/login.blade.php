@@ -122,7 +122,7 @@
 @push("js")
 <script>
     $(function () {
-        $("#main_div").fadeTo(1000, 1);
+        $("#main_div").fadeTo(1000, 0.85);
         $("#login_box").delay(400).fadeTo(600, 1);
     });
 </script>

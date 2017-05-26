@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @push('jsLink')
-    <!--<script src="{{ url('/components/highcharts/highcharts.js') }}"></script>-->
-<script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="{{ url('/components/highcharts/highcharts.js') }}"></script>
 @endpush
 @push('js')
 <script>
@@ -40,7 +39,7 @@
                         total = read + notRead,
                         users = json["users"];
 
-                    /*(if (title == "Quinten Feeney") {
+                    /*if (title == "Quinten Feeney") {
                         read = 20;
                         notRead = 200;
                         total = 220;
@@ -54,7 +53,7 @@
                         $("#myModal").find("#modal_users").html(users.join(", "));
                     }
                     if ((read+ notRead) > 0) {
-                        $("#chart_container").attr("style","height: 235px;");
+                        $("#chart_container").attr("style","height: 260px;");
                         chart = Highcharts.chart('chart_container', {
                             chart: {
                                 type: 'bar'
@@ -93,10 +92,10 @@
                             },
                             legend: {
                                 layout: 'vertical',
-                                align: 'right',
-                                verticalAlign: 'top',
-                                x: -40,
-                                y: 100,
+                                align: 'center',
+                                verticalAlign: 'middle',
+                                x: 0,
+                                y: -20,
                                 floating: true,
                                 borderWidth: 1,
                                 backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
@@ -148,17 +147,22 @@
             <a type="button" class="btn btn-success" href="{{route('notification').'/create'}}"
                style="text-shadow: black 2px 2px 2px;">
                 <span class="glyphicon glyphicon-plus"></span>
-                添加新通知
+                创建新通知
             </a>
 
             <form class="form-inline pull-right" role="form" method="get"
                   action="{{ route('notification') . '/manage' }}">
-                <input type="search" class="form-control" name="wd" value="{{$wd}}"
-                       placeholder="题目">
 
-                <button type="submit" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-search"></span> 搜索
-                </button>
+                <div class="input-group">
+                    <input type="search" class="form-control" name="wd" value="{{$wd}}"
+                           placeholder="题目">
+
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-search"></span> 搜索
+                        </button>
+                    </span>
+                </div>
             </form>
         </caption>
         <thead>

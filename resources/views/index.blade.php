@@ -103,7 +103,7 @@
 @push("js")
 <script>
     $(function () {
-        $("#back_div").fadeTo(800, 1).delay(950).fadeTo(640, 0.65);
+        $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
         $("#title_one").delay(450).fadeTo(320, 1);
         $("#title_two").delay(700).fadeTo(320, 1);
         $("#btn_area").delay(1150).fadeTo(400, 1);
