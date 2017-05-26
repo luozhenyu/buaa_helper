@@ -15,6 +15,8 @@ class Notification extends Model
         'title', 'user_id', 'department_id', 'start_time', 'end_time', 'important', 'content',
     ];
 
+    protected $dates = ['created_at', 'updated_at', 'start_time', 'end_time'];
+
     /**
      * 此通知的作者
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
