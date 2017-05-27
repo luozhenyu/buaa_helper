@@ -12,7 +12,7 @@
 */
 
 $this->any('/', function () {
-    return 'Welcome to API of ourbuaa.com!';
+    return redirect('https://github.com/luozhenyu/buaa_helper/blob/master/API%20Document.txt');
 });
 
 $this->any('login', 'APIController@login');
