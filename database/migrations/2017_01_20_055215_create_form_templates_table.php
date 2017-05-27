@@ -15,7 +15,7 @@ class CreateFormTemplatesTable extends Migration
     {
         Schema::create('form_templates', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
+            $table->string('title',160);
             $table->json('content');
             $table->timestamps();
 

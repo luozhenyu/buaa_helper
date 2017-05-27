@@ -16,13 +16,13 @@ class CreateNotificationsTable extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
+            $table->string('title', 160);
             $table->integer('user_id')->unsigned();
             $table->integer('department_id')->unsigned();
             $table->timestamp('start_time')->default('2017-01-01 00:00:00');
             $table->timestamp('end_time')->default('2017-01-02 00:00:00');
             $table->boolean('important');
-            $table->text('content');
+            $table->mediumText('content');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')
