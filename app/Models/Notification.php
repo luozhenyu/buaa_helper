@@ -51,9 +51,8 @@ class Notification extends Model
      */
     public function staredUsers()
     {
-        return $this->belongsToMany('App\Models\User')
-            ->wherePivot('star', true)
-            ->withPivot('star', 'stared_at');
+        return $this->notifiedUsers()
+            ->wherePivot('star', true);
     }
 
     /**
@@ -62,9 +61,8 @@ class Notification extends Model
      */
     public function readUsers()
     {
-        return $this->belongsToMany('App\Models\User')
-            ->wherePivot('read', true)
-            ->withPivot('read', 'read_at');
+        return $this->notifiedUsers()
+            ->wherePivot('read', true);
     }
 
     /**
@@ -73,7 +71,7 @@ class Notification extends Model
      */
     public function notReadUsers()
     {
-        return $this->belongsToMany('App\Models\User')
+        return $this->notifiedUsers()
             ->wherePivot('read', false);
     }
 

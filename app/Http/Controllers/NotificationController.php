@@ -165,8 +165,8 @@ class NotificationController extends Controller
         $notification = $user->writtenNotifications()->create([
             'title' => $request->input('title'),
             'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
+            'start_time' => new Carbon($start_time),
+            'end_time' => new Carbon($end_time),
             'important' => $request->input('important') === "1",
             'content' => $request->input('content'),
         ]);

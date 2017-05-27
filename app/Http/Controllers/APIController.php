@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Func\ErrCode;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
@@ -136,9 +137,31 @@ class APIController extends Controller
         $notifications = $user->receivedNotifications->map(function ($item, $key) {
             return [
                 'id' => $item->id,
-                'updated_at' => $item->updated_at->timestamp,
                 'read' => (boolean)$item->pivot->read,
+                'read_at' => $item->pivot->read_at,
                 'star' => (boolean)$item->pivot->star,
+                'stared_at' => $item->pivot->stared_at,
+                'updated_at' => $item->updated_at->timestamp,
+            ];
+        });
+
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'notifications' => $notifications,
+        ]);
+    }
+
+    public function deletedNotification(Request $request)
+    {
+        $user = $request->get('user');
+        $notifications = $user->deletedNotifications->map(function ($item, $key) {
+            return [
+                'id' => $item->id,
+                'read' => (boolean)$item->pivot->read,
+                'read_at' => $item->pivot->read_at,
+                'star' => (boolean)$item->pivot->star,
+                'stared_at' => $item->pivot->stared_at,
+                'updated_at' => $item->updated_at->timestamp,
             ];
         });
 
@@ -173,13 +196,51 @@ class APIController extends Controller
                     return $item->downloadInfo();
                 }),
                 'read' => (boolean)$notification->pivot->read,
+                'read_at' => $notification->pivot->read_at,
                 'star' => (boolean)$notification->pivot->star,
+                'stared_at' => $notification->pivot->stared_at,
                 'updated_at' => $notification->updated_at->timestamp,
             ]
         ]);
     }
 
-    public function read(Request $request, $id)
+    public function deleteNotification(Request $request, $id)
+    {
+        $user = $request->get('user');
+        if (!$notification = $user->receivedNotifications()->find($id)) {
+            return response()->json([
+                'errcode' => ErrCode::RESOURCE_NOT_FOUND,
+                'errmsg' => Lang::get('errmsg.resource_not_found'),
+            ]);
+        }
+        $pivot = $notification->pivot;
+        $pivot->deleted_at = Carbon::now();
+        $pivot->save();
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'msg' => 'Deleted!',
+        ]);
+    }
+
+    public function restoreNotification(Request $request, $id)
+    {
+        $user = $request->get('user');
+        if (!$notification = $user->deletedNotifications()->find($id)) {
+            return response()->json([
+                'errcode' => ErrCode::RESOURCE_NOT_FOUND,
+                'errmsg' => Lang::get('errmsg.resource_not_found'),
+            ]);
+        }
+        $pivot = $notification->pivot;
+        $pivot->deleted_at = null;
+        $pivot->save();
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'msg' => 'Restored!',
+        ]);
+    }
+
+    public function readNotification(Request $request, $id)
     {
         $user = $request->get('user');
         if (!$notification = $user->receivedNotifications()->find($id)) {
@@ -197,7 +258,7 @@ class APIController extends Controller
         ]);
     }
 
-    public function star(Request $request, $id)
+    public function starNotification(Request $request, $id)
     {
         $user = $request->get('user');
         if (!$notification = $user->receivedNotifications()->find($id)) {
@@ -215,7 +276,7 @@ class APIController extends Controller
         ]);
     }
 
-    public function unstar(Request $request, $id)
+    public function unstarNotification(Request $request, $id)
     {
         $user = $request->get('user');
         if (!$notification = $user->receivedNotifications()->find($id)) {

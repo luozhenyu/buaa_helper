@@ -21,8 +21,13 @@ $this->any('user/info', 'APIController@userInfo');
 $this->any('user/modify', 'APIController@modifyUserInfo');
 
 $this->any('notification', 'APIController@listNotification');
+$this->any('notification/deleted', 'APIController@deletedNotification');
 $this->any('notification/{id}', 'APIController@showNotification');
 
-$this->any('notification/{id}/read', 'APIController@read');
-$this->any('notification/{id}/star', 'APIController@star');
-$this->any('notification/{id}/unstar', 'APIController@unstar');
+$this->any('notification/{id}/delete', 'APIController@deleteNotification');
+$this->any('notification/{id}/restore', 'APIController@restoreNotification');
+
+$this->any('notification/{id}/read', 'APIController@readNotification');
+
+$this->any('notification/{id}/star', 'APIController@starNotification');
+$this->any('notification/{id}/unstar', 'APIController@unstarNotification');

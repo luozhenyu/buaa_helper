@@ -39,7 +39,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Find all access tokens the user has.
+     * 此用户拥有的token.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -64,7 +64,19 @@ class User extends Authenticatable
     public function receivedNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
-            ->withPivot('star', 'read', 'stared_at', 'read_at');
+            ->wherePivot('deleted_at', '=', null)
+            ->withPivot('read', 'read_at', 'star', 'stared_at');
+    }
+
+    /**
+     * 此用户删除的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function deletedNotifications()
+    {
+        return $this->belongsToMany('App\Models\Notification')
+            ->wherePivot('deleted_at', '!=', null)
+            ->withPivot('read', 'read_at', 'star', 'stared_at');
     }
 
     /**
@@ -74,8 +86,7 @@ class User extends Authenticatable
     public function staredNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
-            ->wherePivot('star', true)
-            ->withPivot('star', 'stared_at');
+            ->wherePivot('star', true);
     }
 
     /**
@@ -84,9 +95,8 @@ class User extends Authenticatable
      */
     public function readNotifications()
     {
-        return $this->belongsToMany('App\Models\Notification')
-            ->wherePivot('read', true)
-            ->withPivot('read', 'read_at');
+        return $this->receivedNotifications()
+            ->wherePivot('read', true);
     }
 
     /**
@@ -95,7 +105,7 @@ class User extends Authenticatable
      */
     public function notReadNotifications()
     {
-        return $this->belongsToMany('App\Models\Notification')
+        return $this->receivedNotifications()
             ->wherePivot('read', false);
     }
 

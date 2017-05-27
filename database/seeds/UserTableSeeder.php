@@ -26,6 +26,6 @@ class UserTableSeeder extends Seeder
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
-        $user->attachRole(\App\Models\Role::where('name', 'normal')->firstOrFail());
+        $user->attachRole(\App\Models\Role::where('name', 'department.admin')->firstOrFail());
     }
 }

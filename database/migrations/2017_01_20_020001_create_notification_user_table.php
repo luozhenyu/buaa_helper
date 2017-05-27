@@ -16,10 +16,12 @@ class CreateNotificationUserTable extends Migration
         Schema::create('notification_user', function (Blueprint $table) {
             $table->integer('notification_id')->unsigned();
             $table->integer('user_id')->unsigned();
+
             $table->boolean('star')->default(false);
             $table->timestamp('stared_at')->nullable();
             $table->boolean('read')->default(false);
             $table->timestamp('read_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('notification_id')->references('id')->on('notifications')
