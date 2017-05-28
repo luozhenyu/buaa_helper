@@ -118,9 +118,9 @@ class AccountManagerController extends Controller
 
         $this->validate($request, [
             'number' => 'required|digits_between:4,8|unique:users,number',
-            'name' => 'required',
+            'name' => 'required|max:20',
             'department' => 'required|exists:departments,id',
-            'email' => 'nullable|email|unique:users,email',
+            'email' => 'nullable|email|max:40|unique:users,email',
             'phone' => 'nullable|phone|unique:users,phone',
             'role' => 'required|exists:roles,name',
         ]);
@@ -146,9 +146,9 @@ class AccountManagerController extends Controller
         if ($authUser->can('modify_all_user')) {
             $user = User::findOrFail($id);
             $this->validate($request, [
-                'name' => 'required',
+                'name' => 'required|max:20',
                 'department' => 'required|exists:departments,id',
-                'email' => 'nullable|email|unique:users,email,' . $user->id,
+                'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
                 'phone' => 'nullable|digits:11|unique:users,phone,' . $user->id,
                 'role' => 'required|exists:roles,name',
             ]);
@@ -238,10 +238,10 @@ class AccountManagerController extends Controller
 
                 $validator = Validator::make($value, [
                     'A' => 'required|digits_between:4,8', //user_id
-                    'B' => 'required', //name
+                    'B' => 'required|max:20', //name
                     'C' => 'required|exists:departments,number', //department
-                    'D' => 'email|unique:users,email', //email
-                    'E' => 'phone|unique:users,phone', //phone
+                    'D' => 'nullable|email|max:40|unique:users,email', //email
+                    'E' => 'nullable|phone|unique:users,phone', //phone
                 ]);
                 if ($validator->fails()) {
                     $fail++;

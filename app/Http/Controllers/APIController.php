@@ -107,7 +107,7 @@ class APIController extends Controller
         $user = $request->get('user');
 
         $validator = Validator::make($request->all(), [
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
             'phone' => 'nullable|phone|unique:users,phone,' . $user->id,
         ]);
 

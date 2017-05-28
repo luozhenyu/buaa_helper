@@ -47,7 +47,7 @@ class LoginController extends Controller
     protected function credentials(Request $request)
     {
         $user = $request->input($this->username());
-        if ($this->isInteger($user)) {
+        if (ctype_digit($user)) {
             if (strlen($user) == 11) {
                 $credential_type = 'phone';
             } else {
@@ -71,16 +71,5 @@ class LoginController extends Controller
     public function username()
     {
         return 'user';
-    }
-
-    /**
-     * Finds whether the given variable is numeric.
-     *
-     * @param mixed $input
-     * @return bool
-     */
-    public function isInteger($input)
-    {
-        return ctype_digit(strval($input));
     }
 }

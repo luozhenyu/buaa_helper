@@ -104,7 +104,7 @@ class NotificationController extends Controller
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $query = Auth::user()->written_notifications();
         } else {
-            abort(403);
+            return abort(403);
         }
 
         //search
@@ -154,11 +154,11 @@ class NotificationController extends Controller
     {
         abort_unless(EntrustFacade::can('create_notification'), 403);
         $this->validate($request, [
-            'title' => 'required',
+            'title' => 'required|max:40',
             'department' => 'required|exists:departments,id',
             'time' => 'required|time_range',
             'important' => 'required|in:0,1',
-            'content' => 'required',
+            'content' => 'required|max:1048576',//2MB
             'attachment' => 'nullable',
         ]);
 
@@ -184,7 +184,6 @@ class NotificationController extends Controller
         ]);
         $notification->files()->sync($fileList);
 
-
         $users = User::get()->map(function ($item, $key) {
             return $item->id;
         });
@@ -209,7 +208,7 @@ class NotificationController extends Controller
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);
         } else {
-            abort(403);
+            return abort(403);
         }
         return view('notification.modify', [
             'notification' => $notification,
@@ -221,24 +220,24 @@ class NotificationController extends Controller
         if (EntrustFacade::can('modify_all_notification')) {
             $notification = Notification::findOrFail($id);
             $this->validate($request, [
-                'title' => 'required',
+                'title' => 'required|max:40',
                 'department' => 'required|exists:departments,id',
                 'time' => 'required|time_range',
                 'important' => 'required|in:0,1',
-                'content' => 'required',
+                'content' => 'required|max:1048576',
                 'attachment' => 'nullable',
             ]);
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);
             $this->validate($request, [
-                'title' => 'required',
+                'title' => 'required|max:40',
                 'time' => 'required|time_range',
                 'important' => 'required|in:0,1',
-                'content' => 'required',
-                'attachment' => 'required',
+                'content' => 'required|max:1048576',
+                'attachment' => 'nullable',
             ]);
         } else {
-            abort(403);
+            return abort(403);
         }
 
         $time = explode(' ', $request->input('time'));
@@ -271,116 +270,116 @@ class NotificationController extends Controller
 
         return redirect(route('notification') . '/' . $notification->id);
     }
-
-    public function selectPush($notification_id)
-    {
-        $auth_user = Auth::user();
-        $departments = null;
-
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-            $notification = Notification::findOrFail($notification_id);
-            $departments = Department::get();
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-            $departments = [$auth_user->department];
-        } else
-            throw new AccessDeniedHttpException();
-
-        $notified_college = [];
-        $notified_department = [];
-
-        foreach ($notification->notified_departments as $department) {
-            if ($department->number < 100)
-                $notified_college[] = $department->id;
-            else
-                $notified_department[] = $department->id;
-        }
-        $notified_users = $notification->notified_users;
-
-        return view('notification.push', [
-            'notification' => $notification,
-            'departments' => $departments,
-            'notified_college' => $notified_college,
-            'notified_department' => $notified_department,
-            'notified_users' => $notified_users,
-        ]);
-    }
-
-    public function push(Request $request, $notification_id)
-    {
-        $auth_user = Auth::user();
-        $department_array = [];
-        $user_array = [];
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-            foreach (Department::get() as $department)
-                $department_array[] = $department->id;
-            foreach (User::get() as $user) {
-                $user_array[] = $user->id;
-            }
-            $notification = Notification::findOrFail($notification_id);
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            $department_array[] = $auth_user->department_id;
-            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-            foreach ($auth_user->department->users as $user) {
-                $user_array[] = $user->id;
-            }
-        } else
-            throw new AccessDeniedHttpException();
-
-        $this->validate($request, [
-            'send2college' => 'required|json|json_in_array:' . implode(',', $department_array),
-            'send2department' => 'required|json|json_in_array:' . implode(',', $department_array),
-            'send2user' => 'required|json|json_in_array:' . implode(',', $user_array),
-        ]);
-
-        $send2college = json_decode($request->input('send2college'), true);
-        $send2department = json_decode($request->input('send2department'), true);
-        $send2user = json_decode($request->input('send2user'), true);
-
-        $departments = array_merge($send2college, $send2department);
-        $notification->notified_departments()->sync($departments);
-        $notification->notified_users()->sync($send2user);
-        return redirect(route('notification') . '/' . $notification_id . '/push');
-    }
-
-    public function ajaxSearchUser(Request $request)
-    {
-        $auth_user = Auth::user();
-        $list = $request->input('list');
-        $array = mb_split('\s|,|;', $list);
-
-        $result = [];
-        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-            foreach ($array as $item) {
-                if (empty($item))
-                    continue;
-                else if ($this->isInteger($item)) {
-                    $number = intval($item);
-                    if (($user = User::where('number', $number)->first()) !== null)
-                        $result[] = [
-                            'id' => $user->id,
-                            'number' => $user->number,
-                        ];
-                }
-            }
-        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-            foreach ($array as $item) {
-                if (empty($item))
-                    continue;
-                else if ($this->isInteger($item)) {
-                    $number = intval($item);
-                    if (($user = $auth_user->department->users()->where('number', $number)->first()) !== null)
-                        $result[] = [
-                            'id' => $user->id,
-                            'number' => $user->number,
-                        ];
-                }
-            }
-        }
-        $result = $this->unique_multidim_array($result, 'id');
-        sort($result);
-        return response()->json($result);
-    }
+//
+//    public function selectPush($notification_id)
+//    {
+//        $auth_user = Auth::user();
+//        $departments = null;
+//
+//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+//            $notification = Notification::findOrFail($notification_id);
+//            $departments = Department::get();
+//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
+//            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
+//            $departments = [$auth_user->department];
+//        } else
+//            throw new AccessDeniedHttpException();
+//
+//        $notified_college = [];
+//        $notified_department = [];
+//
+//        foreach ($notification->notified_departments as $department) {
+//            if ($department->number < 100)
+//                $notified_college[] = $department->id;
+//            else
+//                $notified_department[] = $department->id;
+//        }
+//        $notified_users = $notification->notified_users;
+//
+//        return view('notification.push', [
+//            'notification' => $notification,
+//            'departments' => $departments,
+//            'notified_college' => $notified_college,
+//            'notified_department' => $notified_department,
+//            'notified_users' => $notified_users,
+//        ]);
+//    }
+//
+//    public function push(Request $request, $notification_id)
+//    {
+//        $auth_user = Auth::user();
+//        $department_array = [];
+//        $user_array = [];
+//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+//            foreach (Department::get() as $department)
+//                $department_array[] = $department->id;
+//            foreach (User::get() as $user) {
+//                $user_array[] = $user->id;
+//            }
+//            $notification = Notification::findOrFail($notification_id);
+//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
+//            $department_array[] = $auth_user->department_id;
+//            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
+//            foreach ($auth_user->department->users as $user) {
+//                $user_array[] = $user->id;
+//            }
+//        } else
+//            throw new AccessDeniedHttpException();
+//
+//        $this->validate($request, [
+//            'send2college' => 'required|json|json_in_array:' . implode(',', $department_array),
+//            'send2department' => 'required|json|json_in_array:' . implode(',', $department_array),
+//            'send2user' => 'required|json|json_in_array:' . implode(',', $user_array),
+//        ]);
+//
+//        $send2college = json_decode($request->input('send2college'), true);
+//        $send2department = json_decode($request->input('send2department'), true);
+//        $send2user = json_decode($request->input('send2user'), true);
+//
+//        $departments = array_merge($send2college, $send2department);
+//        $notification->notified_departments()->sync($departments);
+//        $notification->notified_users()->sync($send2user);
+//        return redirect(route('notification') . '/' . $notification_id . '/push');
+//    }
+//
+//    public function ajaxSearchUser(Request $request)
+//    {
+//        $auth_user = Auth::user();
+//        $list = $request->input('list');
+//        $array = mb_split('\s|,|;', $list);
+//
+//        $result = [];
+//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
+//            foreach ($array as $item) {
+//                if (empty($item))
+//                    continue;
+//                else if ($this->isInteger($item)) {
+//                    $number = intval($item);
+//                    if (($user = User::where('number', $number)->first()) !== null)
+//                        $result[] = [
+//                            'id' => $user->id,
+//                            'number' => $user->number,
+//                        ];
+//                }
+//            }
+//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
+//            foreach ($array as $item) {
+//                if (empty($item))
+//                    continue;
+//                else if ($this->isInteger($item)) {
+//                    $number = intval($item);
+//                    if (($user = $auth_user->department->users()->where('number', $number)->first()) !== null)
+//                        $result[] = [
+//                            'id' => $user->id,
+//                            'number' => $user->number,
+//                        ];
+//                }
+//            }
+//        }
+//        $result = $this->unique_multidim_array($result, 'id');
+//        sort($result);
+//        return response()->json($result);
+//    }
 
     public function star($id)
     {
@@ -438,7 +437,7 @@ class NotificationController extends Controller
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);
         } else {
-            abort(403);
+            return abort(403);
         }
 
         return response()->json([
@@ -459,7 +458,7 @@ class NotificationController extends Controller
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);
         } else {
-            abort(403);
+            return abort(403);
         }
 
         $title = $notification->title;
@@ -497,32 +496,4 @@ class NotificationController extends Controller
         return response()->download($path, "{$title} 阅读统计.xlsx")
             ->deleteFileAfterSend(true);
     }
-
-    /**
-     * Finds whether the given variable is numeric.
-     *
-     * @param mixed $input
-     * @return bool
-     */
-    protected function isInteger($input)
-    {
-        return ctype_digit(strval($input));
-    }
-
-    public static function unique_multidim_array($array, $key)
-    {
-        $temp_array = array();
-        $i = 0;
-        $key_array = array();
-
-        foreach ($array as $val) {
-            if (!in_array($val[$key], $key_array)) {
-                $key_array[$i] = $val[$key];
-                $temp_array[$i] = $val;
-            }
-            $i++;
-        }
-        return $temp_array;
-    }
-
 }

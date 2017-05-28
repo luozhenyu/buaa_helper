@@ -28,11 +28,18 @@ class FileController extends Controller
         if ($size <= 0 || $size > self::MAX_SIZE) {
             return response()->json([
                 "uploaded" => 0,
-                "message" => "文件超过最大允许长度" . round(self::MAX_SIZE / 1024 / 1024, 2) . 'MB'
+                "message" => "文件超过最大允许长度" . round(self::MAX_SIZE / 1024 / 1024, 2) . 'MB',
             ]);
         }
 
         $fileName = $uploadFile->getClientOriginalName();
+        if (strlen($fileName) > 120) {
+            return response()->json([
+                "uploaded" => 0,
+                "message" => "文件名最多为120字符",
+            ]);
+        }
+
         $sha1 = sha1_file($uploadFile->getRealPath());
         if (!$file = File::where('sha1', $sha1)->first()) {
             $path = $uploadFile->storeAs('upload/' . substr($sha1, 0, 2), $sha1);
