@@ -6,6 +6,8 @@ Install
 ====
 Ubuntu 16.04
 ----
+
+* Install LAMP and git
 ```Bash
 sudo apt update
 sudo apt install apache2 php mysql-server redis-server libapache2-mod-php php-mysql php-xml php-mbstring php-zip php-curl -y
@@ -16,7 +18,7 @@ sudo apt install git -y
 git clone https://github.com/luozhenyu/buaa_helper.git
 ```
 
-configure apache2' vhosts and make sure DocumentRoot is '/var/www/buaa_helper/public'
+* Configure vhosts of apache2
 * An example
 ```apacheconfig
 <VirtualHost *:80>
@@ -32,7 +34,8 @@ configure apache2' vhosts and make sure DocumentRoot is '/var/www/buaa_helper/pu
     </Directory>
 </VirtualHost>
 ```
-* Composer and NPM
+
+* Install Composer and NPM
 ```Bash
 sudo apt install composer npm -y
 sudo ln -s /usr/bin/nodejs /usr/bin/node
@@ -42,10 +45,18 @@ cd /var/www/buaa_helper
 sudo chmod -R 777 ./
 composer install
 bower install
+```
 
+* Laravel config
+```Bash
 cp .env.example .env
 php artisan key:generate
 vim .env                    # and config as you wish
 
 php artisan migrate --seed
+```
+
+* HTML Purifier
+```Bash
+chmod -R 777 vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 ```

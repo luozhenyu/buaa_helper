@@ -1,5 +1,8 @@
-Version: 2017/05/28 19:57:39
+Version: 2017/05/28 21:32:50
 ChangeLog:
+    2017/05/28 21:32:50
+        增加delete项
+        如果通知被删，delete=true，deleted_at=int，否则，delete=false，deleted_at=null
     2017/05/28 19:57:39
         time全替换成unix timestamp
         删除部分冗余信息
@@ -55,6 +58,7 @@ $this->any('notification', 'APIController@listNotification');
 			read_at:unix_timestamp(nullable)
             star:bool
             stared_at:unix_timestamp(nullable)
+            delete:bool
             deleted_at:unix_timestamp(nullable)
 			updated_at:unix_timestamp
 

@@ -9,6 +9,7 @@
   "type": "project",
   "require": {
     "php": ">=5.6.4",
+    "ezyang/htmlpurifier": "^4.9",
     "intervention/image": "^2.3",
     "laravel/framework": "5.4.*",
     "laravel/tinker": "~1.0",

@@ -83,15 +83,14 @@ class NotificationController extends Controller
         $notification = Auth::user()->receivedNotifications()->findOrFail($id);
         $pivot = $notification->pivot;
         if (!$notification->important) {
-            $pivot->read = true;
             $pivot->read_at = Carbon::now();
             $pivot->save();
         }
 
         return view('notification.show', [
             'notification' => $notification,
-            'star' => $pivot->star,
-            'read' => $pivot->read,
+            'stared_at' => $pivot->stared_at,
+            'read_at' => $pivot->read_at,
         ]);
     }
 
@@ -383,7 +382,6 @@ class NotificationController extends Controller
     {
         abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
         $pivot = $notification->pivot;
-        $pivot->star = true;
         $pivot->stared_at = Carbon::now();
         $pivot->save();
         return response('Stared!');
@@ -393,8 +391,7 @@ class NotificationController extends Controller
     {
         abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
         $pivot = $notification->pivot;
-        $pivot->star = false;
-        $pivot->stared_at = Carbon::now();
+        $pivot->stared_at = null;
         $pivot->save();
         return response('Stared!');
     }
@@ -422,7 +419,6 @@ class NotificationController extends Controller
         $notification = Auth::user()->receivedNotifications()->find($id);
         abort_unless($notification && $notification->important, 403);
         $pivot = $notification->pivot;
-        $pivot->read = true;
         $pivot->read_at = Carbon::now();
         $pivot->save();
         return response('Read!');
@@ -464,7 +460,7 @@ class NotificationController extends Controller
         $user_read = $notification->readUsers;
         $user_not_read = $notification->notReadUsers;
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
 
         $data = [['学号', '姓名', '手机号']];
         foreach ($user_not_read as $item) {

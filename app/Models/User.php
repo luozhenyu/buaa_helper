@@ -64,7 +64,7 @@ class User extends Authenticatable
     public function receivedNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
-            ->withPivot('read', 'read_at', 'star', 'stared_at','deleted_at');
+            ->withPivot('read_at', 'stared_at', 'deleted_at');
     }
 
     /**
@@ -74,7 +74,7 @@ class User extends Authenticatable
     public function staredNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
-            ->wherePivot('star', true);
+            ->wherePivot('stared_at', '!=', null);
     }
 
     /**
@@ -84,7 +84,7 @@ class User extends Authenticatable
     public function readNotifications()
     {
         return $this->receivedNotifications()
-            ->wherePivot('read', true);
+            ->wherePivot('read_at', '!=', null);
     }
 
     /**
@@ -94,7 +94,7 @@ class User extends Authenticatable
     public function notReadNotifications()
     {
         return $this->receivedNotifications()
-            ->wherePivot('read', false);
+            ->wherePivot('read_at', null);
     }
 
     /**

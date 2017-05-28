@@ -17,9 +17,7 @@ class CreateNotificationUserTable extends Migration
             $table->integer('notification_id')->unsigned();
             $table->integer('user_id')->unsigned();
 
-            $table->boolean('star')->default(false);
             $table->timestamp('stared_at')->nullable();
-            $table->boolean('read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->softDeletes();
             $table->timestamps();

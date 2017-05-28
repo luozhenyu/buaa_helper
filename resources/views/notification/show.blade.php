@@ -23,7 +23,7 @@
         background-color: #00a0e9;
     }
 
-    @if(!$read)
+    @if(!$read_at)
     #confirmRead:hover {
         background-color: #39c05f;
     }
@@ -65,7 +65,7 @@
                 }
             });
         };
-        setStarState(star,{{ $star? 'true': 'false' }});
+        setStarState(star,{{ $stared_at? 'true': 'false' }});
 
         var files = JSON.parse("{!! addslashes($files->toJson()) !!}");
         for (var i = 0; i < files.length; i++) {
@@ -131,7 +131,7 @@
                 <div class="text-right">
                     <div class="label-block">
                         <h2>
-                            @if($read)
+                            @if($read_at)
                                 <label class="label label-success">
                                     <span class="glyphicon glyphicon-ok">已确认阅读</span>
                                 </label>

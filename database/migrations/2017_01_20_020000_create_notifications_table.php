@@ -19,8 +19,8 @@ class CreateNotificationsTable extends Migration
             $table->string('title', 160);
             $table->integer('user_id')->unsigned();
             $table->integer('department_id')->unsigned();
-            $table->timestamp('start_time')->default('2017-01-01 00:00:00');
-            $table->timestamp('end_time')->default('2017-01-02 00:00:00');
+            $table->timestamp('start_time')->nullable();
+            $table->timestamp('end_time')->nullable();
             $table->boolean('important');
             $table->mediumText('content');
             $table->timestamps();
