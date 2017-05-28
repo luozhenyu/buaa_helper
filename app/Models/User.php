@@ -64,19 +64,7 @@ class User extends Authenticatable
     public function receivedNotifications()
     {
         return $this->belongsToMany('App\Models\Notification')
-            ->wherePivot('deleted_at', '=', null)
-            ->withPivot('read', 'read_at', 'star', 'stared_at');
-    }
-
-    /**
-     * 此用户删除的通知
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function deletedNotifications()
-    {
-        return $this->belongsToMany('App\Models\Notification')
-            ->wherePivot('deleted_at', '!=', null)
-            ->withPivot('read', 'read_at', 'star', 'stared_at');
+            ->withPivot('read', 'read_at', 'star', 'stared_at','deleted_at');
     }
 
     /**

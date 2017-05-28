@@ -141,26 +141,7 @@ class APIController extends Controller
                 'read_at' => $item->pivot->read_at,
                 'star' => (boolean)$item->pivot->star,
                 'stared_at' => $item->pivot->stared_at,
-                'updated_at' => $item->updated_at->timestamp,
-            ];
-        });
-
-        return response()->json([
-            'errcode' => ErrCode::OK,
-            'notifications' => $notifications,
-        ]);
-    }
-
-    public function deletedNotification(Request $request)
-    {
-        $user = $request->get('user');
-        $notifications = $user->deletedNotifications->map(function ($item, $key) {
-            return [
-                'id' => $item->id,
-                'read' => (boolean)$item->pivot->read,
-                'read_at' => $item->pivot->read_at,
-                'star' => (boolean)$item->pivot->star,
-                'stared_at' => $item->pivot->stared_at,
+                'deleted_at' => $item->pivot->deleted_at,
                 'updated_at' => $item->updated_at->timestamp,
             ];
         });
@@ -225,7 +206,7 @@ class APIController extends Controller
     public function restoreNotification(Request $request, $id)
     {
         $user = $request->get('user');
-        if (!$notification = $user->deletedNotifications()->find($id)) {
+        if (!$notification = $user->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),

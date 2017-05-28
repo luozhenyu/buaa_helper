@@ -33,10 +33,10 @@ class FileController extends Controller
         }
 
         $fileName = $uploadFile->getClientOriginalName();
-        if (strlen($fileName) > 120) {
+        if (strlen($fileName) > 200) {
             return response()->json([
                 "uploaded" => 0,
-                "message" => "文件名最多为120字符",
+                "message" => "文件名最多为200字符",
             ]);
         }
 

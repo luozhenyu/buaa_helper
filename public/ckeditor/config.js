@@ -20,7 +20,7 @@ CKEDITOR.editorConfig = function (config) {
         {name: 'insert', items: ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar']},
         {name: 'styles', items: ['Styles', 'Format', 'Font', 'FontSize']},
         {name: 'colors', items: ['TextColor', 'BGColor']},
-        {name: 'tools', items: ['Maximize', 'ShowBlocks']},
+        {name: 'tools', items: ['Maximize', 'ShowBlocks']}
     ];
 
     config.extraPlugins = 'tableresize,uploadimage,uploadfile';

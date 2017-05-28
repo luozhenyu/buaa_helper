@@ -33,7 +33,7 @@ configure apache2' vhosts and make sure DocumentRoot is '/var/www/buaa_helper/pu
 </VirtualHost>
 ```
 * Composer and NPM
-```
+```Bash
 sudo apt install composer npm -y
 sudo ln -s /usr/bin/nodejs /usr/bin/node
 sudo npm install -g bower
@@ -48,4 +48,4 @@ php artisan key:generate
 vim .env                    # and config as you wish
 
 php artisan migrate --seed
-```Bash
+```

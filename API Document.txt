@@ -1,5 +1,9 @@
-Version: 2017/05/27 17:15:42
+Version: 2017/05/28 15:56:34
 ChangeLog:
+    2017/05/28 15:56:34
+        Notification路由显示未删除和软删除的通知
+        删除原有deleted路由
+        如果deleted_at属性不为空则此通知已经删除
     2017/05/27 17:15:42
         增加软删除功能
         增加deleted,delete,restore路由
@@ -48,20 +52,8 @@ $this->any('notification', 'APIController@listNotification');
 			read_at:timestamp(nullable)
             star:bool
             stared_at:timestamp(nullable)
+            deleted_at:timestamp(nullable)
 			updated_at:unix_timestamp
-
-$this->any('notification/deleted', 'APIController@deletedNotification');
-    params:
-    		access_token:uuid
-    	return:
-    		errcode:integer
-    		notifications:
-    			id:integer
-    			read:bool
-    			read_at:timestamp(nullable)
-                star:bool
-                stared_at:timestamp(nullable)
-    			updated_at:unix_timestamp
 
 
 $this->any('notification/{id}', 'APIController@showNotification');

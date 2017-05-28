@@ -21,7 +21,6 @@ $this->any('user/info', 'APIController@userInfo');
 $this->any('user/modify', 'APIController@modifyUserInfo');
 
 $this->any('notification', 'APIController@listNotification');
-$this->any('notification/deleted', 'APIController@deletedNotification');
 $this->any('notification/{id}', 'APIController@showNotification');
 
 $this->any('notification/{id}/delete', 'APIController@deleteNotification');
