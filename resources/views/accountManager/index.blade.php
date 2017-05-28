@@ -101,10 +101,9 @@
             </div>
             @endpermission
 
-            <form class="form-inline pull-right " role="form" method="get"
-                  action="{{ route('accountManager') }}">
+            <form class="form-inline pull-right " role="form" method="get" action="{{ route('accountManager') }}">
                 <div class="input-group">
-                    <input type="search" class="form-control" name="wd" value="{{$wd}}" placeholder="学号／工号／姓名">
+                    <input type="search" class="form-control" name="wd" value="{{ $wd }}" placeholder="学号／工号／姓名">
 
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
@@ -115,23 +114,19 @@
             </form>
 
         </caption>
+
         <thead>
         <tr>
-            <th>
-                <a href="{{route('accountManager').'?wd='.$wd.'&sort=department_id&by='.($sort==='department_id'&&$by==='asc'?'desc':'asc')}}">院系</a>
-            </th>
-            <th>
-                <a href="{{route('accountManager').'?wd='.$wd.'&sort=number&by='.($sort==='number'&&$by==='asc'?'desc':'asc')}}">学号／工号</a>
-            </th>
-            <th>
-                <a href="{{route('accountManager').'?wd='.$wd.'&sort=name&by='.($sort==='name'&&$by==='asc'?'desc':'asc')}}">姓名</a>
-            </th>
-            <th>
-                <a href="{{route('accountManager').'?wd='.$wd.'&sort=role_id&by='.($sort==='role_id'&&$by==='asc'?'desc':'asc')}}">账号类型</a>
-            </th>
+            @foreach($orders as $key => $value)
+                <th>
+                    <a href="{{ route('accountManager').'?wd='.$wd.'&sort='.$key.'&by='.$value['by'] }}">{{ $value['name'] }}</a>
+                </th>
+            @endforeach
+            <th>账号类型</th>
             <th></th>
         </tr>
         </thead>
+
         <tbody>
         @foreach($users as $user)
             <tr>

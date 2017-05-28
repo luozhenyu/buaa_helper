@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Func\RoleDef;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,6 +36,8 @@ class AppServiceProvider extends ServiceProvider
 
             return $start_time && $end_time && $start_time < $end_time;
         });
+
+        Carbon::setLocale(substr(App::getLocale(), 0, 2));
     }
 
     /**

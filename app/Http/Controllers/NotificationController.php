@@ -22,28 +22,49 @@ class NotificationController extends Controller
         $this->middleware('auth');
     }
 
+    private $orders = [
+        'title' => [
+            'name' => '标题',
+            'by' => 'asc',
+        ],
+        'department_id' => [
+            'name' => '发布部门',
+            'by' => 'asc',
+        ],
+        'content' => [
+            'name' => '正文',
+            'by' => 'asc',
+        ],
+        'updated_at' => [
+            'name' => '更新时间',
+            'by' => 'desc',
+        ],
+    ];
+
     public function index(Request $request)
     {
-        $authUser = Auth::user();
-
-        if (!in_array($sort = $request->input('sort'), ['title', 'department_id', 'content', 'updated_at'], true))
-            $sort = 'updated_at';
-        if (!in_array($by = $request->input('by'), ['asc', 'desc'], true))
-            $by = 'desc';
-
-        $wd = null;
-        if ($request->has('wd')) {
-            $wd = $request->input('wd');
-            $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-            $notifications = $authUser->receivedNotifications()
-                ->where('title', 'like', $query_wd)
-                ->orderBy($sort, $by)
-                ->paginate(15);
-        } else {
-            $notifications = $authUser->receivedNotifications()
-                ->orderBy($sort, $by)
-                ->paginate(15);
+        $query = Auth::user()->receivedNotifications();
+        //search
+        if ($wd = $request->input('wd')) {
+            $query = $query->whereRaw("MATCH(`title`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
         }
+        //orderBy
+        $sort = $request->input('sort');
+        $by = $request->input('by');
+        if (!$wd || $sort || $by) {
+            if (!array_key_exists($sort, $this->orders)) {
+                $sort = 'updated_at';//默认updated_at
+            }
+            if (!in_array($by, ['asc', 'desc'])) {
+                $by = $this->orders[$sort]['by'];
+            }
+            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
+            $query = $query->orderBy($sort, $by);
+        }
+
+        //paginate
+        $notifications = $query->paginate(15)
+            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
 
         if ($page = intval($request->input('page'))) {
             if ($page > ($lastPage = $notifications->lastPage()))
@@ -53,10 +74,9 @@ class NotificationController extends Controller
         }
 
         return view('notification.index', [
-            'notifications' => $notifications->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]),
+            'notifications' => $notifications,
             'wd' => $wd,
-            'sort' => $sort,
-            'by' => $by,
+            'orders' => $this->orders,
         ]);
     }
 
@@ -79,55 +99,47 @@ class NotificationController extends Controller
 
     public function manage(Request $request)
     {
-        $auth_user = Auth::user();
-
-        if (!in_array($sort = $request->input('sort'), ['title', 'department_id', 'content', 'updated_at'], true))
-            $sort = 'updated_at';
-        if (!in_array($by = $request->input('by'), ['asc', 'desc'], true))
-            $by = 'desc';
-
-        $wd = null;
-        if ($auth_user->can('modify_all_notification')) {
-            if ($request->has('wd')) {
-                $wd = $request->input('wd');
-                $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-                $notifications = Notification::where('title', 'like', $query_wd)
-                    ->orderBy($sort, $by)
-                    ->paginate(15);
-            } else {
-                $notifications = Notification::orderBy($sort, $by)->paginate(15);
-            }
-        } else if ($auth_user->can('modify_owned_notification')) {
-            if ($request->has('wd')) {
-                $wd = $request->input('wd');
-                $query_wd = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-                $notifications = $auth_user->written_notifications()
-                    ->where('title', 'like', $query_wd)
-                    ->orderBy($sort, $by)
-                    ->paginate(15);
-            } else {
-                $notifications = $auth_user->written_notifications()
-                    ->orderBy($sort, $by)
-                    ->paginate(15);
-            }
+        if (EntrustFacade::can('modify_all_notification')) {
+            $query = new Notification;
+        } else if (EntrustFacade::can('modify_owned_notification')) {
+            $query = Auth::user()->written_notifications();
         } else {
             abort(403);
         }
 
+        //search
+        if ($wd = $request->input('wd')) {
+            $query = $query->whereRaw("MATCH(`title`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
+        }
+        //orderBy
+        $sort = $request->input('sort');
+        $by = $request->input('by');
+        if (!$wd || $sort || $by) {
+            if (!array_key_exists($sort, $this->orders)) {
+                $sort = 'updated_at';//默认updated_at
+            }
+            if (!in_array($by, ['asc', 'desc'])) {
+                $by = $this->orders[$sort]['by'];
+            }
+            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
+            $query = $query->orderBy($sort, $by);
+        }
+
+        //paginate
+        $notifications = $query->paginate(15)
+            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
+
         if ($page = intval($request->input('page'))) {
-            if ($page > ($lastPage = $notifications->lastPage())) {
+            if ($page > ($lastPage = $notifications->lastPage()))
                 return redirect($notifications->url($lastPage));
-            }
-            if ($page < 1) {
+            if ($page < 1)
                 return redirect($notifications->url(1));
-            }
         }
 
         return view('notification.manage', [
-            'notifications' => $notifications->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by,]),
+            'notifications' => $notifications,
             'wd' => $wd,
-            'sort' => $sort,
-            'by' => $by,
+            'orders' => $this->orders,
         ]);
     }
 
@@ -147,7 +159,7 @@ class NotificationController extends Controller
             'time' => 'required|time_range',
             'important' => 'required|in:0,1',
             'content' => 'required',
-            'attachment' => 'required',
+            'attachment' => 'nullable',
         ]);
 
         $time = explode(' ', $request->input('time'));
@@ -214,7 +226,7 @@ class NotificationController extends Controller
                 'time' => 'required|time_range',
                 'important' => 'required|in:0,1',
                 'content' => 'required',
-                'attachment' => 'required',
+                'attachment' => 'nullable',
             ]);
         } else if (EntrustFacade::can('modify_owned_notification')) {
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);

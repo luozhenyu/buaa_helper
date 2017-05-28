@@ -18,11 +18,9 @@
             </a>
             @endpermission
 
-            <form class="form-inline pull-right" role="form" method="get"
-                  action="{{ route('notification') }}">
+            <form class="form-inline pull-right" role="form" method="get" action="{{ route('notification') }}">
                 <div class="input-group">
-
-                    <input type="search" class="form-control" name="wd" value="{{ $wd }}" placeholder="题目">
+                    <input type="search" class="form-control" name="wd" value="{{ $wd }}" placeholder="请输入查询关键词">
 
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
@@ -30,50 +28,41 @@
                         </button>
                     </span>
                 </div>
-
             </form>
         </caption>
         <thead>
         <tr>
-            <th>
-                <a href="{{route('notification').'?wd='.$wd.'&sort=title&by='.($sort==='title'&&$by==='asc'?'desc':'asc')}}">标题</a>
-            </th>
-            <th>
-                <a href="{{route('notification').'?wd='.$wd.'&sort=department_id&by='.($sort==='department_id'&&$by==='asc'?'desc':'asc')}}">发布部门</a>
-            </th>
-            <th>
-                <a href="{{route('notification').'?wd='.$wd.'&sort=content&by='.($sort==='content'&&$by==='asc'?'desc':'asc')}}">正文</a>
-            </th>
-            <th>
-                <a href="{{route('notification').'?wd='.$wd.'&sort=updated_at&by='.($sort==='updated_at'&&$by==='asc'?'desc':'asc')}}">更新时间</a>
-            </th>
+            @foreach($orders as $key => $value)
+                <th>
+                    <a href="{{ route('notification').'?wd='.$wd.'&sort='.$key.'&by='.$value['by'] }}">{{ $value['name'] }}</a>
+                </th>
+            @endforeach
         </tr>
         </thead>
         <tbody>
-
         @foreach($notifications as $notification)
             <tr>
                 <td>
                     @if($notification->important)
                         <span class="label label-danger">必读</span>
                     @endif
-                    <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                        {{$notification->title}}
+                    <a href="{{ route('notification').'/'.$notification->id }}" target="_blank">
+                        {{ $notification->title }}
                     </a>
                 </td>
                 <td>{{$notification->department->name}}</td>
                 <td>
-                    <a href="{{route('notification').'/'.$notification->id}}" target="_blank">
-                        {{ str_limit(strip_tags($notification->content),50) }}
+                    <a href="{{ route('notification').'/'.$notification->id }}" target="_blank">
+                        {{ str_limit(strip_tags($notification->content), 50) }}
                     </a>
                 </td>
-                <td>{{\App\Func\Time::format($notification->updated_at)}}</td>
+                <td>{{ \App\Func\Time::format($notification->updated_at) }}</td>
             </tr>
         @endforeach
         </tbody>
     </table>
 
-    @if($notifications->count() === 0)
+    @if( $notifications->count() === 0 )
         <h2 style="color:gray;text-align:center;">(没有通知)</h2>
     @endif
 

@@ -20,44 +20,56 @@ class AccountManagerController extends Controller
         $this->middleware('auth', ['except' => 'getImportTemplate']);
     }
 
+    private $orders = [
+        'department_id' => [
+            'name' => '院系',
+            'by' => 'asc',
+        ],
+        'number' => [
+            'name' => '学号/工号',
+            'by' => 'asc',
+        ],
+        'name' => [
+            'name' => '姓名',
+            'by' => 'asc',
+        ],
+    ];
+
     public function index(Request $request)
     {
-        $authUser = Auth::user();
-
-        if (!in_array($sort = $request->input('sort'), ['department_id', 'number', 'name', 'role_id'], true))
-            $sort = 'number';
-        if (!in_array($by = $request->input('by'), ['asc', 'desc'], true))
-            $by = 'asc';
-
-        $wd = null;
-        if ($authUser->can('view_all_user')) {
-            if ($request->has('wd')) {
-                $wd = $request->input('wd');
-                $queryWord = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-                $users = User::where('number', 'like', $queryWord)
-                    ->orWhere('name', 'like', $queryWord)
-                    ->orderBy($sort, $by)
-                    ->paginate(25);
-            } else {
-                $users = User::orderBy($sort, $by)->paginate(25);
-            }
-        } else if ($authUser->can('view_owned_user')) {
-            if ($request->has('wd')) {
-                $wd = $request->input('wd');
-                $queryWord = '%' . str_replace("_", "\\_", str_replace("%", "\\%", $wd)) . '%';
-                $users = $authUser->department->users()
-                    ->where('number', 'like', $queryWord)
-                    ->orWhere('name', 'like', $queryWord)
-                    ->orderBy($sort, $by)
-                    ->paginate(25);
-            } else {
-                $users = $authUser->department->users()
-                    ->orderBy($sort, $by)
-                    ->paginate(25);
-            }
+        if (EntrustFacade::can('view_all_user')) {
+            $query = new User;
+        } else if (EntrustFacade::can('view_owned_user')) {
+            $query = Auth::user()->department->users();
         } else {
-            abort(403);
+            return abort(403);
         }
+        //search
+        if ($wd = $request->input('wd')) {
+            $qWd = str_replace("_", "\\_", $wd);
+            $qWd = str_replace("%", "\\%", $qWd);
+            $qWd = str_replace("\\", "\\\\", $qWd);
+            $qWd = "%{$qWd}%";
+            $query = $query->where('number', 'like', $qWd)
+                ->orWhere('name', 'like', $qWd);
+        }
+        //orderBy
+        $sort = $request->input('sort');
+        $by = $request->input('by');
+        if (!$wd || $sort || $by) {
+            if (!array_key_exists($sort, $this->orders)) {
+                $sort = 'number';//默认number
+            }
+            if (!in_array($by, ['asc', 'desc'])) {
+                $by = $this->orders[$sort]['by'];
+            }
+            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
+            $query = $query->orderBy($sort, $by);
+        }
+
+        //paginate
+        $users = $query->paginate(15)
+            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
 
         if ($page = intval($request->input('page'))) {
             if ($page > ($lastPage = $users->lastPage()))
@@ -67,11 +79,11 @@ class AccountManagerController extends Controller
         }
 
         return view('accountManager.index', [
-            'users' => $users->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]),
+            'users' => $users,
             'wd' => $wd,
-            'sort' => $sort,
-            'by' => $by,
+            'orders' => $this->orders,
         ]);
+
     }
 
     public function show($id)
@@ -83,7 +95,7 @@ class AccountManagerController extends Controller
         } else if ($authUser->can('view_owned_user')) {
             $user = $authUser->department->users()->findOrFail($id);
         } else {
-            abort(403);
+            return abort(403);
         }
         abort_unless($authUser->can(['modify_all_user', 'modify_owned_user']), 403);
 
