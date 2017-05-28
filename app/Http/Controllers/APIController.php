@@ -138,10 +138,10 @@ class APIController extends Controller
             return [
                 'id' => $item->id,
                 'read' => (boolean)$item->pivot->read,
-                'read_at' => $item->pivot->read_at,
+                'read_at' => $item->pivot->read_at ? strtotime($item->pivot->read_at) : null,
                 'star' => (boolean)$item->pivot->star,
-                'stared_at' => $item->pivot->stared_at,
-                'deleted_at' => $item->pivot->deleted_at,
+                'stared_at' => $item->pivot->stared_at ? strtotime($item->pivot->stared_at) : null,
+                'deleted_at' => $item->pivot->deleted_at ? strtotime($item->pivot->deleted_at) : null,
                 'updated_at' => $item->updated_at->timestamp,
             ];
         });
@@ -170,17 +170,12 @@ class APIController extends Controller
                 'author' => $notification->user->name,
                 'department' => $notification->department->number,
                 'department_name' => $notification->department->name,
-                'start_time' => $notification->start_time->toDateTimeString(),
-                'end_time' => $notification->end_time->toDateTimeString(),
+                'start_time' => $notification->start_time->timestamp,
+                'end_time' => $notification->end_time->timestamp,
                 'content' => $notification->content,
                 'files' => $notification->files->map(function ($item, $key) {
                     return $item->downloadInfo();
                 }),
-                'read' => (boolean)$notification->pivot->read,
-                'read_at' => $notification->pivot->read_at,
-                'star' => (boolean)$notification->pivot->star,
-                'stared_at' => $notification->pivot->stared_at,
-                'updated_at' => $notification->updated_at->timestamp,
             ]
         ]);
     }

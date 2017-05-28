@@ -1,5 +1,8 @@
-Version: 2017/05/28 15:56:34
+Version: 2017/05/28 19:57:39
 ChangeLog:
+    2017/05/28 19:57:39
+        time全替换成unix timestamp
+        删除部分冗余信息
     2017/05/28 15:56:34
         Notification路由显示未删除和软删除的通知
         删除原有deleted路由
@@ -49,10 +52,10 @@ $this->any('notification', 'APIController@listNotification');
 		notifications:
 			id:integer
 			read:bool
-			read_at:timestamp(nullable)
+			read_at:unix_timestamp(nullable)
             star:bool
-            stared_at:timestamp(nullable)
-            deleted_at:timestamp(nullable)
+            stared_at:unix_timestamp(nullable)
+            deleted_at:unix_timestamp(nullable)
 			updated_at:unix_timestamp
 
 
@@ -75,11 +78,6 @@ $this->any('notification/{id}', 'APIController@showNotification');
 				fileName:string
 				url:string
 			]
-			read:bool
-            read_at:timestamp(nullable)
-            star:bool
-            stared_at:timestamp(nullable)
-            updated_at:unix_timestamp
 
 $this->any('notification/{id}/delete', 'APIController@deleteNotification');
 	url_params:
