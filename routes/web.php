@@ -36,18 +36,19 @@ $this->delete('/account_manager/{id}', 'AccountManagerController@destroy');
 $this->get('/notification', 'NotificationController@index')->name('notification');
 $this->get('/notification/manage', 'NotificationController@manage');
 $this->get('/notification/stared', 'NotificationController@stared');
+
 $this->get('/notification/create', 'NotificationController@create');
 $this->post('/notification', 'NotificationController@store');
 
-$this->post('/notification/search_user', 'NotificationController@ajaxSearchUser'); //获得可推送的用户列表
+//$this->post('/notification/search_user', 'NotificationController@ajaxSearchUser'); //获得可推送的用户列表
 
 $this->get('/notification/{id}', 'NotificationController@show');
+$this->delete('/notification/{id}', 'NotificationController@delete');
 $this->get('/notification/{id}/modify', 'NotificationController@modify');
 $this->put('/notification/{id}', 'NotificationController@update');
-$this->delete('/notification/{id}', 'NotificationController@delete');
 
-$this->get('/notification/{id}/push', 'NotificationController@selectPush');
-$this->post('/notification/{id}/push', 'NotificationController@push');
+//$this->get('/notification/{id}/push', 'NotificationController@selectPush');
+//$this->post('/notification/{id}/push', 'NotificationController@push');
 
 $this->post('/notification/{id}/star', 'NotificationController@star');
 $this->post('/notification/{id}/unstar', 'NotificationController@unstar');
@@ -58,9 +59,9 @@ $this->get('/notification/{id}/statistic', 'NotificationController@statisticExce
 
 //Inquiry
 $this->get('/inquiry', 'InquiryController@index')->name('inquiry');
-$this->get('/inquiry/{id}', 'InquiryController@show');
-$this->post('/inquiry/{id}/update', 'InquiryController@update');
-$this->post('/inquiry/{id}/delete', 'InquiryController@delete');
+//$this->get('/inquiry/{id}', 'InquiryController@show');
+//$this->post('/inquiry/{id}/update', 'InquiryController@update');
+//$this->post('/inquiry/{id}/delete', 'InquiryController@delete');
 
 //Login Logout
 $this->get('login', 'Auth\LoginController@showLoginForm')->name('login');
@@ -81,4 +82,4 @@ $this->post('password/reset', 'Auth\ResetPasswordController@reset');
 
 //File upload
 $this->post('file/upload', 'FileController@upload');
-$this->get('file/download/{id}', 'FileController@download');
+$this->get('file/download/{sha1}', 'FileController@download');
