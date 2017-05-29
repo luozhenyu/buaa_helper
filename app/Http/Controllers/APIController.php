@@ -230,7 +230,7 @@ class APIController extends Controller
             ]);
         }
         $pivot = $notification->pivot;
-        $pivot->read = true;
+        $pivot->read_at = Carbon::now();
         $pivot->save();
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -248,7 +248,7 @@ class APIController extends Controller
             ]);
         }
         $pivot = $notification->pivot;
-        $pivot->star = true;
+        $pivot->stared_at = Carbon::now();
         $pivot->save();
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -266,7 +266,7 @@ class APIController extends Controller
             ]);
         }
         $pivot = $notification->pivot;
-        $pivot->star = false;
+        $pivot->stared_at = null;
         $pivot->save();
         return response()->json([
             'errcode' => ErrCode::OK,

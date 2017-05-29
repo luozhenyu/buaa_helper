@@ -177,7 +177,7 @@ class NotificationController extends Controller
             'start_time' => new Carbon($start_time),
             'end_time' => new Carbon($end_time),
             'important' => $request->input('important') === "1",
-            'content' => $request->input('content'),
+            'content' => clean($request->input('content')),
         ]);
         $notification->files()->sync($fileList);
 
@@ -255,10 +255,10 @@ class NotificationController extends Controller
         $notification->start_time = $start_time;
         $notification->end_time = $end_time;
         $notification->important = $request->input('important') === "1";
-        $notification->content = $request->input('content');
+        $notification->content = clean($request->input('content'));
         $notification->save();
-        $notification->files()->sync($fileList);
 
+        $notification->files()->sync($fileList);
 
         $users = User::get()->map(function ($item, $key) {
             return $item->id;
