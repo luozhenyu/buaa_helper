@@ -50,14 +50,18 @@
         }
 
         /* 标题链接（激活状态） */
-        ul.navbar-nav > li a:hover, ul.navbar-nav > li a:focus {
-            color: red;
-            text-decoration: none;
+        .navbar-default .navbar-nav > li > a:focus,
+        .navbar-default .navbar-nav > li > a:hover {
+            color: white;
+            background-color: transparent;
         }
 
         /* 标题链接（正常状态） */
-        ul.navbar-nav > li a:link, ul.navbar-nav > li a:visited, ul.navbar-nav > li a:active {
-            color: #e3e3e3;
+        ul.navbar-nav > li a:link,
+        ul.navbar-nav > li a:visited,
+        ul.navbar-nav > li a:active {
+            color: #dcdcdc;
+            background-color: transparent;
             text-decoration: none;
         }
 
