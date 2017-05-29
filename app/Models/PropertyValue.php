@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Department extends Model
+class PropertyValue extends Model
 {
     public $timestamps = false;
 
@@ -14,15 +14,15 @@ class Department extends Model
      * @var array
      */
     protected $fillable = [
-        'number', 'name', 'description',
+        'name', 'display_name',
     ];
 
     /**
-     * 此department拥有的用户
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * 此value属于的property
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function users()
+    public function properties()
     {
-        return $this->hasMany('App\Models\User');
+        return $this->belongsTo('App\Models\Property');
     }
 }

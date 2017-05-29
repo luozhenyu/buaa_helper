@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
         $this->call(DepartmentTableSeeder::class);
         $this->call(PermissionAndRoleSeeder::class);
         $this->call(UserTableSeeder::class);
+        $this->call(PropertyTableSeeder::class);
+
 
         $normal = Role::where('name', 'normal')->firstOrFail();
         factory(User::class, 100)->create()->each(function ($u) use ($normal) {

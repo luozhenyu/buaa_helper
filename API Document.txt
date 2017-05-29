@@ -1,5 +1,7 @@
-Version: 2017/05/28 21:32:50
+Version: 2017/05/29 22:28:08
 ChangeLog:
+    2017/05/29 22:28:08
+        通知增加important属性，true为必读通知，false为普通通知
     2017/05/28 21:32:50
         增加delete项
         如果通知被删，delete=true，deleted_at=int，否则，delete=false，deleted_at=null
@@ -76,6 +78,7 @@ $this->any('notification/{id}', 'APIController@showNotification');
 			author:string
 			department:integer
 			department_name:string
+			important:bool
 			content:html
 			files:[
 				sha1:string

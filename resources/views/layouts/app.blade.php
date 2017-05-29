@@ -151,12 +151,6 @@
             padding-top: 15px;
             padding-bottom: 15px;
         }
-
-        .navbar-default .navbar-nav > li > a:hover {
-            color: red;
-            background-color: transparent;
-        }
-
     </style>
     @stack('css')
 
