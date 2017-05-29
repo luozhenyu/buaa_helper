@@ -10,7 +10,7 @@ Ubuntu 16.04
 * Install LAMP and git
 ```Bash
 sudo apt update
-sudo apt install apache2 php mysql-server redis-server libapache2-mod-php php-mysql php-xml php-mbstring php-zip php-curl -y
+sudo apt install apache2 php mysql-server redis-server libapache2-mod-php php-mysql php-xml php-mbstring php-zip php-curl php-imagick -y
 sudo a2enmod rewrite
     
 cd /var/www
@@ -54,9 +54,4 @@ php artisan key:generate
 vim .env                    # and config as you wish
 
 php artisan migrate --seed
-```
-
-* HTML Purifier
-```Bash
-chmod -R 777 vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 ```

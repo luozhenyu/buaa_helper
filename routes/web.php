@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-//$this->get('/test', 'TestController@test');
+$this->get('/test', 'TestController@test');
 
 
 $this->get('/', 'HomeController@viewIndex');
