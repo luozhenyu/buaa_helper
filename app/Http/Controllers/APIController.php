@@ -137,6 +137,8 @@ class APIController extends Controller
         $notifications = $user->receivedNotifications->map(function ($item, $key) {
             return [
                 'id' => $item->id,
+                'important' => $item->important,
+
                 'read' => (boolean)($read_at = $item->pivot->read_at),
                 'read_at' => $read_at ? strtotime($read_at) : null,
 
@@ -176,7 +178,6 @@ class APIController extends Controller
                 'department_name' => $notification->department->name,
                 'start_time' => $notification->start_time->timestamp,
                 'end_time' => $notification->end_time->timestamp,
-                'important' => $notification->important,
                 'content' => $notification->content,
                 'files' => $notification->files->map(function ($item, $key) {
                     return $item->downloadInfo();
