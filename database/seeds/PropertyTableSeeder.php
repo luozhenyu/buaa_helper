@@ -82,7 +82,6 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '籍贯',
             'description' => '籍贯',
         ])->propertyValues();
-        $propertyValues->create(['name' => 1, 'display_name' => '北京']);
     }
 
     private function createFinancialDifficulty()
