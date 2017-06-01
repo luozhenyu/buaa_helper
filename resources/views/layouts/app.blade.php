@@ -141,8 +141,15 @@
             padding-bottom: 15px;
         }
 
-        #crumb, #main_content {
+        #main_content:empty, #crumb:empty {
             display: none;
+        }
+
+
+        .alpha_hide {
+            filter: alpha(opacity=1);
+            -moz-opacity: 0.01;
+            opacity: 0.01;
         }
     </style>
     @stack('css')
@@ -161,12 +168,18 @@
 
             if (!ce) {
                 $("#crumb").fadeTo(300, 1);
+                $("#crumb").removeClass("alpha_hide");
                 setTimeout(function () {
-                    if (!me)
+                    if (!me) {
                         $("#main_content").fadeTo(200, 1);
+                        $("#main_content").removeClass("alpha_hide");
+                    }
                 }, 100)
             } else {
-                if (!me) $("#main_content").fadeTo(200, 1);
+                if (!me) {
+                    $("#main_content").fadeTo(200, 1);
+                    $("#main_content").removeClass("alpha_hide");
+                }
             }
 
             $("tr th").click(function () {
@@ -288,8 +301,8 @@
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">
-                <ol class="breadcrumb" id="crumb">@stack("crumb")</ol>
-                <div id="main_content" class="jumbotron container">@yield('content')</div>
+                <ol class="breadcrumb alpha_hide" id="crumb">@stack("crumb")</ol>
+                <div id="main_content" class="jumbotron container alpha_hide">@yield('content')</div>
             </div>
         </div>
     </div>
