@@ -44,8 +44,14 @@
             <tr>
                 <td>
                     @if($notification->important)
+                        @if(($notification->end_time->diffInDays() < 1) && (true))
+                            <span class="label label-danger">一天内截止</span>
+                        @endif
                         <span class="label label-danger">必读</span>
                     @endif
+
+
+
                     <a href="{{ route('notification').'/'.$notification->id }}" target="_blank">
                         {{ $notification->title }}
                     </a>

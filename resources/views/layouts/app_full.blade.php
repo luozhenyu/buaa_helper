@@ -146,7 +146,7 @@
             });
 
             $("button").click(function () {
-                if (typeof($(this).attr("href")) !== undefined) {
+                if (typeof($(this).attr("href")) != "undefined") {
                     window.location.href = $(this).attr("href");
                 }
             })

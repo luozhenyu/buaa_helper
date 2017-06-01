@@ -14,9 +14,13 @@
         margin: 10px 5px 20px 5px;
     }
 
-    .label-block > label {
+    .information-line-1 .label-block > label {
         text-shadow: black 2px 2px 1px;
         font-size: 14px;
+    }
+
+    .information-line-2 .label-block > span {
+        font-weight: 900;
     }
 
     #star:hover {
@@ -94,7 +98,7 @@
         <h3 class="text-center">
             {{ ($notification->important? '[必读] ' : '') . $notification->title }}
         </h3>
-        <div class="text-center">
+        <div class="text-center information-line-1">
             <div class="label-block">
                 <label class="label label-info">发布部门</label> {{ $notification->department->name }}
             </div>
@@ -115,7 +119,7 @@
                 <!--</label>-->
             </div>
         </div>
-        <div class="text-center">
+        <div class="text-center information-line-2">
             @if($notification->start_time)
                 <div class="label-block">
                     <span style="color:darkgreen">起始日期:</span> {{ $notification->start_time }}
@@ -126,11 +130,36 @@
                 <div class="label-block">
                     <span style="color:red">截止日期:</span> {{ $notification->end_time }}
                     @if($notification->end_time->diffInDays() < 1)
-                        <span>截止日期不足一天</span>
+                        <label class="label label-danger" style = "font-size: 14px;">一天内截止</label>
                     @endif
                 </div>
             @endif
         </div>
+        <div class = "text-center">
+            @if($notification->start_time && $notification->end_time)
+                @php
+                    $from_begin = $notification->start_time->diffInSeconds();
+                    $to_end = $notification->end_time->diffInSeconds();
+                    $b_ratio = $from_begin / ($from_begin + $to_end);
+                    $e_ratio = $to_end / ($from_begin + $to_end);
+                    if ($b_ratio < 0.33) $p_style = "success"; else
+                    if ($b_ratio < 0.66) $p_style = "warning"; else $p_style = "danger";
+                @endphp
+                <div class="progress">
+                    <div class="progress-bar progress-bar-{{ $p_style }}" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                         style="width: {{ ($b_ratio * 100)."%" }};">
+                        <span>{{ round($b_ratio * 100, 2)."%" }}</span>
+                    </div>
+                    <div class="progress-bar" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                         style="width: {{ ($e_ratio * 100)."%" }};background-color: whitesmoke;">
+                        <span style = "color: black;">{{ round($e_ratio * 100, 2)."%" }}</span>
+                    </div>
+                </div>
+            @endif
+        </div>
+
     </div>
 
     <div class = "col-md-12">

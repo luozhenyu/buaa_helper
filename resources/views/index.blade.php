@@ -161,33 +161,49 @@
                                 <a href="{{ url('/login') }}" class="btn btn-info ">开始使用</a>
                             @else
                                 @permission(['view_all_user','view_owned_user'])
+                                    <div class="btn-group list">
+                                        <button href="{{ url("/account_manager") }}" type="button" class="btn btn-warning">
+                                            用户管理
+                                        </button>
+                                        <button type="button" class="btn btn-warning dropdown-toggle"
+                                                data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">切换下拉菜单</span>
+                                        </button>
+                                        <ul class="dropdown-menu bg-warning" role="menu">
+                                            <li><a href="{{ url("/account_manager/create") }}">增加用户</a></li>
+                                        </ul>
+                                    </div>
+
+                            <!--<a href="{{ route('accountManager') }}" class="btn btn-warning">用户管理</a>-->
+                                @endpermission
+
                                 <div class="btn-group list">
-                                    <button href="{{ url("/account_manager") }}" type="button" class="btn btn-warning">
-                                        用户管理
+                                    <button href="{{ url("/notification") }}" type="button" class="btn btn-info">
+                                        通知
+                                        @php
+                                            if (!Auth::guest()) $unread_count = Auth::user()->notReadNotifications()->count(); else $unread_count = 0;
+                                            if ($unread_count > 0) {
+                                                echo "<span class=\"badge\">$unread_count</span>";
+                                            }
+                                        @endphp
                                     </button>
-                                    <button type="button" class="btn btn-warning dropdown-toggle"
+                                    <button type="button" class="btn btn-info dropdown-toggle"
                                             data-toggle="dropdown">
                                         <span class="caret"></span>
                                         <span class="sr-only">切换下拉菜单</span>
                                     </button>
                                     <ul class="dropdown-menu bg-warning" role="menu">
-                                        <li><a href="{{ url("/account_manager/create") }}">增加用户</a></li>
+                                        <li><a href="{{ url("/notification/stared") }}">已收藏通知</a></li>
+
+                                        @if(Entrust::can(['create_notification']))
+                                            <li class="divider"></li>
+                                            <li><a href="{{ url("/notification/manage") }}">通知管理</a></li>
+                                            <li><a href="{{ url("/notification/create") }}">创建新通知</a></li>
+                                        @endif
                                     </ul>
                                 </div>
 
-                            <!--<a href="{{ route('accountManager') }}" class="btn btn-warning">用户管理</a>-->
-                                @endpermission
-
-
-                                <a href="{{ url('/notification') }}" class="btn btn-info">
-                                    通知
-                                    @php
-                                        if (!Auth::guest()) $unread_count = Auth::user()->notReadNotifications()->count(); else $unread_count = 0;
-                                        if ($unread_count > 0) {
-                                            echo "<span class=\"badge\">$unread_count</span>";
-                                        }
-                                    @endphp
-                                </a>
                             @endif
                         </div>
                         <!--</div>-->
