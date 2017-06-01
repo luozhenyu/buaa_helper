@@ -7,9 +7,9 @@
     <link rel="shortcut icon" href="{{ url('/favicon.ico') }}" type="image/x-icon"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name') }}</title>
     <link rel="stylesheet" href="{{ url('/components/bootstrap/dist/css/bootstrap.min.css') }}">
-{{-- <link rel="stylesheet" href="{{ url('/components/highcharts/css/highcharts.css') }}"> --}}
+
 @stack('cssLink')
 <!-- 公共样式表 -->
     <style>
@@ -44,6 +44,7 @@
             color: #285e8e;
             content: "\";
         }
+
         /* header背景色 北航蓝 */
         .navbar {
             background-color: #0066cc;
@@ -84,7 +85,6 @@
             color: white;
             background-color: #ff5409;
         }
-
 
         ol.breadcrumb {
             background-color: #b4dcfc;
@@ -131,26 +131,6 @@
                 display: none;
             }
         }
-
-        #main_content {
-            max-width: 100%;
-            background-color: white;
-            padding-left: 12px;
-            padding-right: 12px;
-            padding-top: 15px;
-            padding-bottom: 15px;
-        }
-
-        #main_content:empty, #crumb:empty {
-            display: none;
-        }
-
-
-        .alpha_hide {
-            filter: alpha(opacity=1);
-            -moz-opacity: 0.01;
-            opacity: 0.01;
-        }
     </style>
     @stack('css')
 
@@ -158,35 +138,15 @@
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 
     @stack('jsLink')
-
     <script>
         $(function () {
-            var ce = $("#crumb").is(":empty");
-            var me = $("#main_content").is(":empty");
-
-            if (!ce) {
-                $("#crumb").fadeTo(300, 1);
-                $("#crumb").removeClass("alpha_hide");
-                setTimeout(function () {
-                    if (!me) {
-                        $("#main_content").fadeTo(200, 1);
-                        $("#main_content").removeClass("alpha_hide");
-                    }
-                }, 100)
-            } else {
-                if (!me) {
-                    $("#main_content").fadeTo(200, 1);
-                    $("#main_content").removeClass("alpha_hide");
-                }
-            }
-
             $("tr th").click(function () {
                 var a_sign = $(this).find("a");
                 if (a_sign.length > 0) window.location.href = a_sign.attr("href");
             });
 
-            $("button").click(function(){
-                if (typeof($(this).attr("href")) != "undefined") {
+            $("button").click(function () {
+                if (typeof($(this).attr("href")) !== undefined) {
                     window.location.href = $(this).attr("href");
                 }
             })
@@ -262,7 +222,7 @@
                                     if ($unread_count > 0) $unread_tip = $unread_count; else $unread_tip = "0";
                                 @endphp
                                 @if($unread_count > 0)
-                                    <span class = "badge">{{ $unread_tip }}</span>
+                                    <span class="badge">{{ $unread_tip }}</span>
                                 @endif
 
                             </a>

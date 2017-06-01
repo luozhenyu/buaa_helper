@@ -1,11 +1,9 @@
-Introduction
-====
+# Introduction
 学生事务服务中心
+# Install
 
-Install
-====
-Ubuntu 16.04
-----
+### Ubuntu 16.04
+
 
 * Install LAMP and git
 ```Bash
