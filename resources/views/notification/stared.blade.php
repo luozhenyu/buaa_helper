@@ -36,6 +36,7 @@
             <th>发布部门</th>
             <th>正文</th>
             <th>收藏时间</th>
+            <th>&nbsp;</th>
         </tr>
         </thead>
         <tbody>
@@ -52,7 +53,7 @@
                         {{ str_limit(strip_tags($notification->content),50) }}
                     </a>
                 </td>
-                <td>{{ \App\Func\Time::format($notification->pivot->stared_at) }}</td>
+                <td>{{ (new Carbon\Carbon($notification->pivot->stared_at))->diffForHumans() }}</td>
                 <td>
                     <div class="btn-group">
                         <button type="button" class="btn btn-danger btn-xs destroy"

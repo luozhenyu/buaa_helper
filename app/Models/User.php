@@ -73,7 +73,7 @@ class User extends Authenticatable
      */
     public function staredNotifications()
     {
-        return $this->belongsToMany('App\Models\Notification')
+        return $this->receivedNotifications()
             ->wherePivot('stared_at', '!=', null);
     }
 

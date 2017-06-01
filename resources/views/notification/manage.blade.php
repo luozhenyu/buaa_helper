@@ -197,8 +197,7 @@
                             删除
                         </button>
                         <a type="button" class="btn btn-info btn-xs"
-                           href="{{route('notification').'/'.$notification->id.'/modify'}}"
-                           target="_blank">修改</a>
+                           href="{{route('notification').'/'.$notification->id.'/modify'}}" target="_blank">修改</a>
                         <button type="button" class="btn btn-default btn-xs statistic" data-id="{{$notification->id}}">
                             阅读统计
                         </button>

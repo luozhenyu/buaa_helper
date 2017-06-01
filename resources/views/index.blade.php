@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app_full')
 
 @push("css")
 <style>
@@ -143,7 +143,7 @@
     </div>
 @endsection--}}
 
-@section("content2")
+@section("content_full")
     <div id="main_div" style="position:relative">
         <div id="back_div"></div>
         <div id="content_div">

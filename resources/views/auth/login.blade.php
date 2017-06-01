@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app_full')
 
 @push("css")
 <style>
@@ -128,7 +128,7 @@
 </script>
 @endpush
 
-@section('content2')
+@section('content_full')
     <div id="main_div">
         <div class="container" style="margin-bottom: 20px; padding: 0px;">
             <div class="row" style="margin: 20px;">

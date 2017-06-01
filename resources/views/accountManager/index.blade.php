@@ -48,7 +48,6 @@
 @endpush
 
 @section('content')
-
     <table class="table table-condensed table-hover">
         <caption>
             @permission('create_user')
