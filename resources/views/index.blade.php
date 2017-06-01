@@ -93,10 +93,36 @@
         font-size: 25px;
     }
 
-    #btn_area a {
+    #btn_area > .btn, #btn_area > .btn-group  {
         width: 100%;
         margin-bottom: 7px;
     }
+
+
+    @media(max-width: 300px) {
+        #btn_area > .btn-group.list button:nth-child(1) {
+            width: 65%;
+        }
+        #btn_area > .btn-group.list button:nth-child(2) {
+            width: 35%;
+        }
+    }
+
+    @media(min-width: 301px) {
+        #btn_area > .btn-group.list button:nth-child(1) {
+            width: 80%;
+        }
+        #btn_area > .btn-group.list button:nth-child(2) {
+            width: 20%;
+        }
+    }
+
+
+    #btn_area > .btn-group.list ul.dropdown-menu {
+        font-size: 18px;
+    }
+
+
 </style>
 @endpush
 
@@ -126,14 +152,27 @@
                     <div class="col-xs-12" style="text-align:center;">
                         <h1 id="title_one">欢迎使用</h1>
                         <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
-                        <div id="btn_area">
-                            <div class="col-md-4 col-md-offset-4 col-xs-9 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                        <!--<div id="btn_area">-->
+                            <div id = "btn_area" class="col-md-4 col-md-offset-4 col-xs-9 col-xs-offset-1 col-sm-6 col-sm-offset-3">
                                 @if (Auth::guest())
                                     <a href="{{ url('/login') }}" class="btn btn-info ">开始使用</a>
                                 @else
                                     @permission(['view_all_user','view_owned_user'])
-                                    <a href="{{ route('accountManager') }}" class="btn btn-warning">用户管理</a>
+                                    <div class="btn-group list">
+                                        <button href = "{{ url("/account_manager") }}" type="button" class="btn btn-warning">用户管理</button>
+                                        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">切换下拉菜单</span>
+                                        </button>
+                                        <ul class="dropdown-menu bg-warning" role="menu">
+                                            <li><a href="{{ url("/account_manager/create") }}">增加用户</a></li>
+                                        </ul>
+                                    </div>
+
+                                    <!--<a href="{{ route('accountManager') }}" class="btn btn-warning">用户管理</a>-->
                                     @endpermission
+
+
                                     <a href="{{ url('/notification') }}" class="btn btn-info">
                                         通知
                                         @php
@@ -143,9 +182,12 @@
                                             }
                                         @endphp
                                     </a>
+
+
+
                                 @endif
                             </div>
-                        </div>
+                        <!--</div>-->
                     </div>
                 </div>
             </div>

@@ -160,8 +160,6 @@
     @stack('jsLink')
 
     <script>
-
-
         $(function () {
             var ce = $("#crumb").is(":empty");
             var me = $("#main_content").is(":empty");
@@ -186,6 +184,12 @@
                 var a_sign = $(this).find("a");
                 if (a_sign.length > 0) window.location.href = a_sign.attr("href");
             });
+
+            $("button").click(function(){
+                if (typeof($(this).attr("href")) != "undefined") {
+                    window.location.href = $(this).attr("href");
+                }
+            })
         });
 
         function jump() {

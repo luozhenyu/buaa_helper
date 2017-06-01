@@ -126,7 +126,7 @@
                 <div class="label-block">
                     <span style="color:red">截止日期:</span> {{ $notification->end_time }}
                     @if($notification->end_time->diffInDays() < 1)
-                        <span></span>
+                        <span>截止日期不足一天</span>
                     @endif
                 </div>
             @endif
