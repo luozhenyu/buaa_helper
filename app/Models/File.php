@@ -35,10 +35,12 @@ class File extends Model
 
     public function downloadInfo()
     {
+        $domain = env('APP_URL');
+        $url = $domain . (substr($domain, -1) === '/' ? '' : '/') . 'file/download/' . $this->sha1;
         return [
             "sha1" => $this->sha1,
             "fileName" => $this->fileName,
-            "url" => url('/file/download/' . $this->sha1)
+            "url" => $url,
         ];
     }
 }

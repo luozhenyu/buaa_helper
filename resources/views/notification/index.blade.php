@@ -67,4 +67,5 @@
     @endif
 
     <div class="text-center">{{ $notifications->links() }}</div>
+
 @endsection

@@ -137,6 +137,8 @@ class APIController extends Controller
         $notifications = $user->receivedNotifications->map(function ($item, $key) {
             return [
                 'id' => $item->id,
+                'important' => $item->important,
+
                 'read' => (boolean)($read_at = $item->pivot->read_at),
                 'read_at' => $read_at ? strtotime($read_at) : null,
 

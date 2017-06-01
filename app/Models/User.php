@@ -107,6 +107,15 @@ class User extends Authenticatable
     }
 
     /**
+     * 此用户拥有的properties
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function propertyValues()
+    {
+        return $this->hasMany('App\Models\PropertyValue');
+    }
+
+    /**
      * 修改用户密码并清除token
      * @param $str
      */
