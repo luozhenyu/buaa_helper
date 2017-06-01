@@ -37,7 +37,7 @@
   * access_token:uuid
   * expires_in:seconds
 
-`$this->any('user/info', 'APIController@userInfo');``
+`$this->any('user/info', 'APIController@userInfo');`
 * return:
   * errcode:integer
   * user:
