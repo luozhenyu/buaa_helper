@@ -12,7 +12,7 @@
 */
 
 $this->any('/', function () {
-    return redirect('https://github.com/luozhenyu/buaa_helper/blob/master/API%20Document.txt');
+    return redirect('https://github.com/luozhenyu/buaa_helper/blob/master/API%20Document.md');
 });
 
 $this->any('login', 'APIController@login');
