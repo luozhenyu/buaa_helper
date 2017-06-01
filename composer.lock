@@ -1163,12 +1163,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "44e2461b7b7c532e8892997df267b4c1c89fe2d8"
+                "reference": "6e4e0a65f5d28b95b63d645eb2c1389ab25653e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/PHPOffice/PhpSpreadsheet/44e2461b7b7c532e8892997df267b4c1c89fe2d8.zip",
-                "reference": "44e2461b7b7c532e8892997df267b4c1c89fe2d8",
+                "url": "https://files.phpcomposer.com/files/PHPOffice/PhpSpreadsheet/6e4e0a65f5d28b95b63d645eb2c1389ab25653e4.zip",
+                "reference": "6e4e0a65f5d28b95b63d645eb2c1389ab25653e4",
                 "shasum": ""
             },
             "require": {
@@ -1235,7 +1235,7 @@
                 "xls",
                 "xlsx"
             ],
-            "time": "2017-05-19 21:49:12"
+            "time": "2017-05-26 10:47:14"
         },
         {
             "name": "phpoffice/phpword",

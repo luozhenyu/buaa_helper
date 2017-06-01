@@ -103,7 +103,6 @@
         }
 
         #crumb {
-
             filter: alpha(opacity=1);
             -moz-opacity: 0.01;
             opacity: 0.01;
@@ -154,11 +153,6 @@
             padding-right: 12px;
             padding-top: 15px;
             padding-bottom: 15px;
-        }
-
-        .navbar-default .navbar-nav > li > a:hover {
-            color: red;
-            background-color: transparent;
         }
 
     </style>
