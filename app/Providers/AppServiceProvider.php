@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Func\RoleDef;
+use App\Models\User;
+use App\Observers\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -38,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Carbon::setLocale(substr(App::getLocale(), 0, 2));
+
+        User::observe(UserObserver::class);
+
     }
 
     /**

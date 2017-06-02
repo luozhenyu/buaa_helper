@@ -21,7 +21,7 @@ class PropertyValue extends Model
      * 此value属于的property
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function properties()
+    public function property()
     {
         return $this->belongsTo('App\Models\Property');
     }

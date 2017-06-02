@@ -11,6 +11,7 @@ class User extends Authenticatable
 {
     use Notifiable;
     use EntrustUserTrait;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -108,11 +109,25 @@ class User extends Authenticatable
 
     /**
      * 此用户拥有的properties
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function propertyValues()
+    public function properties()
     {
-        return $this->hasMany('App\Models\PropertyValue');
+        return $this->belongsToMany('App\Models\Property')
+            ->withPivot('property_value_id')
+            ->using('App\Models\PropertyUser');
+    }
+
+    /**
+     * 此用户的某项属性值
+     * @param $name
+     * @return string
+     */
+    public function propertyValue($name)
+    {
+        return $this->properties()
+            ->where('name', $name)->firstOrFail()
+            ->pivot->propertyValue;
     }
 
     /**

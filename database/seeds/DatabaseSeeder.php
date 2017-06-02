@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CityTableSeeder::class);
         $this->call(DepartmentTableSeeder::class);
         $this->call(PermissionAndRoleSeeder::class);
-        $this->call(UserTableSeeder::class);
         $this->call(PropertyTableSeeder::class);
+        $this->call(UserTableSeeder::class);
 
 
         $normal = Role::where('name', 'normal')->firstOrFail();

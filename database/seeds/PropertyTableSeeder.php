@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\City;
 use App\Models\Property;
 use Illuminate\Database\Seeder;
 
@@ -49,8 +50,6 @@ class PropertyTableSeeder extends Seeder
         $propertyValues->create(['name' => 5, 'display_name' => '八班']);
         $propertyValues->create(['name' => 5, 'display_name' => '九班']);
         $propertyValues->create(['name' => 5, 'display_name' => '十班']);
-
-
     }
 
     private function createPoliticalStatus()
@@ -82,6 +81,9 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '籍贯',
             'description' => '籍贯',
         ])->propertyValues();
+        City::doesntHave('children')->get()->each(function ($item, $key) use ($propertyValues) {
+            $propertyValues->create(['name' => $item->code, 'display_name' => $item->name]);
+        });
     }
 
     private function createFinancialDifficulty()

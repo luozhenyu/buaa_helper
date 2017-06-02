@@ -25,4 +25,15 @@ class Property extends Model
     {
         return $this->hasMany('App\Models\PropertyValue');
     }
+
+    /**
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany('App\Models\User')
+            ->withPivot('property_value_id')
+            ->using('App\Models\PropertyUser');
+    }
 }

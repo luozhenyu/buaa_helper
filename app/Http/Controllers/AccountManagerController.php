@@ -99,7 +99,7 @@ class AccountManagerController extends Controller
         }
         abort_unless($authUser->can(['modify_all_user', 'modify_owned_user']), 403);
 
-        return view('accountManager.edit', [
+        return view('accountManager.modify', [
             'user' => $user,
         ]);
     }

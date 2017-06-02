@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Func\Time;
-use Carbon\Carbon;
+use App\Models\City;
 use Illuminate\Http\Request;
 
 class TestController extends Controller
@@ -26,6 +25,7 @@ class TestController extends Controller
 
     public function test(Request $request)
     {
+
     }
 
 //    function isDepartment($str)
