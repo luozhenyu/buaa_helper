@@ -188,7 +188,7 @@
 
                     $tooltip_content = "<h5>距离截止：
                         <font style = 'font-weight: bold;color:$color;'>$time_remain_string</font></h5>";
-                    if ($notification->end_time->diffInDays() < 1) {
+                    if (($notification->end_time->diffInDays() < 1) && (!$read_at) && $notification->important) {
                         $tooltip_content = $tooltip_content
                             ."<h5>24小时内截止，<i style = 'font-weight:900;color: red;'>请抓紧时间</i></h5>";
                     }
