@@ -40,11 +40,6 @@
             color: black;
         }
 
-        .breadcrumb > li + li:before {
-            color: #285e8e;
-            content: "\";
-        }
-
         /* header背景色 北航蓝 */
         .navbar {
             background-color: #0066cc;
@@ -84,19 +79,6 @@
         li a .badge {
             color: white;
             background-color: #ff5409;
-        }
-
-        ol.breadcrumb {
-            background-color: #b4dcfc;
-        }
-
-        ol.breadcrumb li a {
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        ol.breadcrumb li.active {
-            font-weight: bold;
         }
 
         footer.foot-wrap {

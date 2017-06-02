@@ -2,16 +2,34 @@
 
 @push('css')
 <style>
+    ol.breadcrumb {
+        background-color: #b4dcfc;
+    }
+
+    ol.breadcrumb li a {
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    ol.breadcrumb li.active {
+        font-weight: bold;
+    }
+
+    .breadcrumb > li + li:before {
+        color: #285e8e;
+        content: "\";
+    }
+
+    #crumb {
+        animation: fadeInto 0.25s ease;
+    }
+
     #main_content {
         max-width: 100%;
         background-color: white;
         padding: 15px 12px 15px 12px;
 
-        animation: fadeInto 0.6s;
-    }
-
-    #crumb {
-        animation: fadeInto 0.3s;
+        animation: fadeInto 0.6s ease;
     }
 
     @keyframes fadeInto {
@@ -22,11 +40,11 @@
             opacity: 1;
         }
     }
+
 </style>
 @endpush
 
 @section('content_full')
-    <!-- Content Part-->
     <div class="container">
         <div class="row">
             <div class="col-md-10 col-md-offset-1 col-xs-12">

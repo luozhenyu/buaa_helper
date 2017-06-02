@@ -28,6 +28,18 @@
         border-color: #00a0e9;
     }
 
+    #progress_div {
+        width: 80%;
+        margin-left: 10%;
+        height: 4px;
+        background-color: #eeeeee;
+        margin-bottom: 15px;
+    }
+
+    #inner_progress_div {
+        height: 100%;
+    }
+
     @if(!$read_at)
     #confirmRead:hover {
         background-color: #39c05f;
@@ -130,36 +142,44 @@
                 <div class="label-block">
                     <span style="color:red">截止日期:</span> {{ $notification->end_time }}
                     @if($notification->end_time->diffInDays() < 1)
-                        <label class="label label-danger" style = "font-size: 14px;">一天内截止</label>
+                        <label class="label label-danger" style = "font-size: 14px;">24小时内截止</label>
                     @endif
+
                 </div>
             @endif
+
         </div>
         <div class = "text-center">
             @if($notification->start_time && $notification->end_time)
                 @php
+                    function color($c1, $c2, $ratio) {
+                        return [
+                            $c2[0] * $ratio + $c1[0] * (1 - $ratio),
+                            $c2[1] * $ratio + $c1[1] * (1 - $ratio),
+                            $c2[2] * $ratio + $c1[2] * (1 - $ratio)
+                        ];
+                    }
+
                     $from_begin = $notification->start_time->diffInSeconds();
                     $to_end = $notification->end_time->diffInSeconds();
                     $b_ratio = $from_begin / ($from_begin + $to_end);
                     $e_ratio = $to_end / ($from_begin + $to_end);
                     if ($b_ratio < 0.33) $p_style = "success"; else
                     if ($b_ratio < 0.66) $p_style = "warning"; else $p_style = "danger";
+                    if ($b_ratio < 0.5) {
+                        $c = color([0,255,0], [255,255,0], $b_ratio * 2);
+                    } else {
+                        $c = color([255,255,0], [255,0,0], ($b_ratio - 0.5) * 2);
+                    }
+                    $color = "rgb(".round($c[0]).", ".round($c[1]).", ".round($c[2]).")";
                 @endphp
-                <div class="progress">
-                    <div class="progress-bar progress-bar-{{ $p_style }}" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
-                         style="width: {{ ($b_ratio * 100)."%" }};">
-                        <span>{{ round($b_ratio * 100, 2)."%" }}</span>
-                    </div>
-                    <div class="progress-bar" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
-                         style="width: {{ ($e_ratio * 100)."%" }};background-color: whitesmoke;">
-                        <span style = "color: black;">{{ round($e_ratio * 100, 2)."%" }}</span>
+                <div id = "progress_div" style = "">
+                    <div id = "inner_progress_div" style = "background-color: {{ $color }}; width: {{ $b_ratio * 100 }}%;">
                     </div>
                 </div>
+
             @endif
         </div>
-
     </div>
 
     <div class = "col-md-12">
@@ -182,7 +202,7 @@
                             </label>
                         @else
                             <label class="label label-danger slow_down" id="confirmRead">
-                                <span class="glyphicon glyphicon-unchecked"></span>
+                                <span class="glyphicon glyphicon-pencil"></span>
                                 我已仔细阅读
                             </label>
                             <script>
