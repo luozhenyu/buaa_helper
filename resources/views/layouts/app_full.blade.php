@@ -132,6 +132,8 @@
                     window.location.href = $(this).attr("href");
                 }
             })
+
+            $("[data-toggle='tooltip']").tooltip();
         });
 
         function jump() {

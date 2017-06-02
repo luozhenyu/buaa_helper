@@ -40,6 +40,10 @@
         height: 100%;
     }
 
+    #progress_div, #inner_progress_div {
+        border-radius: 2px;
+    }
+
     @if(!$read_at)
     #confirmRead:hover {
         background-color: #39c05f;
@@ -162,6 +166,15 @@
 
                     $from_begin = $notification->start_time->diffInSeconds();
                     $to_end = $notification->end_time->diffInSeconds();
+                    $to_end_h = $notification->end_time->diffInHours();
+                    if ($to_end_h >= 24) {
+                        $time_remain_string = floor($to_end_h / 24)."天".($to_end_h % 24)."小时";
+                    } else {
+                        $time_remain_string = ($to_end_h % 24)."小时";
+                    }
+
+
+
                     $b_ratio = $from_begin / ($from_begin + $to_end);
                     $e_ratio = $to_end / ($from_begin + $to_end);
                     if ($b_ratio < 0.33) $p_style = "success"; else
@@ -172,10 +185,18 @@
                         $c = color([255,255,0], [255,0,0], ($b_ratio - 0.5) * 2);
                     }
                     $color = "rgb(".round($c[0]).", ".round($c[1]).", ".round($c[2]).")";
+
+                    $tooltip_content = "<h5>距离截止：
+                        <font style = 'font-weight: bold;color:$color;'>$time_remain_string</font></h5>";
+                    if ($notification->end_time->diffInDays() < 1) {
+                        $tooltip_content = $tooltip_content
+                            ."<h5>24小时内截止，<i style = 'font-weight:900;color: red;'>请抓紧时间</i></h5>";
+                    }
                 @endphp
-                <div id = "progress_div" style = "">
-                    <div id = "inner_progress_div" style = "background-color: {{ $color }}; width: {{ $b_ratio * 100 }}%;">
-                    </div>
+                <div id = "progress_div" data-toggle = "tooltip" data-html = "true"
+                     title = "{{ $tooltip_content }}">
+                    <div id = "inner_progress_div"
+                         style = "background-color: {{ $color }}; width: {{ $b_ratio * 100 }}%;"></div>
                 </div>
 
             @endif
