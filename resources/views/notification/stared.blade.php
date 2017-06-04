@@ -34,9 +34,9 @@
         <tr>
             <th>标题</th>
             <th>发布部门</th>
-            <th>正文</th>
+            <th>摘要</th>
             <th>收藏时间</th>
-            <th>&nbsp;</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -50,7 +50,7 @@
                 <td>{{$notification->department->name}}</td>
                 <td>
                     <a href="{{ route('notification') . '/' . $notification->id }}" target="_blank">
-                        {{ str_limit(strip_tags($notification->content),50) }}
+                        {{ str_limit($notification->excerpt,50) }}
                     </a>
                 </td>
                 <td>{{ (new Carbon\Carbon($notification->pivot->stared_at))->diffForHumans() }}</td>

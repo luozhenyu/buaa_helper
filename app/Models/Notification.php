@@ -12,7 +12,7 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'user_id', 'department_id', 'start_time', 'end_time', 'important', 'content',
+        'title', 'user_id', 'department_id', 'start_time', 'end_time', 'important', 'excerpt', 'content',
     ];
 
     protected $dates = ['created_at', 'updated_at', 'start_time', 'end_time'];

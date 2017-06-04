@@ -187,7 +187,7 @@
                 <td>{{ $notification->department->name }}</td>
                 <td>
                     <a href="{{ route('notification').'/'.$notification->id }}" target="_blank">
-                        {{ str_limit(strip_tags($notification->content), 50) }}
+                        {{ str_limit($notification->excerpt, 50) }}
                     </a>
                 </td>
                 <td>{{ \App\Func\Time::format($notification->updated_at) }}</td>

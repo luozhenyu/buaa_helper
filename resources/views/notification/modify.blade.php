@@ -110,8 +110,8 @@
 
                 @if ($errors->has('title'))
                     <span class="help-block">
-                                <strong>{{ $errors->first('title') }}</strong>
-                            </span>
+                        <strong>{{ $errors->first('title') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -136,8 +136,8 @@
 
                 @if ($errors->has('department'))
                     <span class="help-block">
-                                <strong>{{ $errors->first('department') }}</strong>
-                            </span>
+                        <strong>{{ $errors->first('department') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -151,8 +151,8 @@
 
                 @if($errors->has('time'))
                     <span class="help-block">
-                                <strong>{{ $errors->first('time') }}</strong>
-                            </span>
+                        <strong>{{ $errors->first('time') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -168,8 +168,21 @@
 
                 @if ($errors->has('important'))
                     <span class="help-block">
-                                <strong>{{ $errors->first('important') }}</strong>
-                            </span>
+                        <strong>{{ $errors->first('important') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group{{ $errors->has('excerpt') ? ' has-error' : '' }}">
+            <label for="excerpt" class="col-md-2 control-label">摘要</label>
+            <div class="col-md-9">
+                <input id="excerpt" type="text" class="form-control" name="excerpt" value="{{ $notification->excerpt }}"
+                       required autocomplete="off" placeholder="摘要中应包含通知的主要内容或注意事项（70字以内）">
+                @if ($errors->has('excerpt'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('excerpt') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -182,8 +195,8 @@
                         </textarea>
                 @if($errors->has('content'))
                     <span class="help-block">
-                                <strong>{{ $errors->first('content') }}</strong>
-                            </span>
+                        <strong>{{ $errors->first('content') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -219,8 +232,8 @@
         </div>
     </form>
 
-
-    {{-- 勿删，临时用于测试的modal --}}
+    {{--
+    勿删，临时用于测试的modal
     <!--
     <script>
         function fuck(){
@@ -255,5 +268,5 @@
             </div>
         </div>
     </div>-->
-
+    --}}
 @endsection

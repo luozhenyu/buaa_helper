@@ -21,10 +21,9 @@
             <form class="form-inline pull-right" role="form" method="get" action="{{ route('notification') }}">
                 <div class="input-group">
                     <input type="search" class="form-control" name="wd" value="{{ $wd }}" placeholder="请输入查询关键词">
-
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">
-                            <span class="glyphicon glyphicon-search"></span> 搜索
+                            <span class="glyphicon glyphicon-search"></span>&nbsp;搜索
                         </button>
                     </span>
                 </div>
@@ -62,7 +61,7 @@
                 <td>{{$notification->department->name}}</td>
                 <td>
                     <a href="{{ route('notification').'/'.$notification->id }}" target="_blank">
-                        {{ str_limit(strip_tags($notification->content), 50) }}
+                        {{ str_limit($notification->excerpt, 50) }}
                     </a>
                 </td>
                 <td>{{ \App\Func\Time::format($notification->updated_at) }}</td>

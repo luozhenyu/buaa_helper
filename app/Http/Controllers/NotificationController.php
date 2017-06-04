@@ -29,8 +29,8 @@ class NotificationController extends Controller
             'name' => '发布部门',
             'by' => 'asc',
         ],
-        'content' => [
-            'name' => '正文',
+        'excerpt' => [
+            'name' => '摘要',
             'by' => 'asc',
         ],
         'updated_at' => [
@@ -44,7 +44,7 @@ class NotificationController extends Controller
         $query = Auth::user()->receivedNotifications();
         //search
         if ($wd = $request->input('wd')) {
-            $query = $query->whereRaw("MATCH(`title`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
+            $query = $query->whereRaw("MATCH(`title`,`excerpt`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
         }
         //orderBy
         $sort = $request->input('sort');
@@ -106,7 +106,7 @@ class NotificationController extends Controller
 
         //search
         if ($wd = $request->input('wd')) {
-            $query = $query->whereRaw("MATCH(`title`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
+            $query = $query->whereRaw("MATCH(`title`,`excerpt`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
         }
         //orderBy
         $sort = $request->input('sort');
@@ -155,13 +155,14 @@ class NotificationController extends Controller
             'department' => 'required|exists:departments,id',
             'time' => 'required|time_range',
             'important' => 'required|in:0,1',
+            'excerpt' => 'required|max:70',
             'content' => 'required|max:1048576',//2MB
             'attachment' => 'nullable',
         ]);
 
         $time = explode(' ', $request->input('time'));
-        $start_time = $time[0] . ' ' . $time[1];
-        $end_time = $time[3] . ' ' . $time[4];
+        $start_time = new Carbon($time[0] . ' ' . $time[1]);
+        $end_time = new Carbon($time[3] . ' ' . $time[4]);
 
         $fileList = [];
         foreach (explode(',', $request->input('attachment')) as $sha1) {
@@ -174,9 +175,10 @@ class NotificationController extends Controller
         $notification = $user->writtenNotifications()->create([
             'title' => $request->input('title'),
             'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
-            'start_time' => new Carbon($start_time),
-            'end_time' => new Carbon($end_time),
+            'start_time' => $start_time,
+            'end_time' => $end_time,
             'important' => $request->input('important') === "1",
+            'excerpt' => $request->input('excerpt'),
             'content' => clean($request->input('content')),
         ]);
         $notification->files()->sync($fileList);
@@ -221,6 +223,7 @@ class NotificationController extends Controller
                 'department' => 'required|exists:departments,id',
                 'time' => 'required|time_range',
                 'important' => 'required|in:0,1',
+                'excerpt' => 'required|max:70',
                 'content' => 'required|max:1048576',
                 'attachment' => 'nullable',
             ]);
@@ -230,6 +233,7 @@ class NotificationController extends Controller
                 'title' => 'required|max:40',
                 'time' => 'required|time_range',
                 'important' => 'required|in:0,1',
+                'excerpt' => 'required|max:70',
                 'content' => 'required|max:1048576',
                 'attachment' => 'nullable',
             ]);
@@ -238,8 +242,8 @@ class NotificationController extends Controller
         }
 
         $time = explode(' ', $request->input('time'));
-        $start_time = $time[0] . ' ' . $time[1];
-        $end_time = $time[3] . ' ' . $time[4];
+        $start_time = new Carbon($time[0] . ' ' . $time[1]);
+        $end_time = new Carbon($time[3] . ' ' . $time[4]);
 
         $fileList = [];
         foreach (explode(',', $request->input('attachment')) as $sha1) {
@@ -255,6 +259,7 @@ class NotificationController extends Controller
         $notification->start_time = $start_time;
         $notification->end_time = $end_time;
         $notification->important = $request->input('important') === "1";
+        $notification->excerpt = $request->input('excerpt');
         $notification->content = clean($request->input('content'));
         $notification->save();
 

@@ -34,15 +34,14 @@
         height: 15px;
         background-color: #eeeeee;
         margin-bottom: 15px;
-        box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     #inner_progress_div {
         height: 100%;
         /*animation: progress-bar-stripes 2s linear infinite;*/
-        animation:
-                reverse progress-bar-stripes 0.70s linear infinite, animate-positive 2s,
-                myfirst 1.2s;
+        animation: reverse progress-bar-stripes 0.7s linear infinite, animate-positive 2s,
+        myfirst 1.2s;
         background-size: 40px 40px;
     }
 
@@ -50,14 +49,17 @@
         border-radius: 4px;
     }
 
-
     @keyframes myfirst {
         from {
-            width: 0%;
+            width: 0;
         }
         to {
             width: 100%;
         }
+    }
+
+    #excerpt {
+        font-size: 16px;
     }
 
     @if(!$read_at)
@@ -110,10 +112,8 @@
                 $("#attachmentContainer").append(parseFile(files[i], false));
             }
         } else {
-            $("#attachmentContainer").html("<h3 style = \"text-align:center;color:gray;margin:0px;\">(无附件)</h3>");
-
+            $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0px;'>(无附件)</h3>");
         }
-
     });
 </script>
 @endpush
@@ -126,7 +126,7 @@
 
 @section('content')
 
-    <div class = "col-md-12">
+    <div class="col-md-12">
         <h3 class="text-center">
             {{ ($notification->important? '[必读] ' : '') . $notification->title }}
         </h3>
@@ -145,12 +145,15 @@
 
             <div class="label-block">
                 <!--<label class="label label-primary" id="star">-->
-                <button id = "star" class = "btn btn-primary btn-xs" style = "font-size: 14px;">
+                <button id="star" class="btn btn-primary btn-xs" style="font-size: 14px;">
                     <span class="glyphicon glyphicon-star-empty">收藏</span>
                 </button>
                 <!--</label>-->
             </div>
         </div>
+
+        <p class="text-center" id="excerpt">摘要: {{ $notification->excerpt }}</p>
+
         <div class="text-center information-line-2">
             @if($notification->start_time)
                 <div class="label-block">
@@ -162,14 +165,12 @@
                 <div class="label-block">
                     <span style="color:red">截止日期:</span> {{ $notification->end_time }}
                     @if($notification->end_time->diffInDays() < 1)
-                        <label class="label label-danger" style = "font-size: 14px;">24小时内截止</label>
+                        <label class="label label-danger" style="font-size: 14px;">24小时内截止</label>
                     @endif
-
                 </div>
             @endif
-
         </div>
-        <div class = "text-center">
+        <div class="text-center">
             @if($notification->start_time && $notification->end_time)
                 @php
                     function color($c1, $c2, $ratio) {
@@ -209,66 +210,59 @@
                             ."<h5>24小时内截止，<i style = 'font-weight:900;color: red;'>请抓紧时间</i></h5>";
                     }
                 @endphp
-                <div id = "progress_div" data-toggle = "tooltip" data-html = "true"
-                     title = "{{ $tooltip_content }}">
-                    <div id = "outer_progress_div" style = "height: 100%; width: {{ $b_ratio * 100 }}%;">
-                        <div id = "inner_progress_div" style = "background-color: {{ $color }};width: 100%;
+                <div id="progress_div" data-toggle="tooltip" data-html="true"
+                     title="{{ $tooltip_content }}">
+                    <div id="outer_progress_div" style="height: 100%; width: {{ $b_ratio * 100 }}%;">
+                        <div id="inner_progress_div" style="background-color: {{ $color }};width: 100%;
                                 background-image: linear-gradient(45deg,rgba(255,255,255,{{ $linear_alpha }}) 25%,
                                 transparent 25%,transparent 50%,rgba(255,255,255,{{ $linear_alpha }}) 50%,
                                 rgba(255,255,255,{{ $linear_alpha }}) 75%,transparent 75%,transparent);"></div>
                     </div>
-
                 </div>
-
             @endif
         </div>
     </div>
 
-    <div class = "col-md-12">
+    <div class="col-md-12">
         <article>
             <div class="well well-lg">{!! $notification->content !!}</div>
         </article>
     </div>
 
-
-
     @if($notification->important)
-        <div class = "col-md-12">
+        <div class="col-md-12">
             <div class="text-right">
-                <div class="label-block">
-                    <h2>
-                        @if($read_at)
-                            <label class="label label-success">
-                                <span class="glyphicon glyphicon-ok"></span>
-                                已确认阅读
-                            </label>
-                        @else
-                            <label class="label label-danger slow_down" id="confirmRead">
-                                <span class="glyphicon glyphicon-question-sign"></span>
-                                是否已仔细阅读
-                            </label>
-                            <script>
-                                $(function () {
-                                    $("#confirmRead").click(function () {
-                                        $.ajax({
-                                            url: "{{ route('notification').'/'.$notification->id .'/read' }}",
-                                            type: "POST",
-                                            headers: {
-                                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                            },
-                                            success: function (data) {
-                                                window.location.reload();
-                                            }
-                                        });
-                                    });
+                <h2 class="label-block">
+                    @if($read_at)
+                        <label class="label label-success">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            已确认阅读
+                        </label>
+                    @else
+                        <label class="label label-danger slow_down" id="confirmRead">
+                            <span class="glyphicon glyphicon-question-sign"></span>
+                            是否已仔细阅读
+                        </label>
+                        <script>
+                            $("#confirmRead").click(function () {
+                                $.ajax({
+                                    url: "{{ route('notification').'/'.$notification->id .'/read' }}",
+                                    type: "POST",
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    success: function (data) {
+                                        window.location.reload();
+                                    }
                                 });
-                            </script>
-                        @endif
-                    </h2>
-                </div>
+                            });
+                        </script>
+                    @endif
+                </h2>
             </div>
         </div>
     @endif
+
     <div class="col-md-10 col-md-offset-1">
         <div class="panel panel-success">
             <div class="panel-heading">
@@ -278,5 +272,4 @@
             </div>
         </div>
     </div>
-
 @endsection
