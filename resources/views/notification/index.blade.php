@@ -14,7 +14,7 @@
 
             @permission('create_notification')
             <a type="button" class="btn btn-warning" href="{{ route('notification').'/manage' }}">
-                通知管理
+                <span class="glyphicon glyphicon-cog"></span>通知管理
             </a>
             @endpermission
 

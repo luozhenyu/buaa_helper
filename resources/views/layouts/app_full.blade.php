@@ -91,7 +91,8 @@
             position: fixed;
             right: 20px;
             bottom: 20px;
-            cursor: pointer
+            cursor: pointer;
+            z-index: 99999;
         }
 
         #menu_helper #circle {

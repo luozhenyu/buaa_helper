@@ -1,5 +1,19 @@
 @extends('layouts.app')
 
+@push('css')
+<style>
+    @media (max-width: 991px) {
+        #native_place_container > .col-xs-4.col-md-2:nth-of-type(1) {
+            padding-left: 0px;
+        }
+    }
+
+    #native_place_container > .col-xs-4.col-md-2 {
+        padding-right: 0px;
+    }
+</style>
+@endpush
+
 @push('cssLink')
 <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
@@ -192,9 +206,10 @@
         @php($native_place = \App\Models\Property::where('name','native_place')->firstOrFail())
         <div class="form-group{{ $errors->has('native_place') ? ' has-error' : '' }}">
             <label for="native_place" class="col-md-4 control-label">{{ $native_place->display_name }}</label>
-            <div class="container">
+            <div class="container" id = "native_place_container">
                 @php($cities = \App\Models\City::doesntHave('parent')->get())
-                <div class="col-md-2">
+
+                <div class="col-md-2 col-xs-4">
                     <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
                             id="native_place" name="native_place">
                         @foreach($cities as $value)
@@ -203,7 +218,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-2 col-xs-4">
                     <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
                             id="native_place" name="native_place">
                         @foreach($cities as $value)
@@ -212,7 +227,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-2 col-xs-4">
                     <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
                             id="native_place" name="native_place">
                         @foreach(\App\Models\City::doesntHave('parent')->get() as $value)

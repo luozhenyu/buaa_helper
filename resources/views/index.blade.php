@@ -97,7 +97,7 @@
 
     #btn_area > .btn, #btn_area > .btn-group {
         width: 100%;
-        margin-bottom: 7px;
+        margin-bottom: 12px;
     }
 
     @media (max-width: 300px) {

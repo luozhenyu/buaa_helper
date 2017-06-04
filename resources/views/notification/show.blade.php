@@ -31,17 +31,33 @@
     #progress_div {
         width: 80%;
         margin-left: 10%;
-        height: 4px;
+        height: 15px;
         background-color: #eeeeee;
         margin-bottom: 15px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
     }
 
     #inner_progress_div {
         height: 100%;
+        /*animation: progress-bar-stripes 2s linear infinite;*/
+        animation:
+                reverse progress-bar-stripes 0.70s linear infinite, animate-positive 2s,
+                myfirst 1.2s;
+        background-size: 40px 40px;
     }
 
     #progress_div, #inner_progress_div {
-        border-radius: 2px;
+        border-radius: 4px;
+    }
+
+
+    @keyframes myfirst {
+        from {
+            width: 0%;
+        }
+        to {
+            width: 100%;
+        }
     }
 
     @if(!$read_at)
@@ -173,17 +189,17 @@
                         $time_remain_string = ($to_end_h % 24)."小时";
                     }
 
-
-
                     $b_ratio = $from_begin / ($from_begin + $to_end);
-                    $e_ratio = $to_end / ($from_begin + $to_end);
-                    if ($b_ratio < 0.33) $p_style = "success"; else
-                    if ($b_ratio < 0.66) $p_style = "warning"; else $p_style = "danger";
+                    $b_ratio = 0.7;
+
                     if ($b_ratio < 0.5) {
                         $c = color([0,255,0], [255,255,0], $b_ratio * 2);
+                        $linear_alpha = ($b_ratio * 2) * (0.7 - 0.35) + 0.35;
                     } else {
                         $c = color([255,255,0], [255,0,0], ($b_ratio - 0.5) * 2);
+                        $linear_alpha = (2 - $b_ratio * 2) * (0.7 - 0.35) + 0.35;
                     }
+
                     $color = "rgb(".round($c[0]).", ".round($c[1]).", ".round($c[2]).")";
 
                     $tooltip_content = "<h5>距离截止：
@@ -195,8 +211,13 @@
                 @endphp
                 <div id = "progress_div" data-toggle = "tooltip" data-html = "true"
                      title = "{{ $tooltip_content }}">
-                    <div id = "inner_progress_div"
-                         style = "background-color: {{ $color }}; width: {{ $b_ratio * 100 }}%;"></div>
+                    <div id = "outer_progress_div" style = "height: 100%; width: {{ $b_ratio * 100 }}%;">
+                        <div id = "inner_progress_div" style = "background-color: {{ $color }};width: 100%;
+                                background-image: linear-gradient(45deg,rgba(255,255,255,{{ $linear_alpha }}) 25%,
+                                transparent 25%,transparent 50%,rgba(255,255,255,{{ $linear_alpha }}) 50%,
+                                rgba(255,255,255,{{ $linear_alpha }}) 75%,transparent 75%,transparent);"></div>
+                    </div>
+
                 </div>
 
             @endif
@@ -223,8 +244,8 @@
                             </label>
                         @else
                             <label class="label label-danger slow_down" id="confirmRead">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                                我已仔细阅读
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                                是否已仔细阅读
                             </label>
                             <script>
                                 $(function () {
