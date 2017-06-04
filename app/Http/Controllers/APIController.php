@@ -19,7 +19,17 @@ class APIController extends Controller
      */
     function __construct(Request $request)
     {
-        $this->middleware('auth.api', ['except' => 'login']);
+        $this->middleware('auth.api', ['except' => ['index', 'login']]);
+    }
+
+    /**
+     * 重定向到github
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function index(Request $request)
+    {
+        return redirect('https://github.com/luozhenyu/buaa_helper/blob/master/API%20Document.md');
     }
 
     /**
@@ -168,14 +178,16 @@ class APIController extends Controller
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
             ]);
         }
+        $department = $notification->department;
         return response()->json([
             'errcode' => ErrCode::OK,
             'notification' => [
                 'id' => $notification->id,
                 'title' => $notification->title,
                 'author' => $notification->user->name,
-                'department' => $notification->department->number,
-                'department_name' => $notification->department->name,
+                'department' => $department->number,
+                'department_name' => $department->name,
+                'department_avatar' => url($department->avatar),
                 'start_time' => $notification->start_time->timestamp,
                 'end_time' => $notification->end_time->timestamp,
                 'content' => $notification->content,

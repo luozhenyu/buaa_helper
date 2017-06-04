@@ -55,6 +55,10 @@ class FileController extends Controller
         );
     }
 
+    /**
+     * @param string $sha1
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function download($sha1)
     {
         $file = File::where('sha1', $sha1)->firstOrFail();

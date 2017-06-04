@@ -11,22 +11,21 @@
 |
 */
 
-$this->any('/', function () {
-    return redirect('https://github.com/luozhenyu/buaa_helper/blob/master/API%20Document.md');
-});
+$this->any('/', 'APIController@index');
 
-$this->any('login', 'APIController@login');
 
-$this->any('user/info', 'APIController@userInfo');
-$this->any('user/modify', 'APIController@modifyUserInfo');
+$this->any('/login', 'APIController@login');
 
-$this->any('notification', 'APIController@listNotification');
-$this->any('notification/{id}', 'APIController@showNotification');
+$this->any('/user/info', 'APIController@userInfo');
+$this->any('/user/modify', 'APIController@modifyUserInfo');
 
-$this->any('notification/{id}/delete', 'APIController@deleteNotification');
-$this->any('notification/{id}/restore', 'APIController@restoreNotification');
+$this->any('/notification', 'APIController@listNotification');
+$this->any('/notification/{id}', 'APIController@showNotification');
 
-$this->any('notification/{id}/read', 'APIController@readNotification');
+$this->any('/notification/{id}/delete', 'APIController@deleteNotification');
+$this->any('/notification/{id}/restore', 'APIController@restoreNotification');
 
-$this->any('notification/{id}/star', 'APIController@starNotification');
-$this->any('notification/{id}/unstar', 'APIController@unstarNotification');
+$this->any('/notification/{id}/read', 'APIController@readNotification');
+
+$this->any('/notification/{id}/star', 'APIController@starNotification');
+$this->any('/notification/{id}/unstar', 'APIController@unstarNotification');
