@@ -193,7 +193,6 @@
                     }
 
                     $b_ratio = $from_begin / ($from_begin + $to_end);
-                    //$b_ratio = 0.7;
 
                     if ($b_ratio < 0.5) {
                         $c = color([0,255,0], [255,255,0], $b_ratio * 2);
