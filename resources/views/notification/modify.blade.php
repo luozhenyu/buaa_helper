@@ -47,27 +47,15 @@
         });
 
         $("#attachmentBtn").click(function () {
-            $("<input>", {type: "file"}).change(function () {
-                var formData = new FormData();
-                formData.append("upload", $(this)[0].files[0]);
-                $.ajax({
-                    url: "{{ url('/file/upload') }}",
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (json) {
-                        if (json.uploaded) {
-                            $("#attachmentContainer").append(parseFile(json, true));
-                        } else {
-                            alert(json.message);
-                        }
+            $(this).upload({
+                success: function (json) {
+                    if (json.uploaded) {
+                        $("#attachmentContainer").append(parseFile(json, true));
+                    } else {
+                        alert(json.message);
                     }
-                });
-            }).click();
+                }
+            });
         });
 
         $("#form").submit(function () {
@@ -146,7 +134,7 @@
             <label for="time" class="col-md-2 control-label">起止日期</label>
             <div class="col-md-9">
                 <input id="time" type="text" class="form-control flatpickr flatpickr-input" name="time"
-                       value="{{ $notification->start_time.' 至 '.$notification->end_time }}"
+                       value="{{ $notification->start_time->format('Y-m-d H:i').' 至 '.$notification->end_time->format('Y-m-d H:i') }}"
                        placeholder="请选择起止日期" autocomplete="off" required>
 
                 @if($errors->has('time'))
@@ -208,7 +196,10 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             附件列表
-                            <span class="btn btn-sm btn-default slow_down" id="attachmentBtn">📎添加附件</span>
+                            <span class="btn btn-default btn-sm" id="attachmentBtn">
+                                <span class="glyphicon glyphicon-file"></span>
+                                添加附件 {{ \App\Http\Controllers\FileController::getLimit() }}
+                            </span>
                         </h3>
                     </div>
                     <div id="attachmentContainer"

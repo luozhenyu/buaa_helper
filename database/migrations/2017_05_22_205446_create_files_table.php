@@ -17,6 +17,7 @@ class CreateFilesTable extends Migration
             $table->increments('id');
             $table->char('sha1', 40)->unique();
             $table->string('fileName', 200);
+            $table->string('mime', 80)->nullable();
             $table->string('path', 240);
             $table->integer('user_id')->unsigned();
             $table->timestamps();

@@ -1,5 +1,25 @@
 'use strict';
 
+$.fn.upload = function (fun) {
+    $("<input>", {type: "file"}).change(function () {
+        var formData = new FormData();
+        formData.append("upload", $(this)[0].files[0]);
+        formData.append("type", fun.type);
+        $.ajax({
+            url: "/file/upload",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: fun.success,
+            error: fun.error
+        });
+    }).click();
+};
+
 function getFileIcon(url) {
     var ext = url.substr(url.lastIndexOf('.') + 1).toLowerCase(),
         maps = {

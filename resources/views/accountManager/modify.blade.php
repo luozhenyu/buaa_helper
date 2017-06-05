@@ -4,12 +4,17 @@
 <style>
     @media (max-width: 991px) {
         #native_place_container > .col-xs-4.col-md-2:nth-of-type(1) {
-            padding-left: 0px;
+            padding-left: 0;
         }
     }
 
     #native_place_container > .col-xs-4.col-md-2 {
-        padding-right: 0px;
+        padding-right: 0;
+    }
+
+    #avatarImg {
+        width: 150px;
+        height: 150px;
     }
 </style>
 @endpush
@@ -21,6 +26,9 @@
 @push('jsLink')
 <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
+
+<script src="{{ url('/js/file_upload.js') }}"></script>
+<script src="{{ url('/js/city_choose.js') }}"></script>
 @endpush
 
 @push('js')
@@ -55,6 +63,22 @@
             }
         });
         @endpermission
+
+        $("#avatarSelect").click(function () {
+            $(this).upload({
+                type: 'avatar',
+                success: function (json) {
+                    if (json.uploaded) {
+                        $("#avatarImg").attr("src", json['url']);
+                        $("#avatarInput").val(json['sha1']);
+                    } else {
+                        alert(json.message);
+                    }
+                }
+            });
+        });
+
+        $.setCityChoose('#province', '#city', '#area');
     });
 </script>
 @endpush
@@ -69,6 +93,22 @@
     <form class="form-horizontal" role="form" method="POST" action="{{ route('accountManager').'/'.$user->id }}">
         <input type="hidden" name="_method" value="PUT"/>
         {{ csrf_field() }}
+
+        <div class="form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
+            <label for="avatar" class="col-md-4 control-label">用户头像</label>
+            <div class="col-md-6">
+                <input id="avatarInput" type="hidden" name="avatar" value="{{ $user->avatar }}">
+                <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
+                <span id="avatarSelect" class="btn btn-default btn-xs">
+                    选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
+                </span>
+                @if ($errors->has('avatar'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('avatar') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
 
         <div class="form-group">
             <label for="number" class="col-md-4 control-label">学号／工号</label>
@@ -101,6 +141,7 @@
                     @endforeach
                 </select>
                 @endpermission
+
                 @permission('modify_owned_user')
                 <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                         id="department" name="department" disabled>
@@ -151,7 +192,7 @@
             <label for="grade" class="col-md-4 control-label">{{ $grade->display_name }}</label>
             <div class="col-md-6">
                 <select class="selectpicker form-control{{ $errors->has('grade') ? ' has-error' : '' }}"
-                        id="grade" name="grade">
+                        id="grade" name="grade" title="请选择年级">
                     @foreach($grade->propertyValues as $value)
                         <option value="{{ $value->name }}">{{ $value->display_name }}</option>
                     @endforeach
@@ -170,7 +211,7 @@
             <label for="class" class="col-md-4 control-label">{{ $class->display_name }}</label>
             <div class="col-md-6">
                 <select class="selectpicker form-control{{ $errors->has('class') ? ' has-error' : '' }}"
-                        id="class" name="class">
+                        id="class" name="class" title="请选择班级">
                     @foreach($class->propertyValues as $value)
                         <option value="{{ $value->name }}">{{ $value->display_name }}</option>
                     @endforeach
@@ -189,7 +230,7 @@
             <label for="political_status" class="col-md-4 control-label">{{ $political_status->display_name }}</label>
             <div class="col-md-6">
                 <select class="selectpicker form-control{{ $errors->has('political_status') ? ' has-error' : '' }}"
-                        id="political_status" name="political_status">
+                        id="political_status" name="political_status" title="请选择政治面貌">
                     @foreach($political_status->propertyValues as $value)
                         <option value="{{ $value->name }}">{{ $value->display_name }}</option>
                     @endforeach
@@ -204,41 +245,24 @@
 
         {{-- 籍贯 --}}
         @php($native_place = \App\Models\Property::where('name','native_place')->firstOrFail())
-        <div class="form-group{{ $errors->has('native_place') ? ' has-error' : '' }}">
+        <div class="form-group{{ $errors->has('native_place.*') ? ' has-error' : '' }}">
             <label for="native_place" class="col-md-4 control-label">{{ $native_place->display_name }}</label>
-            <div class="container" id = "native_place_container">
-                @php($cities = \App\Models\City::doesntHave('parent')->get())
-
-                <div class="col-md-2 col-xs-4">
-                    <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
-                            id="native_place" name="native_place">
-                        @foreach($cities as $value)
-                            <option value="{{ $value->code }}">{{ $value->name }}</option>
-                        @endforeach
+            <div class="container" id="native_place_container">
+                <div class="col-md-6{{ $errors->has('native_place') ? ' has-error' : '' }}">
+                    <select class="selectpicker" id="province" name="native_place[0]" title="请选择省份"
+                            data-width="32%" disabled autocomplete="off">
+                    </select>
+                    <select class="selectpicker" id="city" name="native_place[1]" title="请选择城市"
+                            data-width="32%" disabled autocomplete="off">
+                    </select>
+                    <select class="selectpicker" id="area" name="native_place[2]" title="请选择地区"
+                            data-width="32%" disabled autocomplete="off">
                     </select>
                 </div>
 
-                <div class="col-md-2 col-xs-4">
-                    <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
-                            id="native_place" name="native_place">
-                        @foreach($cities as $value)
-                            <option value="{{ $value->code }}">{{ $value->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-2 col-xs-4">
-                    <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
-                            id="native_place" name="native_place">
-                        @foreach(\App\Models\City::doesntHave('parent')->get() as $value)
-                            <option value="{{ $value->code }}">{{ $value->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                @if ($errors->has('native_place'))
+                @if ($errors->has('native_place.*'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('native_place') }}</strong>
+                        <strong>{{ $errors->first('native_place.*') }}</strong>
                     </span>
                 @endif
             </div>
@@ -251,7 +275,7 @@
                    class="col-md-4 control-label">{{ $financial_difficulty->display_name }}</label>
             <div class="col-md-6">
                 <select class="selectpicker form-control{{ $errors->has('financial_difficulty') ? ' has-error' : '' }}"
-                        id="financial_difficulty" name="financial_difficulty">
+                        id="financial_difficulty" name="financial_difficulty" title="是否经济困难">
                     @foreach($financial_difficulty->propertyValues as $value)
                         <option value="{{ $value->name }}">{{ $value->display_name }}</option>
                     @endforeach
@@ -301,11 +325,11 @@
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4">
                 <button type="submit" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-ok"></span> 保存信息
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp;保存信息
                 </button>
                 @permission('delete_user')
                 <button id="btn_del" type="button" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove-circle"></span> 删除账号
+                    <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;删除账号
                 </button>
                 @endpermission
             </div>

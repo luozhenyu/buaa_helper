@@ -48,29 +48,16 @@
             xhr.setRequestHeader('X-CSRF-TOKEN', $("meta[name='csrf-token']").attr("content"));
         });
 
-
         $("#attachmentBtn").click(function () {
-            $("<input>", {type: "file"}).change(function () {
-                var formData = new FormData();
-                formData.append("upload", $(this)[0].files[0]);
-                $.ajax({
-                    url: "{{ url('/file/upload') }}",
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (json) {
-                        if (json.uploaded) {
-                            $("#attachmentContainer").append(parseFile(json, true));
-                        } else {
-                            alert(json.message);
-                        }
+            $(this).upload({
+                success: function (json) {
+                    if (json.uploaded) {
+                        $("#attachmentContainer").append(parseFile(json, true));
+                    } else {
+                        alert(json.message);
                     }
-                });
-            }).click();
+                }
+            });
         });
 
         $("#form").submit(function () {
@@ -205,9 +192,9 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">
                             附件列表
-                            <span class="btn btn-sm btn-default" id="attachmentBtn">
-                                <span class = "glyphicon glyphicon-file"></span>
-                                添加附件
+                            <span class="btn btn-default btn-sm" id="attachmentBtn">
+                                <span class="glyphicon glyphicon-file"></span>
+                                添加附件 {{ \App\Http\Controllers\FileController::getLimit() }}
                             </span>
                         </h3>
                     </div>
@@ -225,7 +212,6 @@
 
         <div class="form-group">
             <div class="col-md-3 pull-right">
-
                 <button type="submit" class="btn btn-primary" onclick="window.onbeforeunload=null;">
                     保存通知
                 </button>

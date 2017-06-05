@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Department;
+use App\Models\Property;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Zizaco\Entrust\EntrustFacade;
@@ -146,12 +148,30 @@ class AccountManagerController extends Controller
         if ($authUser->can('modify_all_user')) {
             $user = User::findOrFail($id);
             $this->validate($request, [
+                'avatar' => [
+                    'nullable',
+                    Rule::exists('files', 'sha1')->where(function ($query) {
+                        $query->where('mime', 'like', 'image/%');
+                    }),
+                ],
                 'name' => 'required|max:20',
                 'department' => 'required|exists:departments,id',
                 'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
                 'phone' => 'nullable|digits:11|unique:users,phone,' . $user->id,
                 'role' => 'required|exists:roles,name',
+
+                'grade' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'grade')->firstOrFail()->id,
+                'class' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'class')->firstOrFail()->id,
+                'political_status' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'political_status')->firstOrFail()->id,
+                'native_place.*' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'native_place')->firstOrFail()->id,
+                'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
             ]);
+
             $user->department_id = $request->input('department');
 
             $role = Role::where('name', $request->input('role'))->firstOrFail();
@@ -165,18 +185,43 @@ class AccountManagerController extends Controller
         } else if ($authUser->can('modify_owned_user')) {
             $user = User::where(['id' => $id, 'department' => $authUser->department_id])->firstOrFail($id);
             $this->validate($request, [
+                'avatar' => [
+                    'nullable',
+                    Rule::exists('files', 'sha1')->where(function ($query) {
+                        $query->where('mime', 'like', 'image/%');
+                    }),
+                ],
                 'name' => 'required',
                 'email' => 'nullable|email|unique:users,email,' . $user->id,
                 'phone' => 'nullable|digits:11|unique:users,phone,' . $user->id,
+
+                'grade' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'grade')->firstOrFail()->id,
+                'class' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'class')->firstOrFail()->id,
+                'political_status' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'political_status')->firstOrFail()->id,
+                'native_place.*' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'native_place')->firstOrFail()->id,
+                'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
+                    . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
             ]);
         } else {
             return abort(403);
         }
+        $user->avatar = $request->input('avatar');
         $user->name = $request->input('name');
         $user->email = $request->has('email') ? $request->input('email') : null;
         $user->phone = $request->has('phone') ? $request->input('phone') : null;
-
         $user->save();
+
+        //properties
+        $user->setProperty('grade', $request->input('grade'))
+            ->setProperty('class', $request->input('class'))
+            ->setProperty('political_status', $request->input('political_status'))
+            ->setProperty('native_place', ($nativePlace = $request->input('native_place'))[count($nativePlace) - 1])
+            ->setProperty('financial_difficulty', $request->input('financial_difficulty'));
+
         return redirect('/account_manager/' . $user->id);
     }
 
