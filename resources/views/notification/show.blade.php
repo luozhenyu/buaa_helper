@@ -186,12 +186,14 @@
                     $to_end_h = $notification->end_time->diffInHours();
                     if ($to_end_h >= 24) {
                         $time_remain_string = floor($to_end_h / 24)."天".($to_end_h % 24)."小时";
-                    } else {
+                    } else if ($to_end_h >= 1) {
                         $time_remain_string = ($to_end_h % 24)."小时";
+                    } else {
+                        $time_remain_string = "不足一小时";
                     }
 
                     $b_ratio = $from_begin / ($from_begin + $to_end);
-                    $b_ratio = 0.7;
+                    //$b_ratio = 0.7;
 
                     if ($b_ratio < 0.5) {
                         $c = color([0,255,0], [255,255,0], $b_ratio * 2);
