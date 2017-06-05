@@ -81,7 +81,7 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '籍贯',
             'description' => '籍贯',
         ])->propertyValues();
-        City::doesntHave('children')->get()->each(function ($item, $key) use ($propertyValues) {
+        City::get()->each(function ($item, $key) use ($propertyValues) {
             $propertyValues->create(['name' => $item->code, 'display_name' => $item->name]);
         });
     }
@@ -94,6 +94,7 @@ class PropertyTableSeeder extends Seeder
             'description' => '经济困难',
         ])->propertyValues();
         $propertyValues->create(['name' => 0, 'display_name' => '否']);
-        $propertyValues->create(['name' => 1, 'display_name' => '是']);
+        $propertyValues->create(['name' => 1, 'display_name' => '一般困难']);
+        $propertyValues->create(['name' => 2, 'display_name' => '特别困难']);
     }
 }

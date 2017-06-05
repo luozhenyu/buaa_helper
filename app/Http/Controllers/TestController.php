@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
+use App\Jobs\SendNotification;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TestController extends Controller

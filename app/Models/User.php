@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'number', 'name', 'email', 'phone', 'department_id',
+        'number', 'name', 'email', 'phone', 'avatar', 'department_id',
     ];
 
     /**
@@ -118,6 +118,17 @@ class User extends Authenticatable
             ->using('App\Models\PropertyUser');
     }
 
+    public function setProperty($name, $value)
+    {
+        $property = $value ? Property::where('name', $name)->firstOrFail()
+            ->propertyValues()->where('name', $value)->firstOrFail()->id : null;
+
+        $pivot = $this->properties()->where('name', $name)->firstOrFail()->pivot;
+        $pivot->property_value_id = $property;
+        $pivot->save();
+        return $this;
+    }
+
     /**
      * 此用户的某项属性值
      * @param $name
@@ -156,5 +167,13 @@ class User extends Authenticatable
             'access_token' => $uuid,
             'expires_in' => $expires_in,
         ]);
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        $domain = env('APP_URL');
+
+        return $domain . (substr($domain, -1) === '/' ? '' : '/')
+            . ($this->avatar ? 'file/download/' . $this->avatar : 'img/favicon.png');
     }
 }

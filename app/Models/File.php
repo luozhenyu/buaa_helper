@@ -12,7 +12,7 @@ class File extends Model
      * @var array
      */
     protected $fillable = [
-        'sha1', 'fileName', 'path',
+        'sha1', 'fileName', 'mime', 'path',
     ];
 
     /**
@@ -40,6 +40,7 @@ class File extends Model
         return [
             "sha1" => $this->sha1,
             "fileName" => $this->fileName,
+            "mime" => $this->mime,
             "url" => $url,
         ];
     }
