@@ -34,4 +34,29 @@ class City extends Model
     {
         return $this->hasMany('App\Models\City', 'parent_id', 'id');
     }
+
+    /**
+     * city tree
+     * @return \Illuminate\Support\Collection
+     */
+    public function tree()
+    {
+        $tree = [];
+        for ($city = $this; $city; $city = $city->parent) {
+            $tree[] = $city;
+        }
+        return array_reverse($tree);
+    }
+
+    /**
+     * @return string
+     */
+    public function format()
+    {
+        $names = [];
+        foreach ($this->tree() as $node) {
+            $names[] = $node->name;
+        }
+        return implode(" ", $names);
+    }
 }

@@ -31,17 +31,47 @@
 <script src="{{ url('/js/city_choose.js') }}"></script>
 @endpush
 
+@php($tree = ($place = \App\Models\City::where('code',$user->getProperty('native_place'))->first())? $place->tree() :[])
 @push('js')
 <script>
     $(function () {
         $("#department").selectpicker("val", "{{ $user->department_id }}");
         $("#role").selectpicker("val", "{{ $user->roles->first()->name }}");
 
-        $("#grade").selectpicker("val", "{{ ($grade = $user->propertyValue('grade'))? $grade->name :null }}");
-        $("#class").selectpicker("val", "{{ ($class = $user->propertyValue('class'))? $class->name :null }}");
-        $("#political_status").selectpicker("val", "{{ ($political_status = $user->propertyValue('political_status'))? $political_status->name :null }}");
-        $("#native_place").selectpicker("val", "{{ ($native_place = $user->propertyValue('native_place'))? $native_place->name :null }}");
-        $("#financial_difficulty").selectpicker("val", "{{ ($financial_difficulty = $user->propertyValue('financial_difficulty'))? $financial_difficulty->name :null }}");
+        $("#grade").selectpicker("val", "{{ $user->getProperty('grade') }}");
+        $("#class").selectpicker("val", "{{ $user->getProperty('class') }}");
+        $("#political_status").selectpicker("val", "{{ $user->getProperty('political_status') }}");
+
+        {{-- native_place --}}
+        @php($place = ['province', 'city', 'area'])
+        @if(count($tree) > 0)
+        @foreach($tree as $index => $node)
+        @if($index > 0)
+        $("#{{ $place[$index] }}").childrenCities({
+            val: "{{ $tree[$index - 1]->code }}",
+            callback: function () {
+                $("#{{ $place[$index] }}").selectpicker("val", "{{ $tree[$index]->code }}");
+            }
+        });
+        @else
+        $("#{{ $place[$index] }}").childrenCities({
+            callback: function () {
+                $("#{{ $place[$index] }}").selectpicker("val", "{{ $tree[$index]->code }}");
+            }
+        });
+        @endif
+        @endforeach
+        @if(count($tree) <= 2)
+        $("#{{ $place[count($tree)] }}").childrenCities({
+            val: "{{ $tree[count($tree) - 1]->code }}"
+        });
+        @endif
+        @else
+         $("#{{ $place[0] }}").childrenCities();
+        @endif
+
+        $("#financial_difficulty").selectpicker("val", "{{ $user->getProperty('financial_difficulty') }}");
+
 
         @permission('delete_user')
         $("#btn_del").click(function () {
@@ -100,12 +130,12 @@
                 <input id="avatarInput" type="hidden" name="avatar" value="{{ $user->avatar }}">
                 <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
-                </span>
+            选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
+        </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('avatar') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('avatar') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -124,8 +154,8 @@
                        value="{{ $user->name }}" required autocomplete="off">
                 @if ($errors->has('name'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('name') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('name') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -152,8 +182,8 @@
 
                 @if ($errors->has('department'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('department') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('department') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -167,8 +197,8 @@
 
                 @if ($errors->has('email'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('email') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('email') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -180,8 +210,8 @@
                        value="{{ $user->phone }}" autocomplete="off">
                 @if ($errors->has('phone'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('phone') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('phone') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -199,8 +229,8 @@
                 </select>
                 @if ($errors->has('grade'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('grade') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('grade') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -218,8 +248,8 @@
                 </select>
                 @if ($errors->has('class'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('class') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('class') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -237,8 +267,8 @@
                 </select>
                 @if ($errors->has('political_status'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('political_status') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('political_status') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -262,8 +292,8 @@
 
                 @if ($errors->has('native_place.*'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('native_place.*') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('native_place.*') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -282,8 +312,8 @@
                 </select>
                 @if ($errors->has('financial_difficulty'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('financial_difficulty') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('financial_difficulty') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -303,8 +333,8 @@
                 </select>
                 @if ($errors->has('role'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('role') }}</strong>
-                    </span>
+                <strong>{{ $errors->first('role') }}</strong>
+            </span>
                 @endif
             </div>
         </div>
@@ -325,7 +355,7 @@
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4">
                 <button type="submit" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-ok"></span>&nbsp;保存信息
+                    <span class="glyphicon glyphicon-ok"></span>&nbsp;保存头像及信息
                 </button>
                 @permission('delete_user')
                 <button id="btn_del" type="button" class="btn btn-danger">

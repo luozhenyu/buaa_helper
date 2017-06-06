@@ -62,16 +62,7 @@ class PropertyTableSeeder extends Seeder
         $propertyValues->create(['name' => 1, 'display_name' => '中共党员']);
         $propertyValues->create(['name' => 2, 'display_name' => '中共预备党员']);
         $propertyValues->create(['name' => 3, 'display_name' => '共青团员']);
-        $propertyValues->create(['name' => 4, 'display_name' => '民革党员']);
-        $propertyValues->create(['name' => 5, 'display_name' => '民盟盟员']);
-        $propertyValues->create(['name' => 6, 'display_name' => '民建会员']);
-        $propertyValues->create(['name' => 7, 'display_name' => '民进会员']);
-        $propertyValues->create(['name' => 8, 'display_name' => '农工党党员']);
-        $propertyValues->create(['name' => 9, 'display_name' => '致公党党员']);
-        $propertyValues->create(['name' => 10, 'display_name' => '九三学社社员']);
-        $propertyValues->create(['name' => 11, 'display_name' => '台盟盟员']);
-        $propertyValues->create(['name' => 12, 'display_name' => '无党派人士']);
-        $propertyValues->create(['name' => 13, 'display_name' => '群众']);
+        $propertyValues->create(['name' => 4, 'display_name' => '群众']);
     }
 
     private function createNativePlace()

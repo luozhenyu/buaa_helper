@@ -85,7 +85,6 @@ class AccountManagerController extends Controller
             'wd' => $wd,
             'orders' => $this->orders,
         ]);
-
     }
 
     public function show($id)
@@ -215,11 +214,15 @@ class AccountManagerController extends Controller
         $user->phone = $request->has('phone') ? $request->input('phone') : null;
         $user->save();
 
+        $nativePlace = $request->input('native_place');
+        while (!empty($nativePlace) && !end($nativePlace)) {
+            array_pop($nativePlace);
+        }
         //properties
         $user->setProperty('grade', $request->input('grade'))
             ->setProperty('class', $request->input('class'))
             ->setProperty('political_status', $request->input('political_status'))
-            ->setProperty('native_place', ($nativePlace = $request->input('native_place'))[count($nativePlace) - 1])
+            ->setProperty('native_place', end($nativePlace))
             ->setProperty('financial_difficulty', $request->input('financial_difficulty'));
 
         return redirect('/account_manager/' . $user->id);
