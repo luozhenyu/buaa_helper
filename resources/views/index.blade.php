@@ -69,22 +69,21 @@
         }
 
         .function_btn {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             padding: 18px 24px;
         }
-
         .function_btn .icon {
             font-size: 40px;
         }
-
+        .function_btn .content {
+            padding-left: 12px;
+        }
         .function_btn .content p {
             font-size: 18px;
         }
-
         .function_btn .content .content_title {
             font-size: 25px;
         }
-
         .function_btn .content_box {
             margin-right: 40px;
         }
@@ -116,34 +115,28 @@
         }
 
         .function_btn {
-            margin-bottom: 8px;
-            padding: 8px 10px;
+            margin-bottom: 5px;
+            padding: 8px 8px;
         }
-
         .function_btn .icon {
             font-size: 18px;
         }
-
+        .function_btn .content {
+            padding-left: 4px;
+        }
         .function_btn .content p {
             font-size: 12px;
         }
-
         .function_btn .content .content_title {
             font-size: 18px;
         }
-
         .function_btn .content_box {
             margin-right: 18px;
         }
     }
 
-    .functions {
-
-    }
-
     .functions .function_block {
         display: inline-block;
-        /*margin-bottom: 15px;*/
         vertical-align: middle;
     }
 
@@ -177,7 +170,7 @@
     }
 
     .function_btn .content {
-        padding-left: 3px;
+
     }
 
     .function_btn .content p {
@@ -202,7 +195,7 @@
     }
 
     .function_btn:hover {
-        background-color: rgba(255, 255, 255, 0.75);
+        background-color: rgba(255, 255, 255, 0.82);
     }
 
 </style>
@@ -213,11 +206,11 @@
     $(function () {
         $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
         @if (Auth::guest())
-        $("#title_one").delay(450).fadeTo(320, 1);
-        $("#title_two").delay(700).fadeTo(320, 1);
-        $("#tool_area").delay(1150).fadeTo(400, 1);
-        @else
+            $("#title_one").delay(450).fadeTo(320, 1);
+            $("#title_two").delay(700).fadeTo(320, 1);
             $("#tool_area").delay(1150).fadeTo(400, 1);
+        @else
+            $("#tool_area").delay(500).fadeTo(400, 1);
         @endif
     });
 </script>
