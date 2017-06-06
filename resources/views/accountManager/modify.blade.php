@@ -94,6 +94,7 @@
         });
         @endpermission
 
+
         $("#avatarSelect").click(function () {
             $(this).upload({
                 type: 'avatar',
@@ -107,7 +108,6 @@
                 }
             });
         });
-
         $.setCityChoose('#province', '#city', '#area');
     });
 </script>
@@ -130,8 +130,8 @@
                 <input id="avatarInput" type="hidden" name="avatar" value="{{ $user->avatar }}">
                 <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-            选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
-        </span>
+                    选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
+                </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">
                 <strong>{{ $errors->first('avatar') }}</strong>

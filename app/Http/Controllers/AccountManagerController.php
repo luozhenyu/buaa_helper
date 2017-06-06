@@ -118,15 +118,36 @@ class AccountManagerController extends Controller
         abort_unless(EntrustFacade::can('create_user'), 403);
 
         $this->validate($request, [
+            'avatar' => [
+                'nullable',
+                Rule::exists('files', 'sha1')->where(function ($query) {
+                    $query->where('mime', 'like', 'image/%');
+                }),
+            ],
             'number' => 'required|digits_between:4,8|unique:users,number',
             'name' => 'required|max:20',
             'department' => 'required|exists:departments,id',
             'email' => 'nullable|email|max:40|unique:users,email',
             'phone' => 'nullable|phone|unique:users,phone',
+
+            'grade' => 'nullable|exists:property_values,name,property_id,'
+                . Property::where('name', 'grade')->firstOrFail()->id,
+            'class' => 'nullable|exists:property_values,name,property_id,'
+                . Property::where('name', 'class')->firstOrFail()->id,
+            'political_status' => 'nullable|exists:property_values,name,property_id,'
+                . Property::where('name', 'political_status')->firstOrFail()->id,
+            'native_place.*' => 'nullable|exists:property_values,name,property_id,'
+                . Property::where('name', 'native_place')->firstOrFail()->id,
+            'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
+                . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
+
             'role' => 'required|exists:roles,name',
         ]);
 
+
+
         $user = User::create([
+            'avatar' => $request->input('avatar'),
             'number' => $request->input('number'),
             'name' => $request->input('name'),
             'department_id' => $request->input('department'),
@@ -136,6 +157,17 @@ class AccountManagerController extends Controller
 
         $role = Role::where('name', $request->input('role'))->firstOrFail();
         $user->attachRole($role);
+
+        $nativePlace = $request->input('native_place');
+        while (!empty($nativePlace) && !end($nativePlace)) {
+            array_pop($nativePlace);
+        }
+        //properties
+        $user->setProperty('grade', $request->input('grade'))
+            ->setProperty('class', $request->input('class'))
+            ->setProperty('political_status', $request->input('political_status'))
+            ->setProperty('native_place', end($nativePlace))
+            ->setProperty('financial_difficulty', $request->input('financial_difficulty'));
 
         return redirect('/account_manager/' . $user->id);
     }
@@ -157,7 +189,6 @@ class AccountManagerController extends Controller
                 'department' => 'required|exists:departments,id',
                 'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
                 'phone' => 'nullable|digits:11|unique:users,phone,' . $user->id,
-                'role' => 'required|exists:roles,name',
 
                 'grade' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'grade')->firstOrFail()->id,
@@ -169,6 +200,8 @@ class AccountManagerController extends Controller
                     . Property::where('name', 'native_place')->firstOrFail()->id,
                 'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
+
+                'role' => 'required|exists:roles,name',
             ]);
 
             $user->department_id = $request->input('department');
