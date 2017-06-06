@@ -35,7 +35,7 @@
     }
 
     /* 背景区，内容区 */
-    #back_div, #content_div {
+    #back_div, #content_div, .background_div, .content_div {
         position: absolute;
         left: 0;
         top: 0;
@@ -68,8 +68,25 @@
             margin-right: 1%;
         }
 
-        .function_block .panel .list-group .list-group-item .icon {
-            font-size: 35px;
+        .function_btn {
+            margin-bottom: 12px;
+            padding: 18px 24px;
+        }
+
+        .function_btn .icon {
+            font-size: 40px;
+        }
+
+        .function_btn .content p {
+            font-size: 18px;
+        }
+
+        .function_btn .content .content_title {
+            font-size: 25px;
+        }
+
+        .function_btn .content_box {
+            margin-right: 40px;
         }
     }
 
@@ -89,7 +106,7 @@
         }
 
         #tool_area {
-            margin-top: 18px;
+            /*margin-top: 18px;*/
         }
 
         .functions .function_block {
@@ -98,8 +115,25 @@
             width: 100%;
         }
 
-        .function_block .panel .list-group .list-group-item .icon {
-            font-size: 25px;
+        .function_btn {
+            margin-bottom: 8px;
+            padding: 8px 10px;
+        }
+
+        .function_btn .icon {
+            font-size: 18px;
+        }
+
+        .function_btn .content p {
+            font-size: 12px;
+        }
+
+        .function_btn .content .content_title {
+            font-size: 18px;
+        }
+
+        .function_btn .content_box {
+            margin-right: 18px;
         }
     }
 
@@ -113,7 +147,7 @@
         vertical-align: middle;
     }
 
-    .functions .function_block .panel .list-group .list-group-item {
+    .function_btn {
         text-align: left;
     }
 
@@ -136,40 +170,40 @@
     }
 
     {{-- 功能区 --}}
-    .function_block .panel .list-group .list-group-item {
-        white-space: nowrap;
-        padding: 5px 8px;
-    }
-
-    .function_block .panel .list-group .list-group-item:hover {
-        background-color: #eeeeee;
-    }
-
-    .function_block .panel .list-group .list-group-item .icon,
-    .function_block .panel .list-group .list-group-item .content {
+    .function_btn .icon,
+    .function_btn .content {
         display: inline-block;
         vertical-align: middle;
     }
-    .function_block .panel .list-group .list-group-item .content {
+
+    .function_btn .content {
         padding-left: 3px;
     }
 
-
-
-    .function_block .panel .list-group .list-group-item .content p {
+    .function_btn .content p {
         white-space: normal;
         margin-bottom: 0px;
-        font-size: 12px;
         color: gray;
     }
 
-    .function_block .panel .list-group .list-group-item .content .content_title {
+    .function_btn .content .content_title {
         font-weight: bold;
         margin-top: 0px;
         margin-bottom: 5px;
-        font-size: 18px;
     }
 
+    .function_btn {
+        white-space: nowrap;
+        width: 100%;
+        border-radius: 5px;
+        min-height: 20px;
+
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .function_btn:hover {
+        background-color: rgba(255, 255, 255, 0.75);
+    }
 
 </style>
 @endpush
@@ -178,18 +212,16 @@
 <script>
     $(function () {
         $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
+        @if (Auth::guest())
         $("#title_one").delay(450).fadeTo(320, 1);
         $("#title_two").delay(700).fadeTo(320, 1);
         $("#tool_area").delay(1150).fadeTo(400, 1);
+        @else
+            $("#tool_area").delay(1150).fadeTo(400, 1);
+        @endif
     });
 </script>
 @endpush
-
-{{--@section('content')
-    <div style = "text-align: center;">
-        <h2>欢迎使用 {{ config('app.name', 'Laravel') }}</h2>
-    </div>
-@endsection--}}
 
 @section("content_full")
     <div id="main_div" style="position:relative">
@@ -198,72 +230,72 @@
             <div style="margin-bottom: 20px; padding: 0;">
                 <div class="row" style="margin: 20px;">
                     <div class="col-xs-12" style="text-align:center;">
-                        <h1 id="title_one">欢迎使用</h1>
-                        <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
+
                         <!--<div id="btn_area">-->
-                        <div id="tool_area">
-                            @if (Auth::guest())
-                                <div class="col-md-4 col-md-offset-4 col-xs-9 col-xs-offset-1 col-sm-6 col-sm-offset-3">
-                                    <a href="{{ url('/login') }}" class="btn btn-info ">开始使用</a>
+
+                        @if (Auth::guest())
+                            <h1 id="title_one">欢迎使用</h1>
+                            <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
+                            <div id="tool_area">
+                                <div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                                    <a href="{{ url('/login') }}" class="btn btn-info"
+                                       style="width: 60%;margin-left: 20%;margin-right: 20%;">开始使用</a>
                                 </div>
-                            @else
-
+                            </div>
+                        @else
+                            <div id="tool_area">
                                 <div class="functions col-md-10 col-md-offset-1 col-xs-12 text-center">
-                                    @permission(['view_all_user','view_owned_user'])
+                                    @permission(['view_all_user','view_owned_user','modify_all_user', 'view_all_user'])
                                     <div class="function_block">
-                                        <div class="panel panel-warning">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">用户管理</h4>
+                                        @permission(['view_all_user','view_owned_user'])
+                                        <div class="function_btn clickable slow_down"
+                                             href="{{ url("/account_manager") }}">
+                                            <div class="content_box">
+                                                <div class="icon">
+                                                    <span class="glyphicon glyphicon-user"></span>
+                                                </div>
+                                                <div class="content">
+                                                    <h4 class="content_title">用户列表</h4>
+                                                    <p>查看用户列表，查看常用分类中的用户等</p>
+                                                </div>
                                             </div>
-                                            <ul class="list-group">
-                                                <li class="list-group-item clickable slow_down"
-                                                    href="{{ url("/account_manager") }}">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-user"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">用户列表</h4>
-                                                        <p>查看用户列表，查看常用分类中的用户等</p>
-                                                    </div>
-                                                </li>
-
-                                                @permission(['create_user'])
-                                                <li class="list-group-item clickable slow_down"
-                                                    href="{{ url("/account_manager/create") }}">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-plus"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">添加用户</h4>
-                                                        <p>可输入相关信息或导入Excel工作表添加用户</p>
-                                                    </div>
-                                                </li>
-                                                @endpermission
-                                            </ul>
                                         </div>
+                                        @endpermission
+
+                                        @permission(['create_user'])
+                                        <div class="function_btn clickable slow_down"
+                                             href="{{ url("/account_manager/create") }}">
+                                            <div class="content_box">
+                                                <div class="icon">
+                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                </div>
+                                                <div class="content">
+                                                    <h4 class="content_title">添加用户</h4>
+                                                    <p>可输入相关信息或导入Excel工作表添加用户</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endpermission
                                     </div>
                                     @endpermission
 
                                     <div class="function_block">
-                                        <div class="panel panel-primary">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">通知管理</h4>
+                                        <div class="function_btn clickable slow_down" href="{{ url("/notification") }}">
+                                            <div class="content_box">
+                                                <div class="icon">
+                                                    <span class="glyphicon glyphicon-list-alt"></span>
+                                                </div>
+                                                <div class="content">
+                                                    <h4 class="content_title">通知列表</h4>
+                                                    <p>查看通知列表、必读通知、已收藏通知等</p>
+                                                </div>
                                             </div>
-                                            <ul class="list-group">
-                                                <li class="list-group-item clickable slow_down"
-                                                    href="{{ url("/notification") }}">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-list-alt"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">通知列表</h4>
-                                                        <p>查看通知列表、必读通知、已收藏通知等</p>
-                                                    </div>
-                                                </li>
+                                        </div>
 
-                                                @if(Entrust::can(["create_notification", "delete_notification", "modify_all_notification", "modify_owned_notification"]))
-                                                <li class="list-group-item clickable slow_down"
-                                                    href="{{ url("/notification/manage") }}">
+                                        @if(Entrust::can(["create_notification", "delete_notification", "modify_all_notification", "modify_owned_notification"]))
+                                            <div class="function_btn clickable slow_down"
+                                                 href="{{ url("/notification/manage") }}">
+                                                <div class="content_box">
                                                     <div class="icon">
                                                         <span class="glyphicon glyphicon-cog"></span>
                                                     </div>
@@ -271,78 +303,30 @@
                                                         <h4 class="content_title">通知管理</h4>
                                                         <p>对通知进行管理，可查询通知的阅读人数</p>
                                                     </div>
-                                                </li>
-                                                @endif
+                                                </div>
+                                            </div>
+                                        @endif
 
-                                                @if(Entrust::can(["create_notification"]))
-                                                <li class="list-group-item clickable slow_down"
-                                                    href="{{ url("/notification/create") }}">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-pencil"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">通知发布</h4>
-                                                        <p>在权限内发布通知，可发布必读通知</p>
-                                                    </div>
-                                                </li>
-                                                @endif
-                                            </ul>
+                                        @permission(['create_notification'])
+                                        <div class="function_btn clickable slow_down"
+                                             href="{{ url("/notification/create") }}">
+                                            <div class="content_box">
+                                                <div class="icon">
+                                                    <span class="glyphicon glyphicon-pencil"></span>
+                                                </div>
+                                                <div class="content">
+                                                    <h4 class="content_title">通知发布</h4>
+                                                    <p>在权限内发布通知，可发布必读通知</p>
+                                                </div>
+                                            </div>
                                         </div>
+                                        @endpermission
                                     </div>
+
                                 </div>
-
-                            @endif
-                            {{--
-
-
-                                        <div class="btn-group list">
-                                            <button href="{{ url("/account_manager") }}" type="button" class="btn btn-warning">
-                                                用户管理
-                                            </button>
-                                            <button type="button" class="btn btn-warning dropdown-toggle"
-                                                    data-toggle="dropdown">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">切换下拉菜单</span>
-                                            </button>
-                                            <ul class="dropdown-menu bg-warning" role="menu">
-                                                <li><a href="{{ url("/account_manager/create") }}">增加用户</a></li>
-                                            </ul>
-                                        </div>
-
-                                <!--<a href="{{ route('accountManager') }}" class="btn btn-warning">用户管理</a>-->
-                                    @endpermission
-
-                                    <div class="btn-group list">
-                                        <button href="{{ url("/notification") }}" type="button" class="btn btn-info">
-                                            通知
-                                            @php
-                                                if (!Auth::guest()) $unread_count = Auth::user()->notReadNotifications()->count(); else $unread_count = 0;
-                                                if ($unread_count > 0) {
-                                                    echo "<span class=\"badge\">$unread_count</span>";
-                                                }
-                                            @endphp
-                                        </button>
-                                        <button type="button" class="btn btn-info dropdown-toggle"
-                                                data-toggle="dropdown">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">切换下拉菜单</span>
-                                        </button>
-                                        <ul class="dropdown-menu bg-warning" role="menu">
-                                            <li><a href="{{ url("/notification/stared") }}">已收藏通知</a></li>
-
-                                            @if(Entrust::can(['create_notification']))
-                                                <li class="divider"></li>
-                                                <li><a href="{{ url("/notification/manage") }}">通知管理</a></li>
-                                                <li><a href="{{ url("/notification/create") }}">创建新通知</a></li>
-                                            @endif
-                                        </ul>
-                                    </div>
-
-                                @endif
                             </div>
-                            <!--</div>-->
-                            --}}
-                        </div>
+                        @endif
+
                     </div>
 
 
