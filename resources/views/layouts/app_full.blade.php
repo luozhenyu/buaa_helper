@@ -114,6 +114,10 @@
                 display: none;
             }
         }
+
+        .clickable {
+            cursor: pointer;
+        }
     </style>
     @stack('css')
 
@@ -127,12 +131,13 @@
                 var a_sign = $(this).find("a");
                 if (a_sign.length > 0) window.location.href = a_sign.attr("href");
             });
-
-            $("button").click(function () {
+            var clicked = function () {
                 if (typeof($(this).attr("href")) != "undefined") {
                     window.location.href = $(this).attr("href");
                 }
-            })
+            };
+            $("button").click(clicked);
+            $(".clickable").click(clicked);
 
             $("[data-toggle='tooltip']").tooltip();
         });
