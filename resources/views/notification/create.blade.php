@@ -32,14 +32,29 @@
         window.onbeforeunload = function () {
             return "您确认要退出此页面?";
         };
-
-        $("#time").flatpickr({
+        flatpickr("#timeRange", {
             locale: "zh",
             enableTime: true,
             altInput: true,
             minDate: "today",
             mode: "range",
-            weekNumbers: true
+            weekNumbers: true,
+            defaultDate: [
+                @if(old('start_time'))
+                new Date("{{ old('start_time') }}"),
+                @endif
+                @if(old('end_time'))
+                new Date("{{ old('end_time') }}")
+                @endif
+            ],
+            onChange: function (selectedDates) {
+                if (selectedDates[0]) {
+                    $("#start_time").val(selectedDates[0].toISOString());
+                }
+                if (selectedDates[1]) {
+                    $("#end_time").val(selectedDates[1].toISOString());
+                }
+            }
         });
 
         var editor = CKEDITOR.replace("content");
@@ -128,15 +143,17 @@
             </div>
         </div>
 
-        <div class="form-group{{ $errors->has('time') ? ' has-error' : '' }}">
-            <label for="time" class="col-md-2 control-label">起止日期</label>
+        <input id="start_time" name="start_time" type="hidden" value="{{ old('start_time') }}">
+        <input id="end_time" name="end_time" type="hidden" value="{{ old('end_time') }}">
+        <div class="form-group{{ $errors->has('start_time') || $errors->has('end_time') ? ' has-error' : '' }}">
+            <label for="timeRange" class="col-md-2 control-label">起止日期</label>
             <div class="col-md-9">
-                <input id="time" type="text" class="form-control flatpickr flatpickr-input" name="time"
-                       placeholder="请选择起止日期" readonly value="{{ old('time') }}" autocomplete="off" required>
+                <input id="timeRange" type="text" class="form-control flatpickr flatpickr-input"
+                       placeholder="请选择起止日期" readonly autocomplete="off" required>
 
-                @if($errors->has('time'))
+                @if($errors->has('start_time') || $errors->has('end_time'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('time') }}</strong>
+                        <strong>{{ $errors->first('start_time') . $errors->first('end_time') }}</strong>
                     </span>
                 @endif
             </div>

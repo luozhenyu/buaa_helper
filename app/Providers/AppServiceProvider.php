@@ -27,22 +27,9 @@ class AppServiceProvider extends ServiceProvider
             return preg_match('/^\w{8}(-\w{4}){3}-\w{12}$/', $value) > 0;
         });
 
-        Validator::extend('time_range', function ($attribute, $value, $parameters, $validator) {
-            $time = explode(' ', $value);
-
-            if (count($time) != 5) {
-                return false;
-            }
-            $start_time = strtotime($time[0] . ' ' . $time[1]);
-            $end_time = strtotime($time[3] . ' ' . $time[4]);
-
-            return $start_time && $end_time && $start_time < $end_time;
-        });
-
         Carbon::setLocale(substr(App::getLocale(), 0, 2));
 
         User::observe(UserObserver::class);
-
     }
 
     /**
