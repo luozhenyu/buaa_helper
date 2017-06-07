@@ -27,10 +27,10 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '年级',
             'description' => '年级',
         ])->propertyValues();
-        $propertyValues->create(['name' => 1, 'display_name' => '大一']);
-        $propertyValues->create(['name' => 2, 'display_name' => '大二']);
-        $propertyValues->create(['name' => 3, 'display_name' => '大三']);
-        $propertyValues->create(['name' => 4, 'display_name' => '大四']);
+        $propertyValues->create(['name' => 2014, 'display_name' => '2014级']);
+        $propertyValues->create(['name' => 2015, 'display_name' => '2015级']);
+        $propertyValues->create(['name' => 2016, 'display_name' => '2016级']);
+        $propertyValues->create(['name' => 2017, 'display_name' => '2017级']);
     }
 
     private function createClass()
@@ -45,11 +45,21 @@ class PropertyTableSeeder extends Seeder
         $propertyValues->create(['name' => 3, 'display_name' => '三班']);
         $propertyValues->create(['name' => 4, 'display_name' => '四班']);
         $propertyValues->create(['name' => 5, 'display_name' => '五班']);
-        $propertyValues->create(['name' => 5, 'display_name' => '六班']);
-        $propertyValues->create(['name' => 5, 'display_name' => '七班']);
-        $propertyValues->create(['name' => 5, 'display_name' => '八班']);
-        $propertyValues->create(['name' => 5, 'display_name' => '九班']);
-        $propertyValues->create(['name' => 5, 'display_name' => '十班']);
+        $propertyValues->create(['name' => 6, 'display_name' => '六班']);
+        $propertyValues->create(['name' => 7, 'display_name' => '七班']);
+        $propertyValues->create(['name' => 8, 'display_name' => '八班']);
+        $propertyValues->create(['name' => 9, 'display_name' => '九班']);
+        $propertyValues->create(['name' => 10, 'display_name' => '十班']);
+        $propertyValues->create(['name' => 11, 'display_name' => '十一班']);
+        $propertyValues->create(['name' => 12, 'display_name' => '十二班']);
+        $propertyValues->create(['name' => 13, 'display_name' => '十三班']);
+        $propertyValues->create(['name' => 14, 'display_name' => '十四班']);
+        $propertyValues->create(['name' => 15, 'display_name' => '十五班']);
+        $propertyValues->create(['name' => 16, 'display_name' => '十六班']);
+        $propertyValues->create(['name' => 17, 'display_name' => '十七班']);
+        $propertyValues->create(['name' => 18, 'display_name' => '十八班']);
+        $propertyValues->create(['name' => 19, 'display_name' => '十九班']);
+        $propertyValues->create(['name' => 20, 'display_name' => '二十班']);
     }
 
     private function createPoliticalStatus()
