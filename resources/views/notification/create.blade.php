@@ -47,11 +47,14 @@
                 new Date("{{ old('end_time') }}")
                 @endif
             ],
-            onChange: function (selectedDates) {
-                if (selectedDates[0]) {
+            onChange: function (selectedDates, dateStr, instance) {
+                if (selectedDates[0] && selectedDates[1]) {
+                    if (selectedDates[1] < new Date(Date.now() + 2 * 86400 * 1000)
+                        && !confirm("截止时间在48小时内，请确认此通知是否如此紧急！")) {
+                        instance.clear();
+                        return;
+                    }
                     $("#start_time").val(selectedDates[0].toISOString());
-                }
-                if (selectedDates[1]) {
                     $("#end_time").val(selectedDates[1].toISOString());
                 }
             }

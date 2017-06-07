@@ -14,7 +14,7 @@ class UserTableSeeder extends Seeder
     {
         $user = User::create([
             'number' => 10000,
-            'name' => 'admin',
+            'name' => '超级管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
 
         $user = User::create([
             'number' => 10001,
-            'name' => 'admin',
+            'name' => '部门管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
@@ -30,18 +30,10 @@ class UserTableSeeder extends Seeder
 
         $user = User::create([
             'number' => 10002,
-            'name' => 'admin',
+            'name' => '院系管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
         $user->attachRole(\App\Models\Role::where('name', 'college.admin')->firstOrFail());
-
-        $user = User::create([
-            'number' => 15211121,
-            'name' => '罗震宇',
-            'password' => bcrypt('123456'),
-            'department_id' => 21,
-        ]);
-        $user->attachRole(\App\Models\Role::where('name', 'department.admin')->firstOrFail());
     }
 }

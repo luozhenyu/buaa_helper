@@ -27,7 +27,7 @@ class FileController extends Controller
         $uploadFile = $request->file('upload');
         $type = $request->input('type');
 
-        if (!$uploadFile->isValid()) {
+        if (!$uploadFile || !$uploadFile->isValid()) {
             return response()->json([
                 "uploaded" => 0,
                 "message" => "文件上传失败，原因可能是文件过大",

@@ -168,12 +168,16 @@ class NotificationController extends Controller
             }
         }
 
+        $title = $request->input('title');
+        $start_time = Carbon::createFromTimestamp(strtotime($request->input('start_time')));
+        $end_time = Carbon::createFromTimestamp(strtotime($request->input('end_time')));
+
         $user = Auth::user();
         $notification = $user->writtenNotifications()->create([
-            'title' => $request->input('title'),
+            'title' => $end_time <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
             'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
-            'start_time' => Carbon::createFromTimestamp(strtotime($request->input('start_time'))),
-            'end_time' => Carbon::createFromTimestamp(strtotime($request->input('end_time'))),
+            'start_time' => $start_time,
+            'end_time' => $end_time,
             'important' => $request->input('important') === "1",
             'excerpt' => $request->input('excerpt'),
             'content' => clean($request->input('content')),
@@ -247,12 +251,17 @@ class NotificationController extends Controller
             }
         }
 
+        $title = $request->input('title');
+        $start_time = Carbon::createFromTimestamp(strtotime($request->input('start_time')));
+        $end_time = Carbon::createFromTimestamp(strtotime($request->input('end_time')));
+
+
         $user = Auth::user();
 
-        $notification->title = $request->input('title');
+        $notification->title = $end_time <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title;
         $notification->department_id = $user->hasRole('admin') ? $request->input('department') : $user->department_id;
-        $notification->start_time = Carbon::createFromTimestamp(strtotime($request->input('start_time')));
-        $notification->end_time = Carbon::createFromTimestamp(strtotime($request->input('end_time')));
+        $notification->start_time = $start_time;
+        $notification->end_time = $end_time;
         $notification->important = $request->input('important') === "1";
         $notification->excerpt = $request->input('excerpt');
         $notification->content = clean($request->input('content'));

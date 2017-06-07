@@ -145,7 +145,6 @@ class AccountManagerController extends Controller
         ]);
 
 
-
         $user = User::create([
             'avatar' => $request->input('avatar'),
             'number' => $request->input('number'),
@@ -274,7 +273,7 @@ class AccountManagerController extends Controller
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->fromArray(['学号／工号', '姓名', '院系', '邮箱', '手机号'])
+        $sheet->fromArray(['学号／工号', '姓名', '院系号', '邮箱', '手机号'])
             ->setTitle('Account');
 
         $dir = storage_path("app/cache");
@@ -296,23 +295,30 @@ class AccountManagerController extends Controller
         ) {
             $file->move($dirName = pathinfo($file->getRealPath())['dirname'], $fileName = $file->getClientOriginalName());
             $path = $dirName . '/' . $fileName;
-            $spreadsheet = IOFactory::load($path);
-            $sheetData = $spreadsheet->getActiveSheet()
-                ->toArray('', true, true, true);
-            unlink($path);
+            try {
+                $spreadsheet = IOFactory::load($path);
+                $sheetData = $spreadsheet->getActiveSheet()
+                    ->toArray(null, true, true, true);
+            } catch (\Exception $e) {
+                return response()->json(['errmsg' => '文件格式错误']);
+            } finally {
+                unlink($path);
+            }
 
             list($success, $skip, $fail) = [0, 0, 0];
 
             $normal = Role::where('name', 'normal')->firstOrFail();
-
+            $msg = [];
             foreach ($sheetData as $key => $value) {
-                if ($key === 1 || empty(current($value)))
+                if (empty(reset($value)) || $key === 1)
                     continue;
+                $value['A'] = intval($value['A']);
 
                 $validator = Validator::make($value, [
-                    'A' => 'unique:users,number', //user_id
+                    'A' => 'required|unique:users,number', //user_id
                 ]);
                 if ($validator->fails()) {
+                    $msg[] = "跳过：[{$key}行]用户ID已存在";
                     $skip++;
                     continue;
                 }
@@ -325,17 +331,18 @@ class AccountManagerController extends Controller
                     'E' => 'nullable|phone|unique:users,phone', //phone
                 ]);
                 if ($validator->fails()) {
+                    $msg[] = "失败：[{$key}行]用户格式错误";
                     $fail++;
                     continue;
                 }
 
-                $user = User::create([
+                $user = Department::where('number', $value['C'])->firstOrFail()->users()->create([
                     'number' => $value['A'],
                     'name' => $value['B'],
-                    'department_id' => Department::where('number', $value['C'])->firstOrFail()->id,
-                    'email' => empty($value['D']) ? null : $value['D'],
-                    'phone' => empty($value['E']) ? null : $value['E'],
+                    'email' => $value['D'],
+                    'phone' => $value['E'],
                 ]);
+
                 $user->attachRole($normal);
                 $success++;
             }
@@ -344,6 +351,7 @@ class AccountManagerController extends Controller
                 'success' => $success,
                 'skip' => $skip,
                 'fail' => $fail,
+                'msg' => array_slice($msg, 0, 10),
             ]);
         }
         return response()->json(['errmsg' => '上传错误']);

@@ -22,19 +22,24 @@
                 processData: false,
                 contentType: false,
                 beforeSend: function () {
-                    $("#tips").fadeIn('slow').text("正在上传，请稍候");
+                    $("#tips").fadeIn("slow").text("正在上传，请稍候");
                     clock = Date.now();
                 },
                 success: function (resp) {
                     if (resp["errmsg"] === undefined) {
                         clock = Date.now() - clock;
-                        $("#tips").text('成功：' + resp['success'] + ' 跳过：' + resp['skip'] + ' 失败：' + resp['fail'] + ' 耗时: ' + clock + 'ms');
+                        var tips = $("#tips").html("<p>成功：" + resp["success"] + " 跳过：" + resp["skip"] + " 失败：" + resp["fail"] + " 耗时: " + clock + "ms</p>")
+                        if (resp["msg"].length > 0) {
+                            tips.append("<h4>错误信息(前10条)</h4>")
+                                .append("<div>" + resp["msg"].join("<br>") + "</div>");
+                        }
+
                     } else {
-                        $("#tips").text(resp["errmsg"]);
+                        $("#tips").html(resp["errmsg"]);
                     }
                 },
                 error: function () {
-                    $("#tips").text("请求超时");
+                    $("#tips").html("请求超时");
                 }
             });
         });
@@ -73,6 +78,7 @@
                         <div class="modal-body">
                             {{ csrf_field() }}
                             <div class="form-group">
+                                <label>第一步：</label>
                                 <a type="button" class="btn btn-info"
                                    href="{{ route('accountManager').'/import' }}">
                                     <span class="glyphicon glyphicon-download"></span> 下载模板
@@ -80,7 +86,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="file">用户信息上传【Excel】</label>
+                                <label for="file">第二步：用户信息上传【支持Excel表格】</label>
                                 <input type="file" id="file" autocomplete="off">
                                 <p class="help-block">请将数据导入至模板后上传</p>
                             </div>

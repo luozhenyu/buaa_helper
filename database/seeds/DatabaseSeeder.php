@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
         $this->call(UserTableSeeder::class);
 
 
-        $normal = Role::where('name', 'normal')->firstOrFail();
-        factory(User::class, 100)->create()->each(function ($u) use ($normal) {
-            $u->attachRole($normal);
-        });
-        factory(Notification::class, 100)->create();
+//        $normal = Role::where('name', 'normal')->firstOrFail();
+//        factory(User::class, 100)->create()->each(function ($u) use ($normal) {
+//            $u->attachRole($normal);
+//        });
+//        factory(Notification::class, 100)->create();
     }
 }
