@@ -1,92 +1,12 @@
-@extends('layouts.app_full')
+@extends('layouts.index')
 
-@push("css")
+@push("css_2")
 <style>
-    /* 背景图 */
-    @media (min-width: 1200px) {
-        #back_div {
-            background: url({{ url('/img/bk2.jpg') }}) -80px -280px;
-            background-size: 2450px;
-        }
 
-        #main_div, #content_div {
-            min-height: 580px;
-        }
-    }
-
-    @media (min-width: 992px) and (max-width: 1199px) {
-        #back_div {
-            background: url({{ url('/img/bk2.jpg') }}) -80px -280px;
-            background-size: 1750px;
-        }
-
-        #main_div, #content_div {
-            min-height: 550px;
-        }
-    }
-
-    @media (max-width: 991px) and (min-width: 768px) {
-        #back_div {
-            background: url({{ url('/img/bk2.jpg') }}) -600px -200px;
-            background-size: 1600px;
-        }
-
-        #main_div, #content_div {
-            min-height: 470px;
-        }
-    }
-
-    @media (max-width: 767px) {
-        #back_div {
-            background: url("{{ url('/img/bk2.jpg') }}") -800px -200px;
-            background-size: 1600px;
-        }
-
-        #main_div, #content_div {
-            min-height: 430px;
-        }
-    }
-
-    @media (max-width: 767px) {
-        #back_div {
-            background: url("{{ url('/img/bk2.jpg') }}") -800px -200px;
-            background-size: 1600px;
-        }
-
-        #main_div, #content_div {
-            min-height: 380px;
-        }
-    }
-
-    @media (max-width: 365px) {
-        #main_div, #content_div {
-            min-height: 440px;
-        }
-    }
-
-    #back_div, #title_one, #title_two, #title_three, #tool_area {
+    #title_one, #title_two, #title_three, #tool_area {
         filter: alpha(opacity=1);
         -moz-opacity: 0.01;
         opacity: 0.01;
-    }
-
-    #main_div {
-        margin-bottom: 15px;
-        height: 80%;
-    }
-
-    /* 背景区，内容区 */
-    #back_div, #content_div, .background_div, .content_div {
-        position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        height: 100%
-    }
-
-    #content_div {
-        width: 100%;
     }
 
     @media (min-width: 1200px) {
@@ -325,14 +245,10 @@
 </style>
 @endpush
 
-@push("js")
+@push("js_2")
 <script>
-    function no_px(st) {
-        return parseInt(st.substr(0, st.length - 2));
-    }
 
-    $(function () {
-        $("#main_div").css("height", ($(document).height() - 170) + "px");
+    $(function() {
         $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
         @if (Auth::guest())
             $("#title_one").delay(450).fadeTo(320, 1);
@@ -352,135 +268,121 @@
             main_delay += 400;
         })
         @endif
-
-        $(window).resize(function () {
-            var main_bottom = $(window).height() - no_px($("footer").css("height")) - no_px($("#main_div").css("margin-bottom"));
-            var main_top = $("#main_div").offset().top;
-            var main_height = main_bottom - main_top;
-            console.log(main_height);
-            $("#main_div").css("height", (main_height) + "px");
-        })
     });
 
 </script>
 @endpush
 
-@section("content_full")
-    <div id="main_div" style="position:relative">
-        <div id="back_div"></div>
-        <table id="content_div">
-            <tr>
-                <td style="margin-bottom: 20px; padding: 0;vertical-align: middle;width: 100%;">
-                    <div class="row" style="margin: 20px;">
-                        <div class="col-xs-12" style="text-align:center;">
+@section("content_full_2")
 
-                            <!--<div id="btn_area">-->
+    <td style="margin-bottom: 20px; padding: 0;vertical-align: middle;width: 100%;">
+        <div class="row" style="margin: 20px;">
+            <div class="col-xs-12" style="text-align:center;">
 
-                            @if (Auth::guest())
-                                <h1 id="title_one">欢迎使用</h1>
-                                <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
-                                <p class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3"
-                                   id="title_three" onclick="end_title_three();">
-                                    学生事务服务中心APP为同学们打造全校信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！</p>
-                                <div id="tool_area">
-                                    <div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
-                                        <a id="start" href="{{ url('/login') }}" class="btn btn-info"
-                                           style="width: 60%;margin-left: 20%;margin-right: 20%;">开始使用</a>
-                                    </div>
-                                </div>
-                            @else
-                                <div id="tool_area">
-                                    <div class="functions col-md-10 col-md-offset-1 col-xs-12 text-center">
-                                        {{-- @permission(['view_all_user','view_owned_user','modify_all_user', 'view_all_user']) --}}
-                                        <div class="function_block">
-                                            @permission(['view_all_user','view_owned_user'])
-                                            <div class="function_btn clickable slow_down"
-                                                 href="{{ url("/account_manager") }}">
-                                                <div class="content_box">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-user"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">用户列表</h4>
-                                                        <p>查看用户列表，查看常用分类中的用户等</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @endpermission
+                <!--<div id="btn_area">-->
 
-                                            @permission(['create_user'])
-                                            <div class="function_btn clickable slow_down"
-                                                 href="{{ url("/account_manager/create") }}">
-                                                <div class="content_box">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-plus"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">添加用户</h4>
-                                                        <p>可输入相关信息或导入Excel工作表添加用户</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @endpermission
-                                            {{-- </div> --}}
-                                            {{-- @endpermission --}}
-
-                                            {{-- <div class="function_block"> --}}
-                                            <div class="function_btn clickable slow_down"
-                                                 href="{{ url("/notification") }}">
-                                                <div class="content_box">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-list-alt"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">通知列表</h4>
-                                                        <p>查看通知列表、必读通知、已收藏通知等</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            @if(Entrust::can(["create_notification", "delete_notification", "modify_all_notification", "modify_owned_notification"]))
-                                                <div class="function_btn clickable slow_down"
-                                                     href="{{ url("/notification/manage") }}">
-                                                    <div class="content_box">
-                                                        <div class="icon">
-                                                            <span class="glyphicon glyphicon-cog"></span>
-                                                        </div>
-                                                        <div class="content">
-                                                            <h4 class="content_title">通知管理</h4>
-                                                            <p>对通知进行管理，可查询通知的阅读人数</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
-
-                                            @permission(['create_notification'])
-                                            <div class="function_btn clickable slow_down"
-                                                 href="{{ url("/notification/create") }}">
-                                                <div class="content_box">
-                                                    <div class="icon">
-                                                        <span class="glyphicon glyphicon-pencil"></span>
-                                                    </div>
-                                                    <div class="content">
-                                                        <h4 class="content_title">通知发布</h4>
-                                                        <p>在权限内发布通知，可发布必读通知</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @endpermission
+                @if (Auth::guest())
+                    <h1 id="title_one">欢迎使用</h1>
+                    <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
+                    <p class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3"
+                       id="title_three" onclick="end_title_three();">
+                        学生事务服务中心APP为同学们打造全校信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！</p>
+                    <div id="tool_area">
+                        <div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                            <a id="start" href="{{ url('/login') }}" class="btn btn-info"
+                               style="width: 60%;margin-left: 20%;margin-right: 20%;">开始使用</a>
+                        </div>
+                    </div>
+                @else
+                    <div id="tool_area">
+                        <div class="functions col-md-10 col-md-offset-1 col-xs-12 text-center">
+                            {{-- @permission(['view_all_user','view_owned_user','modify_all_user', 'view_all_user']) --}}
+                            <div class="function_block">
+                                @permission(['view_all_user','view_owned_user'])
+                                <div class="function_btn clickable slow_down"
+                                     href="{{ url("/account_manager") }}">
+                                    <div class="content_box">
+                                        <div class="icon">
+                                            <span class="glyphicon glyphicon-user"></span>
                                         </div>
-
+                                        <div class="content">
+                                            <h4 class="content_title">用户列表</h4>
+                                            <p>查看用户列表，查看常用分类中的用户等</p>
+                                        </div>
                                     </div>
                                 </div>
-                            @endif
+                                @endpermission
+
+                                @permission(['create_user'])
+                                <div class="function_btn clickable slow_down"
+                                     href="{{ url("/account_manager/create") }}">
+                                    <div class="content_box">
+                                        <div class="icon">
+                                            <span class="glyphicon glyphicon-plus"></span>
+                                        </div>
+                                        <div class="content">
+                                            <h4 class="content_title">添加用户</h4>
+                                            <p>可输入相关信息或导入Excel工作表添加用户</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endpermission
+                                {{-- </div> --}}
+                                {{-- @endpermission --}}
+
+                                {{-- <div class="function_block"> --}}
+                                <div class="function_btn clickable slow_down"
+                                     href="{{ url("/notification") }}">
+                                    <div class="content_box">
+                                        <div class="icon">
+                                            <span class="glyphicon glyphicon-list-alt"></span>
+                                        </div>
+                                        <div class="content">
+                                            <h4 class="content_title">通知列表</h4>
+                                            <p>查看通知列表、必读通知、已收藏通知等</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if(Entrust::can(["create_notification", "delete_notification", "modify_all_notification", "modify_owned_notification"]))
+                                    <div class="function_btn clickable slow_down"
+                                         href="{{ url("/notification/manage") }}">
+                                        <div class="content_box">
+                                            <div class="icon">
+                                                <span class="glyphicon glyphicon-cog"></span>
+                                            </div>
+                                            <div class="content">
+                                                <h4 class="content_title">通知管理</h4>
+                                                <p>对通知进行管理，可查询通知的阅读人数</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @permission(['create_notification'])
+                                <div class="function_btn clickable slow_down"
+                                     href="{{ url("/notification/create") }}">
+                                    <div class="content_box">
+                                        <div class="icon">
+                                            <span class="glyphicon glyphicon-pencil"></span>
+                                        </div>
+                                        <div class="content">
+                                            <h4 class="content_title">通知发布</h4>
+                                            <p>在权限内发布通知，可发布必读通知</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endpermission
+                            </div>
 
                         </div>
-
-
                     </div>
-                </td>
-            </tr>
-        </table>
+                @endif
 
-    </div>
+            </div>
+
+
+        </div>
+    </td>
+
 @endsection
