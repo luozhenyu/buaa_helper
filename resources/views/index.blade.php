@@ -327,43 +327,6 @@
 
 @push("js")
 <script>
-    var text = "学生事务服务中心APP为同学们打造全校信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！";
-    var present_text = "";
-    var loc = 0, end = 0;
-    var points = [",", " ", ".", "，", "。", "!", "！", "\n"];
-    function nx(span, hook) {
-
-        var str_append, need_stop = text[loc];
-        if (text[loc] == '\n') str_append = "<br>"; else str_append = text[loc];
-        present_text += str_append;
-
-        loc += 1;
-        if (end == 1) {
-            $("#title_three").html(text.replace("\n", "<br>"));
-            $("#title_three").removeClass("click");
-            eval(hook);
-        } else {
-            if (loc < text.length) {
-                setTimeout("nx(" + span + ",\"" + hook + "\");", span);
-                $("#title_three").html(present_text + "_");
-            } else {
-                $("#title_three").html(present_text);
-                $("#title_three").removeClass("click");
-                eval(hook);
-            }
-        }
-    }
-    function end_title_three() {
-        end = 1;
-    }
-    function start_title_three() {
-        loc = 0;
-        present_text = "";
-        end = 0;
-        $("#title_three").addClass("click");
-        nx(100, "$('#tool_area').delay(150).fadeTo(400, 1);");
-    }
-
     function no_px(st) {
         return parseInt(st.substr(0, st.length - 2));
     }
@@ -375,8 +338,8 @@
             $("#title_one").delay(450).fadeTo(320, 1);
         $("#title_two").delay(700).fadeTo(320, 1);
         $("#title_three").delay(1150).fadeTo(500, 1);
+        $("#tool_area").delay(1600).fadeTo(400, 1);
 
-        setTimeout("start_title_three();", 2000);
         @else
             $("#tool_area").delay(500).fadeTo(400, 1);
         var main_delay = 150;
@@ -391,7 +354,6 @@
         @endif
 
         $(window).resize(function () {
-
             var main_bottom = $(window).height() - no_px($("footer").css("height")) - no_px($("#main_div").css("margin-bottom"));
             var main_top = $("#main_div").offset().top;
             var main_height = main_bottom - main_top;
@@ -418,7 +380,8 @@
                                 <h1 id="title_one">欢迎使用</h1>
                                 <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
                                 <p class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3"
-                                   id="title_three" onclick="end_title_three();"><br></p>
+                                   id="title_three" onclick="end_title_three();">
+                                    学生事务服务中心APP为同学们打造全校信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！</p>
                                 <div id="tool_area">
                                     <div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
                                         <a id="start" href="{{ url('/login') }}" class="btn btn-info"
