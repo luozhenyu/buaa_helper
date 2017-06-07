@@ -23,6 +23,9 @@
     #crumb {
         animation: fadeInto 0.25s ease;
     }
+    #crumb:empty {
+        display: none;
+    }
 
     #main_content {
         max-width: 100%;
