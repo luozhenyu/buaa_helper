@@ -115,7 +115,7 @@
             }
         }
 
-        .clickable {
+        .clickable, .click {
             cursor: pointer;
         }
     </style>

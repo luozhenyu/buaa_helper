@@ -22,24 +22,19 @@
                 processData: false,
                 contentType: false,
                 beforeSend: function () {
-                    $("#tips").fadeIn("slow").text("正在上传，请稍候");
+                    $("#tips").fadeIn('slow').text("正在上传，请稍候");
                     clock = Date.now();
                 },
                 success: function (resp) {
                     if (resp["errmsg"] === undefined) {
                         clock = Date.now() - clock;
-                        var tips = $("#tips").html("<p>成功：" + resp["success"] + " 跳过：" + resp["skip"] + " 失败：" + resp["fail"] + " 耗时: " + clock + "ms</p>")
-                        if (resp["msg"].length > 0) {
-                            tips.append("<h4>错误信息(前10条)</h4>")
-                                .append("<div>" + resp["msg"].join("<br>") + "</div>");
-                        }
-
+                        $("#tips").text('成功：' + resp['success'] + ' 跳过：' + resp['skip'] + ' 失败：' + resp['fail'] + ' 耗时: ' + clock + 'ms');
                     } else {
-                        $("#tips").html(resp["errmsg"]);
+                        $("#tips").text(resp["errmsg"]);
                     }
                 },
                 error: function () {
-                    $("#tips").html("请求超时");
+                    $("#tips").text("请求超时");
                 }
             });
         });

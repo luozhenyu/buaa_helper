@@ -186,6 +186,7 @@
     }
 
     .function_btn {
+        opacity: 0;
         white-space: nowrap;
         width: 100%;
         border-radius: 5px;
@@ -211,6 +212,15 @@
             $("#tool_area").delay(1150).fadeTo(400, 1);
         @else
             $("#tool_area").delay(500).fadeTo(400, 1);
+            var main_delay = 150;
+            $(".function_block").each(function(){
+                var sub_delay = main_delay;
+                $(this).find(".function_btn").each(function(){
+                    $(this).delay(sub_delay).fadeTo(300, 1);
+                    sub_delay += 200;
+                });
+                main_delay += 400;
+            })
         @endif
     });
 </script>
