@@ -2,6 +2,95 @@
 
 @push('css')
 <style>
+    #td_search_tools {
+        vertical-align: top;
+        width: 35%;
+        min-width: 200px;
+        padding-right: 5px;
+    }
+
+    table#main {
+        width: 100%;
+    }
+
+    .list-group li.list-group-item {
+        padding: 4px 4px;
+    }
+    .base, .base.panel-heading {
+        background-color: white;
+    }
+    .base:hover {
+        background-color: #eeeeee;
+    }
+
+    .panel-group {
+        margin-bottom: 0px;
+    }
+
+    .selected_content {
+        margin-top: 12px;
+        box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.1);
+        background-color: #dedede;
+        border-radius: 5px;
+        padding: 6px;
+    }
+
+    .selected_content > div {
+        display: inline-block;
+    }
+
+    .select_div {
+        overflow: auto;
+        max-height: 550px;
+        padding: 2px;
+        margin-top: 6px;
+    }
+
+    #collapse_2 {
+        padding: 4px;
+        padding-right: 0px;
+    }
+
+    #show_hide {
+        height: 80px;
+        width: 14px;
+        background-color: #ececec;
+        border-radius: 6px;
+        vertical-align: middle;
+    }
+
+    #show_hide:hover, #show_hide:focus {
+        background-color: #dedede;
+        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    #show_hide .glyphicon {
+        margin-top: 33px;
+        font-size: 14px;
+    }
+
+    .selected_element {
+        padding: 2px 4px;
+        border: 1px solid lightgray;
+        border-radius: 6px;
+        background-color: #f8f8f8;
+        margin-right: 5px;
+        margin-bottom: 3px;
+    }
+
+    .selected_element:hover {
+        background-color: white;
+    }
+
+    .selected_element .glyphicon {
+        color: red;
+    }
+
+    .empty_label {
+        margin: 2px;
+        text-align: center;
+        color: darkgray;
+    }
 </style>
 @endpush
 
@@ -41,6 +130,80 @@
             });
         });
     });
+
+
+    $(function () {
+        $("#show_hide").click(function () {
+            var btn = $(this).find(".glyphicon");
+            if (btn.hasClass("glyphicon-chevron-left")) {
+                $("#td_search_tools").fadeOut(200);
+                btn.attr("class", "glyphicon glyphicon-chevron-right");
+            } else {
+                $("#td_search_tools").fadeIn(200);
+                btn.attr("class", "glyphicon glyphicon-chevron-left");
+            }
+        });
+
+        $(".base").click(function () {
+            var name = $(this).attr("name");
+            var value = $(this).attr("value");
+            var flag = true, belongs_to = "";
+
+            $(".selected_element").each(function(){
+                if (is_parent($(this).attr("value"), value)) {
+                    flag = false;
+                    belongs_to = $(this).attr("name");
+                }
+            })
+
+            if (flag) {
+                $(".selected_element").each(function(){
+                    if (is_parent(value, $(this).attr("value"))) $(this).remove();
+                });
+                $(".selected_content").append("<div class = \"selected_element\" " +
+                    "name = \"" + name + "\" value = \"" + value + "\">" + name +
+                    "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
+                    "onclick = \"remove_selection(this.parentNode);\"></span>" +
+                    "</div>");
+            } else {
+                $(this).tooltip({
+                    trigger : "manual" ,
+                    placement : "right" ,
+                    title : "<h5>该用户群组已经被选择</h5>" +
+                    "<h5>隶属于：<b style = 'color: orangered'>" + belongs_to + "</b></h5>" ,
+                    html : true
+                });
+                $(this).tooltip("show");
+            }
+            selection_check();
+        });
+        $(".base").mouseleave(function(){
+            $(this).tooltip("hide");
+            $(this).tooltip("destroy");
+        })
+    });
+
+    function remove_selection(box) {
+        box.remove();
+        selection_check();
+    }
+    function selection_check() {
+        if ($(".selected_element").length > 0) {
+            if (!$(".empty_label").hasClass("hidden")) $(".empty_label").addClass("hidden");
+        } else {
+            $(".empty_label").removeClass("hidden");
+        }
+    }
+    function is_parent(value1, value2) {
+        var a1 = value1.split(",");
+        var a2 = value2.split(",");
+        if (a2.length < a1.length) return false;
+        if ((a1.length == 1) && (a1[0] == "")) return true;
+        if ((a2.length == 1) && (a2[0] == "")) return false;
+
+        for (i = 0;i < a1.length;i++) if (a1[i] != a2[i]) return false;
+        return true;
+    }
 </script>
 @endpush
 
@@ -50,18 +213,17 @@
 @endpush
 
 @section('content')
-    <table border="0" style="width: 100%;">
-        <tr>
-            <td id="td_search_tools" style="vertical-align: top;width: 35%;min-width: 200px;padding-right: 5px;">
-                <div id="search_tools row" style="">
 
+    <table id="main" border="0">
+        <tr>
+            <td id="td_search_tools">
+                <div id="search_tools row">
                     <div>
                         <form class="form-iniline" role="form" method="get"
                               action="{{ route('accountManager') }}">
                             <div class="input-group">
                                 <input type="search" class="form-control" name="wd" value="{{ $wd }}"
                                        placeholder="学号／工号／姓名">
-
                                 <span class="input-group-btn">
                                     <button type="submit" class="btn btn-primary">
                                         <span class="glyphicon glyphicon-search"></span> 搜索
@@ -70,17 +232,20 @@
                             </div>
                         </form>
                     </div>
-                    <style>
-                        .list-group li.list-group-item {
-                            padding: 4px 4px;
-                        }
-
-                        .panel-group {
-                            margin-bottom: 0px;
-                        }
-                    </style>
-                    <div style="overflow: auto;max-height: 500px;margin-top: 12px;padding: 2px;">
+                    <div class="selected_content">
+                        <h4 class="empty_label">(无任何选中对象)</h4>
+                    </div>
+                    <div class="select_div">
                         <div class="panel-group" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading click base slow_down" value=""
+                                     name="全校人员">
+                                    <h5 class="panel-title">
+                                        <b>全校人员</b>
+                                    </h5>
+                                </div>
+                            </div>
+
                             <div class="panel panel-default">
                                 <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
                                      href="#collapse_1">
@@ -90,8 +255,12 @@
                                 </div>
                                 <div id="collapse_1" class="panel-collapse collapse">
                                     <ul class="list-group">
+                                        <li class="list-group-item slow_down click base" value="0" name="全校各部门">
+                                            <b>全校各部门</b>
+                                        </li>
                                         @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
-                                            <li class="list-group-item">
+                                            <li class="list-group-item slow_down click base"
+                                                value="0,{{ $value->number }}" name="{{ $value->name }}">
                                                 {{ $value->name }}
                                             </li>
                                         @endforeach
@@ -104,30 +273,40 @@
                                 <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
                                      href="#collapse_2">
                                     <h4 class="panel-title">
-                                        学院
+                                        学生
                                     </h4>
                                 </div>
-                                <div id="collapse_2" class="panel-collapse collapse" style = "padding: 4px;padding-right: 0px;">
+                                <div id="collapse_2" class="panel-collapse collapse"
+                                     style="">
                                     <div class="panel-group" id="accordion_2">
                                         @php
                                             $num_2 = 0;
                                         @endphp
-                                        @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key => $value)
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading click base slow_down" value="1" name="全校学生">
+                                                <h4 class="panel-title"><b>全校学生</b></h4>
+                                            </div>
+                                        </div>
+                                        @foreach(\App\Models\Property::where('name','grade')->firstOrFail()->propertyValues as $key => $value)
                                             <div class="panel panel-default">
                                                 <div class="panel-heading click" data-toggle="collapse"
                                                      data-parent="#accordion_2"
                                                      href="#collapse_2_{{ $num_2 }}">
-                                                    <h4 class="panel-title">({{  $value->number }}) {{ $value->name }}</h4>
+                                                    <h4 class="panel-title">{{ $value->display_name }}</h4>
                                                 </div>
                                                 <div id="collapse_2_{{ $num_2++ }}"
                                                      class="panel-collapse collapse">
                                                     <ul class="list-group">
-                                                        <li class="list-group-item">
-                                                            全选
+                                                        <li class="list-group-item slow_down base"
+                                                            value="1,{{ $value->name }}"
+                                                            name="{{ $value->display_name }} - 全体学生">
+                                                            <b>全体学生</b>
                                                         </li>
-                                                        @foreach(\App\Models\Property::where('name','grade')->firstOrFail()->propertyValues as $key_1 => $value_1)
-                                                            <li class="list-group-item">
-                                                                {{ $value_1->display_name }}
+                                                        @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key_1 => $value_1)
+                                                            <li class="list-group-item slow_down click base"
+                                                                value="1,{{ $value->name }},{{$value_1->number}}"
+                                                                name="{{ $value->display_name." - ".$value_1->number."系" }}">
+                                                                ({{  $value_1->number }}) {{ $value_1->name }}
                                                             </li>
                                                         @endforeach
                                                     </ul>
@@ -142,36 +321,8 @@
                 </div>
             </td>
             <td>
-                <script>
-                    $(function () {
-                        $("#show_hide").click(function () {
-                            var btn = $(this).find(".glyphicon");
-                            if (btn.hasClass("glyphicon-chevron-left")) {
-                                $("#td_search_tools").fadeOut(300);
-                                btn.attr("class", "glyphicon glyphicon-chevron-right");
-                            } else {
-                                $("#td_search_tools").fadeIn(300);
-                                btn.attr("class", "glyphicon glyphicon-chevron-left");
-                            }
-                        });
-                    })
-                </script>
-                <style>
-                    #show_hide {
-                        height: 80px;
-                        width: 14px;
-                        background-color: #ececec;
-                        border-radius: 4px;
-                        vertical-align: middle;
-                    }
-
-                    #show_hide:hover, #show_hide:focus {
-                        background-color: #dedede;
-                        box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-                    }
-                </style>
                 <div id="show_hide" class="clickable slow_down">
-                    <span class="glyphicon glyphicon-chevron-left" style="margin-top: 33px;font-size: 14px;"></span>
+                    <span class="glyphicon glyphicon-chevron-left"></span>
                 </div>
             </td>
             <td style="vertical-align: top;">
