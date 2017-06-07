@@ -183,7 +183,7 @@
             <label for="excerpt" class="col-md-2 control-label">摘要</label>
             <div class="col-md-9">
                 <input id="excerpt" type="text" class="form-control" name="excerpt" value="{{ old('excerpt') }}"
-                       required autocomplete="off" placeholder="摘要中应包含通知的主要内容或注意事项（70字以内）">
+                       required autocomplete="off" maxlength="70" placeholder="摘要中应包含通知的主要内容或注意事项（70字以内）">
                 @if ($errors->has('excerpt'))
                     <span class="help-block">
                         <strong>{{ $errors->first('excerpt') }}</strong>
