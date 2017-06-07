@@ -257,22 +257,20 @@
 
                                     var left = total - vis;
                                     if (left < 100) {
-                                        $("#confirmRead").mouseenter(function () {
-                                            $(this).html(qSign + "点击确认阅读").css("background-color", "#5cb85c");
-                                        }).mouseleave(function () {
-                                            $(this).html(qSign + "是否仔细阅读").css("background-color", "#d9534f");
-                                        }).click(function () {
-                                            $.ajax({
-                                                url: "{{ route('notification').'/'.$notification->id .'/read' }}",
-                                                type: "POST",
-                                                headers: {
-                                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                                },
-                                                success: function (data) {
-                                                    window.location.reload();
-                                                }
+                                        $("#confirmRead").html(qSign + "点击确认阅读").css("background-color", "#5cb85c")
+                                            .unbind()
+                                            .click(function () {
+                                                $.ajax({
+                                                    url: "{{ route('notification').'/'.$notification->id .'/read' }}",
+                                                    type: "POST",
+                                                    headers: {
+                                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                    },
+                                                    success: function (data) {
+                                                        window.location.reload();
+                                                    }
+                                                });
                                             });
-                                        });
                                     }
                                 });
                             });
