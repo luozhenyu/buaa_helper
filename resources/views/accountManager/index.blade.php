@@ -16,15 +16,17 @@
     .list-group li.list-group-item {
         padding: 4px 4px;
     }
+
     .base, .base.panel-heading {
         background-color: white;
     }
+
     .base:hover {
         background-color: #eeeeee;
     }
 
     .panel-group {
-        margin-bottom: 0px;
+        margin-bottom: 0;
     }
 
     .selected_content {
@@ -113,19 +115,24 @@
                 processData: false,
                 contentType: false,
                 beforeSend: function () {
-                    $("#tips").fadeIn('slow').text("正在上传，请稍候");
+                    $("#tips").fadeIn("slow").text("正在上传，请稍候");
                     clock = Date.now();
                 },
                 success: function (resp) {
                     if (resp["errmsg"] === undefined) {
                         clock = Date.now() - clock;
-                        $("#tips").text('成功：' + resp['success'] + ' 跳过：' + resp['skip'] + ' 失败：' + resp['fail'] + ' 耗时: ' + clock + 'ms');
+                        var tips = $("#tips").html("<p>成功：" + resp["success"] + " 跳过：" + resp["skip"] + " 失败：" + resp["fail"] + " 耗时: " + clock + "ms</p>")
+                        if (resp["msg"].length > 0) {
+                            tips.append("<h4>错误信息(前10条)</h4>")
+                                .append("<div>" + resp["msg"].join("<br>") + "</div>");
+                        }
+
                     } else {
-                        $("#tips").text(resp["errmsg"]);
+                        $("#tips").html(resp["errmsg"]);
                     }
                 },
                 error: function () {
-                    $("#tips").text("请求超时");
+                    $("#tips").html("请求超时");
                 }
             });
         });
@@ -149,7 +156,7 @@
             var value = $(this).attr("value");
             var flag = true, belongs_to = "";
 
-            $(".selected_element").each(function(){
+            $(".selected_element").each(function () {
                 if (is_parent($(this).attr("value"), value)) {
                     flag = false;
                     belongs_to = $(this).attr("name");
@@ -157,7 +164,7 @@
             })
 
             if (flag) {
-                $(".selected_element").each(function(){
+                $(".selected_element").each(function () {
                     if (is_parent(value, $(this).attr("value"))) $(this).remove();
                 });
                 $(".selected_content").append("<div class = \"selected_element\" " +
@@ -167,17 +174,17 @@
                     "</div>");
             } else {
                 $(this).tooltip({
-                    trigger : "manual" ,
-                    placement : "right" ,
-                    title : "<h5>该用户群组已经被选择</h5>" +
-                    "<h5>隶属于：<b style = 'color: orangered'>" + belongs_to + "</b></h5>" ,
-                    html : true
+                    trigger: "manual",
+                    placement: "right",
+                    title: "<h5>该用户群组已经被选择</h5>" +
+                    "<h5>隶属于：<b style = 'color: orangered'>" + belongs_to + "</b></h5>",
+                    html: true
                 });
                 $(this).tooltip("show");
             }
             selection_check();
         });
-        $(".base").mouseleave(function(){
+        $(".base").mouseleave(function () {
             $(this).tooltip("hide");
             $(this).tooltip("destroy");
         })
@@ -201,7 +208,7 @@
         if ((a1.length == 1) && (a1[0] == "")) return true;
         if ((a2.length == 1) && (a2[0] == "")) return false;
 
-        for (i = 0;i < a1.length;i++) if (a1[i] != a2[i]) return false;
+        for (i = 0; i < a1.length; i++) if (a1[i] != a2[i]) return false;
         return true;
     }
 </script>
@@ -355,6 +362,7 @@
                                     <div class="modal-body">
                                         {{ csrf_field() }}
                                         <div class="form-group">
+                                            <label>第一步：</label>
                                             <a type="button" class="btn btn-info"
                                                href="{{ route('accountManager').'/import' }}">
                                                 <span class="glyphicon glyphicon-download"></span> 下载模板
@@ -362,10 +370,9 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="file">用户信息上传【Excel】</label>
+                                            <label for="file">第二步：用户信息上传【支持Excel表格】</label>
                                             <input type="file" id="file" autocomplete="off">
-                                            <p class="help-block">请将数据导入至模板后上传</p>
-                                        </div>
+                                            <p class="help-block">请将数据导入至模板后上传</p></div>
                                         <div class="alert alert-info" id="tips" style="display: none"></div>
                                     </div>
 
