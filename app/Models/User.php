@@ -118,6 +118,27 @@ class User extends Authenticatable
             ->using('App\Models\PropertyUser');
     }
 
+    /**
+     * 获得此用户的某项属性值
+     * @param string $name
+     * @return null|string
+     */
+    public function getProperty($name)
+    {
+        if (($property = $this->properties()->where('name', $name)->first())
+            && ($propertyValue = $property->pivot->propertyValue)
+        ) {
+            return $propertyValue->name;
+        }
+        return null;
+    }
+
+    /**
+     * 设置此用户的某项属性值
+     * @param string $name
+     * @param string $value
+     * @return \App\Models\User
+     */
     public function setProperty($name, $value)
     {
         $property = $value ? Property::where('name', $name)->firstOrFail()
@@ -127,18 +148,6 @@ class User extends Authenticatable
         $pivot->property_value_id = $property;
         $pivot->save();
         return $this;
-    }
-
-    /**
-     * 此用户的某项属性值
-     * @param $name
-     * @return string
-     */
-    public function propertyValue($name)
-    {
-        return $this->properties()
-            ->where('name', $name)->firstOrFail()
-            ->pivot->propertyValue;
     }
 
     /**

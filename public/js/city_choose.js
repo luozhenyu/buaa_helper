@@ -1,9 +1,10 @@
 'use strict';
 
 $.fn.childrenCities = function () {
-    var self = $(this);
-    $.get(arguments[0] ? "/city/" + arguments[0] + "/children" : "/city", function (json) {
-        self.empty();
+    var params = arguments[0] || {};
+    var self = $(this).empty();
+
+    $.get("/city" + (params.val ? "/" + params.val + "/children" : ""), function (json) {
         if (json.length > 0) {
             $.each(json, function (index, elem) {
                 self.append("<option value='" + elem["code"] + "'>" + elem["name"] + "</option>");
@@ -13,19 +14,28 @@ $.fn.childrenCities = function () {
             self.attr("disabled", true);
         }
         self.selectpicker('refresh');
+        params.callback && params.callback();
     });
+    return $(this);
 };
 
-$.setCityChoose = function (id0, id1, id2) {
-    $(id0).childrenCities();
+$.fn.clearCities = function () {
+    return $(this).empty().attr("disabled", true)
+        .selectpicker('refresh')
+};
 
-    $(id0).on('changed.bs.select', function () {
-        $(id1).childrenCities($(this).val());
-        $(id2).empty().attr("disabled", true).selectpicker('refresh');
+$.setCityChoose = function (province, city, area) {
+    $(province).on('changed.bs.select', function () {
+        $(city).childrenCities({
+            val: $(this).val()
+        });
+        $(area).clearCities();
     });
 
-    $(id1).on('changed.bs.select', function () {
-        $(id2).childrenCities($(this).val());
+    $(city).on('changed.bs.select', function () {
+        $(area).childrenCities({
+            val: $(this).val()
+        });
     });
 };
 
