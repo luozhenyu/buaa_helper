@@ -61,12 +61,6 @@
     #excerpt {
         font-size: 16px;
     }
-
-    @if(!$read_at)
-    #confirmRead:hover {
-        background-color: #39c05f;
-    }
-    @endif
 </style>
 @endpush
 
@@ -112,7 +106,7 @@
                 $("#attachmentContainer").append(parseFile(files[i], false));
             }
         } else {
-            $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0px;'>(无附件)</h3>");
+            $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
         }
     });
 </script>
@@ -125,7 +119,6 @@
 @endpush
 
 @section('content')
-
     <div class="col-md-12">
         <h3 class="text-center">
             {{ ($notification->important? '[必读] ' : '') . $notification->title }}
@@ -144,11 +137,9 @@
             </div>
 
             <div class="label-block">
-                <!--<label class="label label-primary" id="star">-->
-                <button id="star" class="btn btn-primary btn-xs" style="font-size: 14px;">
+                <span id="star" class="btn btn-primary btn-xs" style="font-size: 14px;">
                     <span class="glyphicon glyphicon-star-empty">收藏</span>
-                </button>
-                <!--</label>-->
+                </span>
             </div>
         </div>
 
@@ -224,11 +215,9 @@
         </div>
     </div>
 
-    <div class="col-md-12">
-        <article>
-            <div class="well well-lg">{!! $notification->content !!}</div>
-        </article>
-    </div>
+    <article class="col-md-12">
+        <div class="well well-lg">{!! $notification->content !!}</div>
+    </article>
 
     @if($notification->important)
         <div class="col-md-12">
@@ -240,20 +229,48 @@
                             已确认阅读
                         </label>
                     @else
-                        <label class="label label-danger slow_down" id="confirmRead">
-                            <span class="glyphicon glyphicon-question-sign"></span>
-                            是否已仔细阅读
-                        </label>
+                        <div id="scrollBar" style="position: fixed;bottom: 40px;right: 80px;z-index: 99">
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar progress-bar-info" id="progressBar"
+                                     style="width: 0;transition:none"></div>
+                            </div>
+                            <label id="confirmRead" class="label label-danger slow_down">
+                                <span class="glyphicon glyphicon-question-sign"></span>
+                                是否仔细阅读
+                            </label>
+                        </div>
+
                         <script>
-                            $("#confirmRead").click(function () {
-                                $.ajax({
-                                    url: "{{ route('notification').'/'.$notification->id .'/read' }}",
-                                    type: "POST",
-                                    headers: {
-                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                    },
-                                    success: function (data) {
-                                        window.location.reload();
+                            $(function () {
+                                var maxProgress = 0;
+                                var qSign = '<span class="glyphicon glyphicon-question-sign"></span>';
+                                $("#confirmRead").mouseenter(function () {
+                                    $(this).html(qSign + "请先完成阅读");
+                                }).mouseleave(function () {
+                                    $(this).html(qSign + "是否仔细阅读");
+                                });
+
+                                $(window).scroll(function () {
+                                    var total = $(document).height() - $(window).height();
+                                    var vis = $(window).scrollTop();
+                                    $("#progressBar").css("width", (maxProgress = Math.max(maxProgress, 100 * vis / total)) + "%");
+
+                                    var left = total - vis;
+                                    if (left < 100) {
+                                        $("#confirmRead").html(qSign + "点击确认阅读").css("background-color", "#5cb85c")
+                                            .unbind()
+                                            .click(function () {
+                                                $.ajax({
+                                                    url: "{{ route('notification').'/'.$notification->id .'/read' }}",
+                                                    type: "POST",
+                                                    headers: {
+                                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                                    },
+                                                    success: function (data) {
+                                                        window.location.reload();
+                                                    }
+                                                });
+                                            });
                                     }
                                 });
                             });
