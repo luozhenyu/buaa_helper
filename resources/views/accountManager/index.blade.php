@@ -43,7 +43,8 @@
 
     .select_div {
         overflow: auto;
-        max-height: 550px;
+        max-height: 300px;
+        height: 300px;
         padding: 2px;
         margin-top: 6px;
     }
@@ -78,6 +79,15 @@
         background-color: #f8f8f8;
         margin-right: 5px;
         margin-bottom: 3px;
+        font-weight: bold;
+    }
+
+    .selected_element.range {
+        color: black;
+    }
+
+    .selected_element.limit {
+        color: darkblue;
     }
 
     .selected_element:hover {
@@ -93,6 +103,7 @@
         text-align: center;
         color: darkgray;
     }
+
 </style>
 @endpush
 
@@ -137,26 +148,69 @@
             });
         });
     });
-
+    function window_small_check() {
+        return $(window).width() < 600;
+    }
+    function state_adjust() {
+        var small = window_small_check();
+        //alert(small);
+        if (small)
+            $("#td_search_tools").css("width", "98%");
+        else
+            $("#td_search_tools").css("width", "35%");
+        if ($("#show_hide .glyphicon").hasClass("glyphicon-chevron-left")) {
+            if (small)
+                $("#user_list").css("display", "none");
+            else
+                $("#user_list").css("display", "table-cell");
+        } else {
+            $("#user_list").css("display", "table-cell");
+        }
+    }
 
     $(function () {
+        state_adjust();
+        $(window).resize(function(){ state_adjust(); })
         $("#show_hide").click(function () {
+
             var btn = $(this).find(".glyphicon");
+            var speed = 200, small = window_small_check();
             if (btn.hasClass("glyphicon-chevron-left")) {
-                $("#td_search_tools").fadeOut(200);
+                $("#td_search_tools").hide(speed);
                 btn.attr("class", "glyphicon glyphicon-chevron-right");
+                state_adjust();
             } else {
-                $("#td_search_tools").fadeIn(200);
+                $("#td_search_tools").show(speed);
+
                 btn.attr("class", "glyphicon glyphicon-chevron-left");
+                state_adjust();
             }
         });
 
-        $(".base").click(function () {
+        $(".base.limit").click(function () {
+            var value = $(this).attr("value");
+            var arr = value.split(",");
+            $(".selected_element.limit").each(function () {
+                var arr_2 = $(this).attr("value").split(",");
+                if (arr_2[0] == arr[0]) $(this).remove();
+            })
+            if (arr.length > 1) {
+                var name = $(this).attr("name");
+                $(".selected_content").append("<div class = \"selected_element limit\" " +
+                    "name = \"" + name + "\" value = \"" + value + "\">" + name +
+                    "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
+                    "onclick = \"remove_selection(this.parentNode);\"></span>" +
+                    "</div>");
+            }
+            selection_check();
+        });
+
+        $(".base.range").click(function () {
             var name = $(this).attr("name");
             var value = $(this).attr("value");
             var flag = true, belongs_to = "";
 
-            $(".selected_element").each(function () {
+            $(".selected_element.range").each(function () {
                 if (is_parent($(this).attr("value"), value)) {
                     flag = false;
                     belongs_to = $(this).attr("name");
@@ -164,10 +218,10 @@
             })
 
             if (flag) {
-                $(".selected_element").each(function () {
+                $(".selected_element.range").each(function () {
                     if (is_parent(value, $(this).attr("value"))) $(this).remove();
                 });
-                $(".selected_content").append("<div class = \"selected_element\" " +
+                $(".selected_content").append("<div class = \"selected_element range\" " +
                     "name = \"" + name + "\" value = \"" + value + "\">" + name +
                     "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
                     "onclick = \"remove_selection(this.parentNode);\"></span>" +
@@ -224,102 +278,154 @@
     <table id="main" border="0">
         <tr>
             <td id="td_search_tools">
-                <div id="search_tools row">
-                    <div>
-                        <form class="form-iniline" role="form" method="get"
-                              action="{{ route('accountManager') }}">
-                            <div class="input-group">
-                                <input type="search" class="form-control" name="wd" value="{{ $wd }}"
-                                       placeholder="学号／工号／姓名">
-                                <span class="input-group-btn">
+                <div id="search_tools" style = "position: relative;min-height: 600px;">
+                    <div style = "position: absolute;left: 0px; right: 0px; top: 0px; bottom: 0px;">
+                        <div>
+                            <form class="form-iniline" role="form" method="get"
+                                  action="{{ route('accountManager') }}">
+                                <div class="input-group">
+                                    <input type="search" class="form-control" name="wd" value="{{ $wd }}"
+                                           placeholder="学号／工号／姓名">
+                                    <span class="input-group-btn">
                                     <button type="submit" class="btn btn-primary">
                                         <span class="glyphicon glyphicon-search"></span> 搜索
                                     </button>
                                 </span>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="selected_content">
-                        <h4 class="empty_label">(无任何选中对象)</h4>
-                    </div>
-                    <div class="select_div">
-                        <div class="panel-group" id="accordion">
-                            <div class="panel panel-default">
-                                <div class="panel-heading click base slow_down" value=""
-                                     name="全校人员">
-                                    <h5 class="panel-title">
-                                        <b>全校人员</b>
-                                    </h5>
                                 </div>
-                            </div>
+                            </form>
+                        </div>
+                        <div class="selected_content">
+                            <h4 class="empty_label">(无任何选中对象)</h4>
+                        </div>
+                        <div class="select_div">
+                            <div class="panel-group" id="accordion">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading click base range slow_down" value=""
+                                         name="全校人员">
+                                        <h5 class="panel-title">
+                                            <b>全校人员</b>
+                                        </h5>
+                                    </div>
+                                </div>
 
-                            <div class="panel panel-default">
-                                <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                     href="#collapse_1">
-                                    <h5 class="panel-title">
-                                        机关部处
-                                    </h5>
-                                </div>
-                                <div id="collapse_1" class="panel-collapse collapse">
-                                    <ul class="list-group">
-                                        <li class="list-group-item slow_down click base" value="0" name="全校各部门">
-                                            <b>全校各部门</b>
-                                        </li>
-                                        @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
-                                            <li class="list-group-item slow_down click base"
-                                                value="0,{{ $value->number }}" name="{{ $value->name }}">
-                                                {{ $value->name }}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
+                                         href="#collapse_1">
+                                        <h5 class="panel-title">
+                                            机关部处
+                                        </h5>
+                                    </div>
+                                    <div id="collapse_1" class="panel-collapse collapse">
+                                        <ul class="list-group">
+                                            <li class="list-group-item slow_down click base range" value="0"
+                                                name="全校各部门">
+                                                <b>全校各部门</b>
                                             </li>
-                                        @endforeach
+                                            @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
+                                                <li class="list-group-item slow_down click base range"
+                                                    value="0,{{ $value->number }}" name="{{ $value->name }}">
+                                                    {{ $value->name }}
+                                                </li>
+                                            @endforeach
 
-                                    </ul>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="panel panel-default">
-                                <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                     href="#collapse_2">
-                                    <h4 class="panel-title">
-                                        学生
-                                    </h4>
-                                </div>
-                                <div id="collapse_2" class="panel-collapse collapse"
-                                     style="">
-                                    <div class="panel-group" id="accordion_2">
-                                        @php
-                                            $num_2 = 0;
-                                        @endphp
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading click base slow_down" value="1" name="全校学生">
-                                                <h4 class="panel-title"><b>全校学生</b></h4>
-                                            </div>
-                                        </div>
-                                        @foreach(\App\Models\Property::where('name','grade')->firstOrFail()->propertyValues as $key => $value)
+                                <div class="panel panel-default">
+                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
+                                         href="#collapse_2">
+                                        <h4 class="panel-title">
+                                            学生
+                                        </h4>
+                                    </div>
+                                    <div id="collapse_2" class="panel-collapse collapse"
+                                         style="">
+                                        <div class="panel-group" id="accordion_2">
+                                            @php
+                                                $num_2 = 0;
+                                            @endphp
                                             <div class="panel panel-default">
-                                                <div class="panel-heading click" data-toggle="collapse"
-                                                     data-parent="#accordion_2"
-                                                     href="#collapse_2_{{ $num_2 }}">
-                                                    <h4 class="panel-title">{{ $value->display_name }}</h4>
-                                                </div>
-                                                <div id="collapse_2_{{ $num_2++ }}"
-                                                     class="panel-collapse collapse">
-                                                    <ul class="list-group">
-                                                        <li class="list-group-item slow_down base"
-                                                            value="1,{{ $value->name }}"
-                                                            name="{{ $value->display_name }} - 全体学生">
-                                                            <b>全体学生</b>
-                                                        </li>
-                                                        @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key_1 => $value_1)
-                                                            <li class="list-group-item slow_down click base"
-                                                                value="1,{{ $value->name }},{{$value_1->number}}"
-                                                                name="{{ $value->display_name." - ".$value_1->number."系" }}">
-                                                                ({{  $value_1->number }}) {{ $value_1->name }}
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
+                                                <div class="panel-heading click base range slow_down" value="1"
+                                                     name="全校学生">
+                                                    <h4 class="panel-title"><b>全校学生</b></h4>
                                                 </div>
                                             </div>
-                                        @endforeach
+                                            @foreach(\App\Models\Property::where('name','grade')->firstOrFail()->propertyValues as $key => $value)
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading click" data-toggle="collapse"
+                                                         data-parent="#accordion_2"
+                                                         href="#collapse_2_{{ $num_2 }}">
+                                                        <h4 class="panel-title">{{ $value->display_name }}</h4>
+                                                    </div>
+                                                    <div id="collapse_2_{{ $num_2++ }}"
+                                                         class="panel-collapse collapse">
+                                                        <ul class="list-group">
+                                                            <li class="list-group-item slow_down base range"
+                                                                value="1,{{ $value->name }}"
+                                                                name="{{ $value->display_name }} - 全体学生">
+                                                                <b>全体学生</b>
+                                                            </li>
+                                                            @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key_1 => $value_1)
+                                                                <li class="list-group-item slow_down click base range"
+                                                                    value="1,{{ $value->name }},{{$value_1->number}}"
+                                                                    name="{{ $value->display_name." - ".$value_1->number."系" }}">
+                                                                    ({{  $value_1->number }}) {{ $value_1->name }}
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
+                                         href="#collapse_3">
+                                        <h5 class="panel-title">
+                                            政治面貌
+                                        </h5>
+                                    </div>
+                                    <div id="collapse_3" class="panel-collapse collapse">
+                                        <ul class="list-group">
+                                            <li class="list-group-item slow_down click base limit" value="0">
+                                                <b>全部</b>
+                                            </li>
+                                            @foreach(\App\Models\Property::where('name','political_status')->firstOrFail()->propertyValues as $value)
+                                                <li class="list-group-item slow_down click base limit"
+                                                    value="0,{{ $value->name }}"
+                                                    name="政治面貌 - {{ $value->display_name }}">
+                                                    {{ $value->display_name }}
+                                                </li>
+                                            @endforeach
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
+                                         href="#collapse_4">
+                                        <h5 class="panel-title">
+                                            经济困难
+                                        </h5>
+                                    </div>
+                                    <div id="collapse_4" class="panel-collapse collapse">
+                                        <ul class="list-group">
+                                            <li class="list-group-item slow_down click base limit" value="1">
+                                                <b>全部</b>
+                                            </li>
+                                            @foreach(\App\Models\Property::where('name','financial_difficulty')->firstOrFail()->propertyValues as $value)
+                                                <li class="list-group-item slow_down click base limit"
+                                                    value="1,{{ $value->name }}"
+                                                    name="经济困难 - {{ $value->display_name }}">
+                                                    {{ $value->display_name }}
+                                                </li>
+                                            @endforeach
+
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -332,7 +438,7 @@
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </div>
             </td>
-            <td style="vertical-align: top;">
+            <td id = "user_list" style="vertical-align: top;">
                 <table class="table table-condensed table-hover">
                     <caption>
                         @permission('create_user')
