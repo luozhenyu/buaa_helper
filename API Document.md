@@ -1,7 +1,9 @@
-## Version: 2017/06/08 14:03:07
+## Version: 2017/06/08 15:08:39
 
 
 #### ChangeLog:
+* 2017/06/08 15:08:39
+  * 新增删除设备和测试通知提醒功能，notifyDevice仅供测试使用
 * 2017/06/08 14:03:07
   * 用户支持查询和修改头像和多种用户信息
   * 新增客户端接受推送的API，需要上传终端ID
@@ -41,22 +43,33 @@
   * expires_in:seconds
   
   
-`$this->any('/device/create', 'APIController@createDevice');`
-* params:
-  * registration_id:string
-* return:
-  * errcode:integer
-  * device:
-    * registrationID:string
-    * updated_at:unix_timestamp
-    
 `$this->any('/device', 'APIController@listDevice');`
 * return:
   * errcode:integer
   * devices:
     * registrationID:string
     * updated_at:unix_timestamp
+      
+`$this->any('/device/create', 'APIController@createDevice');`
+* params:
+  * registration_id:string
+* return:
+  * errcode:integer
+  * msg:string
     
+`$this->any('/device/delete', 'APIController@deleteDevice');`
+* params:
+  * registration_id:string
+* return:
+  * errcode:integer
+  * msg:string
+  
+`$this->any('/device/notify', 'APIController@notifyDevice');`
+* params:
+  * text:string
+* return:
+  * errcode:integer
+  * msg:string  
     
 `$this->any('user/info', 'APIController@userInfo');`
 * return:

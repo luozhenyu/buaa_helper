@@ -17,8 +17,10 @@ $this->any('/', 'APIController@index');
 $this->any('/login', 'APIController@login');
 
 
-$this->any('/device/create', 'APIController@createDevice');
 $this->any('/device', 'APIController@listDevice');
+$this->any('/device/create', 'APIController@createDevice');
+$this->any('/device/delete', 'APIController@deleteDevice');
+$this->any('/device/notify', 'APIController@notifyDevice');
 
 
 $this->any('/user/info', 'APIController@userInfo');

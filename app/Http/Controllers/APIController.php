@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Func\ErrCode;
+use App\Jobs\SendText;
 use App\Models\City;
 use App\Models\Device;
 use App\Models\File;
@@ -103,6 +104,22 @@ class APIController extends Controller
     }
 
 
+    public function listDevice(Request $request)
+    {
+        $user = $request->get('user');
+        $devices = $user->devices->map(function ($item, $key) {
+            return [
+                'registrationID' => $item->registrationID,
+                'updated_at' => $item->updated_at->timestamp,
+            ];
+        });
+
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'devices' => $devices,
+        ]);
+    }
+
     public function createDevice(Request $request)
     {
         $user = $request->get('user');
@@ -120,31 +137,57 @@ class APIController extends Controller
         $registrationID = $request->input('registration_id');
         $device = Device::firstOrNew(['registrationID' => $registrationID]);
         $device->user_id = $user->id;
-        $device->{Device::UPDATED_AT} = new Carbon;
-        $device->save();
-
+        $device->touch();
         return response()->json([
             'errcode' => ErrCode::OK,
-            'device' => [
-                'registrationID' => $device->registrationID,
-                'updated_at' => $device->updated_at->timestamp,
-            ],
+            'msg' => 'Created!',
         ]);
     }
 
-    public function listDevice(Request $request)
+    public function deleteDevice(Request $request)
     {
         $user = $request->get('user');
-        $devices = $user->devices->map(function ($item, $key) {
-            return [
-                'registrationID' => $item->registrationID,
-                'updated_at' => $item->updated_at->timestamp,
-            ];
-        });
+
+        $validator = Validator::make($request->all(), [
+            'registration_id' => 'required|exists:devices,registrationID,user_id,' . $user->id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errcode' => ErrCode::FORM_ILLEGAL,
+                'errmsg' => $validator->errors()->first(),
+            ]);
+        }
+
+        $registrationID = $request->input('registration_id');
+        $device = Device::where('registrationID', $registrationID)->firstOrFail();
+        $device->delete();
 
         return response()->json([
             'errcode' => ErrCode::OK,
-            'devices' => $devices,
+            'msg' => 'Deleted!',
+        ]);
+    }
+
+    public function notifyDevice(Request $request)
+    {
+        $user = $request->get('user');
+
+        $validator = Validator::make($request->all(), [
+            'text' => 'required|max:70',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errcode' => ErrCode::FORM_ILLEGAL,
+                'errmsg' => $validator->errors()->first(),
+            ]);
+        }
+
+        dispatch(new SendText($request->input('text'), $user));
+
+        return response()->json([
+            'errcode' => ErrCode::OK,
         ]);
     }
 
