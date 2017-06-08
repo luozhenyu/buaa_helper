@@ -286,7 +286,7 @@
                     <h1 id="title_two">{{ config('app.name', 'Laravel') }}</h1>
                     <p class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3"
                        id="title_three" onclick="end_title_three();">
-                        学生事务服务中心APP为同学们打造全校信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！</p>
+                        学生事务服务中心APP为同学们打造信息发布平台，在这里，你可以十分方便的查看全校各机关部处、学院、辅导员等发布的通知，同学们以后再也不用为收不到通知而担心啦！</p>
                     <div id="tool_area">
                         <div class="col-md-4 col-md-offset-4 col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
                             <a id="start" href="{{ url('/login') }}" class="btn btn-info"

@@ -108,7 +108,16 @@
         } else {
             $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
         }
+
+        $(window).scroll(function(){
+            var bottom = $(".panel-success").offset().top + no_px($(".panel-success").css("height"));
+            console.log($(document).scrollTop() + $(window).height()
+                , $(document).height(), bottom);
+        })
     });
+    function no_px(st) {
+        return parseInt(st.substr(0, st.length - 2));
+    }
 </script>
 @endpush
 
