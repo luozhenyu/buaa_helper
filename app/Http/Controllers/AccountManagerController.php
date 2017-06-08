@@ -242,8 +242,8 @@ class AccountManagerController extends Controller
         }
         $user->avatar = $request->input('avatar');
         $user->name = $request->input('name');
-        $user->email = $request->has('email') ? $request->input('email') : null;
-        $user->phone = $request->has('phone') ? $request->input('phone') : null;
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
         $user->save();
 
         $nativePlace = $request->input('native_place');

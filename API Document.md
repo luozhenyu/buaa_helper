@@ -1,7 +1,12 @@
-## Version: 2017/05/29 22:28:08
+## Version: 2017/06/08 15:08:39
 
 
 #### ChangeLog:
+* 2017/06/08 15:08:39
+  * 新增删除设备和测试通知提醒功能，notifyDevice仅供测试使用
+* 2017/06/08 14:03:07
+  * 用户支持查询和修改头像和多种用户信息
+  * 新增客户端接受推送的API，需要上传终端ID
 * 2017/05/29 22:28:08
   * 通知增加important属性，true为必读通知，false为普通通知
 * 2017/05/28 21:32:50
@@ -31,27 +36,76 @@
 `$this->any('login', 'APIController@login');`
 * params:
   * user:id,email,phone
-  * password:
+  * password:string
 * return:
   * errcode:integer
   * access_token:uuid
   * expires_in:seconds
-
+  
+  
+`$this->any('/device', 'APIController@listDevice');`
+* return:
+  * errcode:integer
+  * devices:
+    * registrationID:string
+    * updated_at:unix_timestamp
+      
+`$this->any('/device/create', 'APIController@createDevice');`
+* params:
+  * registration_id:string
+* return:
+  * errcode:integer
+  * msg:string
+    
+`$this->any('/device/delete', 'APIController@deleteDevice');`
+* params:
+  * registration_id:string
+* return:
+  * errcode:integer
+  * msg:string
+  
+`$this->any('/device/notify', 'APIController@notifyDevice');`
+* params:
+  * text:string
+* return:
+  * errcode:integer
+  * msg:string  
+    
 `$this->any('user/info', 'APIController@userInfo');`
 * return:
   * errcode:integer
   * user:
+    * avatar:string(url)
     * number:integer
     * name:string
     * department:integer
     * department_name:string
     * email:string
     * phone:integer
+    * grade:integer
+    * class:integer
+    * political_status:integer
+    * native_place:array(integer)
+    * financial_difficulty:integer
 
+`$this->any('/user/avatar', 'APIController@modifyUserAvatar');`
+* params:
+  * upload:file
+* return:
+  * errcode:integer
+  
+  
 `$this->any('user/modify', 'APIController@modifyUserInfo');`
 * params:
   * phone:integer(nullable)
   * email:string(nullable)
+  * grade:integer(nullable)
+  * class:integer(nullable)
+  * political_status:integer(nullable)
+  * native_place:array(integer) //parameters native_place=100100&native_place=100110&native_place=100111 will be treated as an array native_place=[100100,100110,100111]
+  * financial_difficulty:integer(nullable)
+* return:
+  * errcode:integer
 
 `$this->any('notification', 'APIController@listNotification');`
 * params:
