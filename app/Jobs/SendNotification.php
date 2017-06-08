@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Func\Pusher;
 use App\Models\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,7 +24,7 @@ class SendNotification implements ShouldQueue
      */
     public function __construct(Notification $notification, $users)
     {
-        $this->users = is_array($users) ? $users : [$users];
+        $this->users = (array)$users;
         $this->notification = $notification;
     }
 
@@ -34,6 +35,17 @@ class SendNotification implements ShouldQueue
      */
     public function handle()
     {
+        $pusher = new Pusher();
+        $pusher->setText($this->notification->excerpt);
 
+        foreach ($this->users as $user) {
+            foreach ($user->devices as $device) {
+                if ($device->isValid()) {
+                    $pusher->addDevice($device);
+                }
+            }
+        }
+
+        $pusher->send();
     }
 }

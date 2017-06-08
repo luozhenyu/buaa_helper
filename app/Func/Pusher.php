@@ -2,6 +2,7 @@
 
 namespace App\Func;
 
+use App\Models\Device;
 use JPush\Client as JPush;
 use JPush\Exceptions\JPushException;
 
@@ -25,15 +26,13 @@ class Pusher
     }
 
     /**
-     * 添加deviceID
-     * @param array|string $devices
+     * 添加device
+     * @param Device $device
      */
-    public function addRegistrationId($devices)
+    public function addDevice(Device $device)
     {
-        foreach ((array)$devices as $device) {
-            if (!is_null($device)) {
-                $this->deviceID[] = $device;
-            }
+        if ($device) {
+            $this->deviceID[] = $device->registrationID;
         }
     }
 

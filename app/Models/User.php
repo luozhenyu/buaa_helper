@@ -185,4 +185,13 @@ class User extends Authenticatable
         return $domain . (substr($domain, -1) === '/' ? '' : '/')
             . ($this->avatar ? 'file/download/' . $this->avatar : 'img/favicon.png');
     }
+
+    /**
+     * 此用户拥有的设备
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function devices()
+    {
+        return $this->hasMany('App\Models\Device');
+    }
 }
