@@ -43,8 +43,8 @@
 
     .select_div {
         overflow: auto;
-        max-height: 300px;
-        height: 300px;
+        max-height: 470px;
+        height: 470px;
         padding: 2px;
         margin-top: 6px;
     }
@@ -104,6 +104,9 @@
         color: darkgray;
     }
 
+    .tooltip {
+        min-width: 180px;
+    }
 </style>
 @endpush
 
@@ -170,9 +173,11 @@
 
     $(function () {
         state_adjust();
-        $(window).resize(function(){ state_adjust(); })
-        $("#show_hide").click(function () {
 
+        $(window).resize(function () {
+            state_adjust();
+        })
+        $("#show_hide").click(function () {
             var btn = $(this).find(".glyphicon");
             var speed = 200, small = window_small_check();
             if (btn.hasClass("glyphicon-chevron-left")) {
@@ -189,18 +194,37 @@
 
         $(".base.limit").click(function () {
             var value = $(this).attr("value");
+            var name = $(this).attr("name");
             var arr = value.split(",");
+            var ignore = 0;
+
             $(".selected_element.limit").each(function () {
                 var arr_2 = $(this).attr("value").split(",");
-                if (arr_2[0] == arr[0]) $(this).remove();
+                if ($(this).attr("value") == value)
+                    ignore = 1;
+                else if ((arr.length == 1) && (arr_2[0] == arr[0])) $(this).remove();
             })
+            if (ignore) {
+                if (ignore == 1) {
+                    $(this).tooltip({
+                        trigger: "manual",
+                        placement: "right",
+                        title: "<h5>该限制已被选择</h5>" +
+                        "<h5><b style = 'color: orangered'>" + name + "</b></h5>",
+                        html: true
+                    });
+                    $(this).tooltip("show");
+                }
+                return;
+            }
             if (arr.length > 1) {
-                var name = $(this).attr("name");
                 $(".selected_content").append("<div class = \"selected_element limit\" " +
                     "name = \"" + name + "\" value = \"" + value + "\">" + name +
                     "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
                     "onclick = \"remove_selection(this.parentNode);\"></span>" +
                     "</div>");
+            } else {
+
             }
             selection_check();
         });
@@ -239,8 +263,11 @@
             selection_check();
         });
         $(".base").mouseleave(function () {
-            $(this).tooltip("hide");
-            $(this).tooltip("destroy");
+            var hd = $(this);
+            setTimeout(function(){
+                hd.tooltip("hide");
+                hd.tooltip("destroy");
+            }, 150);
         })
     });
 
@@ -278,8 +305,8 @@
     <table id="main" border="0">
         <tr>
             <td id="td_search_tools">
-                <div id="search_tools" style = "position: relative;min-height: 600px;">
-                    <div style = "position: absolute;left: 0px; right: 0px; top: 0px; bottom: 0px;">
+                <div id="search_tools" style="position: relative;min-height: 580px;">
+                    <div style="position: absolute;left: 0px; right: 0px; top: 0px; bottom: 0px;">
                         <div>
                             <form class="form-iniline" role="form" method="get"
                                   action="{{ route('accountManager') }}">
@@ -390,7 +417,8 @@
                                     </div>
                                     <div id="collapse_3" class="panel-collapse collapse">
                                         <ul class="list-group">
-                                            <li class="list-group-item slow_down click base limit" value="0">
+                                            <li class="list-group-item slow_down click base limit" value="0"
+                                                name="政治面貌 - 全部">
                                                 <b>全部</b>
                                             </li>
                                             @foreach(\App\Models\Property::where('name','political_status')->firstOrFail()->propertyValues as $value)
@@ -414,7 +442,8 @@
                                     </div>
                                     <div id="collapse_4" class="panel-collapse collapse">
                                         <ul class="list-group">
-                                            <li class="list-group-item slow_down click base limit" value="1">
+                                            <li class="list-group-item slow_down click base limit" value="1"
+                                                name="经济困难 - 全部">
                                                 <b>全部</b>
                                             </li>
                                             @foreach(\App\Models\Property::where('name','financial_difficulty')->firstOrFail()->propertyValues as $value)
@@ -438,7 +467,7 @@
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </div>
             </td>
-            <td id = "user_list" style="vertical-align: top;">
+            <td id="user_list" style="vertical-align: top;">
                 <table class="table table-condensed table-hover">
                     <caption>
                         @permission('create_user')
