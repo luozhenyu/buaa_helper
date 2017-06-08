@@ -6,7 +6,6 @@
         vertical-align: top;
         width: 35%;
         min-width: 200px;
-        padding-right: 5px;
     }
 
     table#main {
@@ -60,8 +59,12 @@
         background-color: #ececec;
         border-radius: 6px;
         vertical-align: middle;
+
     }
 
+    #td_show_hide {
+        padding: 5px;
+    }
     #show_hide:hover, #show_hide:focus {
         background-color: #dedede;
         box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
@@ -462,7 +465,7 @@
                     </div>
                 </div>
             </td>
-            <td>
+            <td id = "td_show_hide">
                 <div id="show_hide" class="clickable slow_down">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </div>
