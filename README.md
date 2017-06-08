@@ -53,3 +53,27 @@ vim .env                    # and config as you wish
 
 php artisan migrate --seed
 ```
+
+* Config Supervisor
+```Bash
+sudo apt install supervisor
+cd /etc/supervisor/conf.d
+sudo su
+vim buaa_helper.conf
+
+supervisorctl reload
+supervisorctl start all
+```
+
+```
+# An Example
+[program:buaa_helper]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/buaa_helper/artisan queue:work --sleep=2 --tries=3
+autostart=true
+autorestart=true
+user=ubuntu
+numprocs=8
+redirect_stderr=true
+stdout_logfile=/var/www/buaa_helper/storage/logs/worker.log
+```

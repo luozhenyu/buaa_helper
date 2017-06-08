@@ -33,7 +33,7 @@
 #### API
 **HTTP_POST**
 
-`$this->any('login', 'APIController@login');`
+`$this->any('/login', 'APIController@login');`
 * params:
   * user:id,email,phone
   * password:string
@@ -71,7 +71,7 @@
   * errcode:integer
   * msg:string  
     
-`$this->any('user/info', 'APIController@userInfo');`
+`$this->any('/user/info', 'APIController@userInfo');`
 * return:
   * errcode:integer
   * user:
@@ -89,13 +89,14 @@
     * financial_difficulty:integer
 
 `$this->any('/user/avatar', 'APIController@modifyUserAvatar');`
+* 请先预处理图片，大小限制8MB，服务器将会把图片压缩为200px * 200px 的png格式，推荐处理图像为200px * 200px再上传。
 * params:
   * upload:file
 * return:
   * errcode:integer
   
   
-`$this->any('user/modify', 'APIController@modifyUserInfo');`
+`$this->any('/user/modify', 'APIController@modifyUserInfo');`
 * params:
   * phone:integer(nullable)
   * email:string(nullable)
@@ -107,7 +108,7 @@
 * return:
   * errcode:integer
 
-`$this->any('notification', 'APIController@listNotification');`
+`$this->any('/notification', 'APIController@listNotification');`
 * params:
   * access_token:uuid
 * return:
@@ -124,7 +125,7 @@
     * updated_at:unix_timestamp
 
 
-`$this->any('notification/{id}', 'APIController@showNotification');`
+`$this->any('/notification/{id}', 'APIController@showNotification');`
 * url_params:
   * id:integer
 * params:
@@ -143,35 +144,35 @@
       * fileName:string
       * url:string
 
-`$this->any('notification/{id}/delete', 'APIController@deleteNotification');`
+`$this->any('/notification/{id}/delete', 'APIController@deleteNotification');`
 * url_params:
   * id:integer
 * return:
   * errcode:integer
   * msg:’Deleted!’
 
-`$this->any('notification/{id}/restore', 'APIController@restoreNotification');`
+`$this->any('/notification/{id}/restore', 'APIController@restoreNotification');`
 * url_params:
   * id:integer
 * return:
   * errcode:integer
   * msg:’Restored!’
 
-`$this->any('notification/{id}/read', 'APIController@read');`
+`$this->any('/notification/{id}/read', 'APIController@read');`
 * url_params:
   * id:integer
 * return:
   * errcode:integer
   * msg:’Read!’
 
-`$this->any('notification/{id}/star', 'APIController@star');`
+`$this->any('/notification/{id}/star', 'APIController@star');`
 * url_params:
   * id:integer
 * return:
   * errcode:OK
   * msg:’Stared!’
 
-`$this->any('notification/{id}/unstar', 'APIController@unstar');`
+`$this->any('/notification/{id}/unstar', 'APIController@unstar');`
 * url_params:
   * id:integer
 * return:
