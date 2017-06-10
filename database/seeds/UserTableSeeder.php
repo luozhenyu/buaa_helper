@@ -52,7 +52,7 @@ class UserTableSeeder extends Seeder
         foreach (DepartmentTableSeeder::data as $item) {
             if ($file = FileController::import(Storage::url($item['avatar']))) {
                 $department = Department::where('number', $item['number'])->firstOrFail();
-                $department->avatar()->associate($file);
+                $department->avatarFile()->associate($file);
                 $department->save();
             } else {
                 throw new Exception('图标导入异常,' . $item['avatar']);
