@@ -2,4 +2,5 @@
 !public/
 !.gitignore
 !cities.txt
-!departmentLogo/*
+!departmentLogo
+!departmentLogo/*.png
