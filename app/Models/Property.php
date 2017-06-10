@@ -36,4 +36,17 @@ class Property extends Model
             ->withPivot('property_value_id')
             ->using('App\Models\PropertyUser');
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Property $property) {
+            $property->users()->detach();
+
+            foreach ($property->propertyValues as $propertyValue) {
+                $propertyValue->delete();
+            }
+        });
+    }
 }

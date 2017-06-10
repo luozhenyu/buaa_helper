@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Device extends Model
 {
-    protected $ttl = 7;
+    protected $ttl = 7 * 24 * 3600;
     /**
      * The attributes that are mass assignable.
      *
@@ -32,6 +31,6 @@ class Device extends Model
      */
     public function isValid()
     {
-        return $this->{Device::UPDATED_AT} >= $this->freshTimestamp()->subDays($this->ttl);
+        return $this->{Device::UPDATED_AT} >= $this->freshTimestamp()->subSeconds($this->ttl);
     }
 }

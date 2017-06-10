@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFormTemplatesTable extends Migration
+class CreateRealFilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateFormTemplatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('form_templates', function (Blueprint $table) {
+        Schema::create('real_files', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title',160);
-            $table->json('content');
+            $table->char('sha1', 40)->unique();
+            $table->string('mime', 80);
+            $table->integer('size')->unsigned();
             $table->timestamps();
-
-            $table->unsignedInteger('user_id')->index();
         });
     }
 
@@ -30,6 +29,6 @@ class CreateFormTemplatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('form_templates');
+        Schema::dropIfExists('real_files');
     }
 }

@@ -19,17 +19,12 @@ class CreateNotificationsTable extends Migration
             $table->string('title', 160);
             $table->integer('user_id')->unsigned();
             $table->integer('department_id')->unsigned();
-            $table->timestamp('start_time')->nullable();
-            $table->timestamp('end_time')->nullable();
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('finish_date')->nullable();
             $table->boolean('important');
             $table->string('excerpt', 280);
             $table->mediumText('content');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('department_id')->references('id')->on('departments')
-                ->onUpdate('cascade')->onDelete('cascade');
         });
         DB::statement('ALTER TABLE `notifications` ADD FULLTEXT INDEX `ft_index`(`title`,`excerpt`,`content`) WITH PARSER ngram;');
     }

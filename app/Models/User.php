@@ -31,12 +31,13 @@ class User extends Authenticatable
     ];
 
     /**
-     * 此用户所属department
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * 修改用户密码并清除token
+     * @param $str
      */
-    public function department()
+    public function updatePassword($str)
     {
-        return $this->belongsTo('App\Models\Department');
+        $this->accessTokens()->delete();
+        $this->password = is_null($str) ? null : bcrypt($str);
     }
 
     /**
@@ -47,6 +48,124 @@ class User extends Authenticatable
     public function accessTokens()
     {
         return $this->hasMany('App\Models\AccessToken');
+    }
+
+    /**
+     * 此用户拥有的设备
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function devices()
+    {
+        return $this->hasMany('App\Models\Device');
+    }
+
+    /**
+     * 此用户的头像
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function avatarFile()
+    {
+        return $this->belongsTo('App\Models\File', 'avatar', 'id');
+    }
+
+    /**
+     * 用户头像的链接
+     * @return string
+     */
+    public function getAvatarUrlAttribute()
+    {
+        $domain = env('APP_URL');
+        $domain .= (substr($domain, -1) === '/' ? '' : '/');
+        return ($avatar = $this->avatarFile) ? $avatar->downloadInfo['url'] : $domain . 'img/favicon.png';
+    }
+
+    /**
+     * 此用户所属department
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function department()
+    {
+        return $this->belongsTo('App\Models\Department');
+    }
+
+
+    /**
+     * 此用户拥有的properties
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function properties()
+    {
+        return $this->belongsToMany('App\Models\Property')
+            ->withPivot('property_value_id')
+            ->using('App\Models\PropertyUser');
+    }
+
+    /**
+     * @param string $name
+     * @return \App\Models\Property|null
+     */
+    private function getPropertyByName($name)
+    {
+        return $this->properties()->where('name', $name)->first();
+    }
+
+    /**
+     * 获得此用户的某项属性值
+     * @param string $name
+     * @return string|null
+     */
+    public function getProperty($name)
+    {
+        if (!$property = $this->getPropertyByName($name)) {
+            return null;
+        }
+
+        $propertyUser = $property->pivot;
+        return $propertyUser->propertyValue->name;
+    }
+
+    /**
+     * 删除此用户的某项属性值
+     * @param string $name
+     * @return bool
+     */
+    public function removeProperty($name)
+    {
+        if (!$property = $this->getPropertyByName($name)) {
+            return false;
+        }
+        $property->pivot->delete();
+        return true;
+    }
+
+
+    /**
+     * 设置此用户的某项属性值
+     * @param string $name
+     * @param integer $value
+     * @return bool
+     */
+    public function setProperty($name, $value)
+    {
+        if (empty($value)) {
+            return $this->removeProperty($name);
+        }
+
+        if (!$property = Property::where('name', $name)->first()) {
+            return false;
+        }
+
+        if (!$propertyValue = $property->propertyValues()->where('name', $value)->first()) {
+            return false;
+        }
+
+        $this->properties()->syncWithoutDetaching([
+            $property->id => [
+                'property_value_id' => $propertyValue->id,
+            ],
+        ]);
+
+        return true;
     }
 
     /**
@@ -108,59 +227,6 @@ class User extends Authenticatable
     }
 
     /**
-     * 此用户拥有的properties
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function properties()
-    {
-        return $this->belongsToMany('App\Models\Property')
-            ->withPivot('property_value_id')
-            ->using('App\Models\PropertyUser');
-    }
-
-    /**
-     * 获得此用户的某项属性值
-     * @param string $name
-     * @return null|string
-     */
-    public function getProperty($name)
-    {
-        if (($property = $this->properties()->where('name', $name)->first())
-            && ($propertyValue = $property->pivot->propertyValue)
-        ) {
-            return $propertyValue->name;
-        }
-        return null;
-    }
-
-    /**
-     * 设置此用户的某项属性值
-     * @param string $name
-     * @param string $value
-     * @return \App\Models\User
-     */
-    public function setProperty($name, $value)
-    {
-        $property = $value ? Property::where('name', $name)->firstOrFail()
-            ->propertyValues()->where('name', $value)->firstOrFail()->id : null;
-
-        $pivot = $this->properties()->where('name', $name)->firstOrFail()->pivot;
-        $pivot->property_value_id = $property;
-        $pivot->save();
-        return $this;
-    }
-
-    /**
-     * 修改用户密码并清除token
-     * @param $str
-     */
-    public function updatePassword($str)
-    {
-        $this->accessTokens()->delete();
-        $this->password = is_null($str) ? null : bcrypt($str);
-    }
-
-    /**
      * Generate and use a new appToken.
      *
      * @param integer $expires_in
@@ -178,20 +244,31 @@ class User extends Authenticatable
         ]);
     }
 
-    public function getAvatarUrlAttribute()
-    {
-        $domain = env('APP_URL');
 
-        return $domain . (substr($domain, -1) === '/' ? '' : '/')
-            . ($this->avatar ? 'file/download/' . $this->avatar : 'img/favicon.png');
-    }
-
-    /**
-     * 此用户拥有的设备
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function devices()
+    public static function boot()
     {
-        return $this->hasMany('App\Models\Device');
+        parent::boot();
+
+        //deleting被Entrust使用
+        static::deleted(function (User $user) {
+            $user->properties()->detach();
+            $user->receivedNotifications()->detach();
+
+            foreach ($user->accessTokens as $accessToken) {
+                $accessToken->delete();
+            }
+
+            foreach ($user->devices as $device) {
+                $device->delete();
+            }
+
+            foreach ($user->writtenNotifications as $notification) {
+                $notification->delete();
+            }
+
+            foreach ($user->files as $file) {
+                $file->delete();
+            }
+        });
     }
 }

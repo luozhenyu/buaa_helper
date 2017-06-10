@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Func\ErrCode;
 use App\Models\AccessToken;
 use Closure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class VerifyAccessToken
@@ -16,7 +17,7 @@ class VerifyAccessToken
      * @param  \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public static function handle($request, Closure $next)
     {
         $validator = Validator::make($request->all(), ['access_token' => 'required']);
         if ($validator->fails()) {
@@ -40,7 +41,7 @@ class VerifyAccessToken
             ]);
         }
         $user = AccessToken::where('access_token', $request->input('access_token'))->firstOrFail()->user;
-        $request->attributes->set('user', $user);
+        Auth::login($user);
         return $next($request);
     }
 }

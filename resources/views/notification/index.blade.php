@@ -47,7 +47,7 @@
                             <span class="label label-warning">未读</span>
                         @endif
 
-                        @if(($notification->end_time->diffInDays() < 1) && (!$notification->pivot->read_at))
+                        @if(($notification->finish_date->diffInDays() < 1) && (!$notification->pivot->read_at))
                             <span class="label label-danger">24小时内截止</span>
                         @endif
                         <span class="label label-danger">必读</span>

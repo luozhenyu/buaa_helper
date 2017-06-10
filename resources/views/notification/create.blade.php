@@ -2,9 +2,9 @@
 
 @php
     $files = collect();
-    foreach (explode(',', old('attachment')) as $sha1) {
-        if ($file = \App\Models\File::where('sha1', $sha1)->first()) {
-            $files->push($file->downloadInfo());
+    foreach (explode(',', old('attachment')) as $hash) {
+        if ($file = \App\Models\File::where('hash', $hash)->first()) {
+            $files->push($file->downloadInfo);
         }
     }
 @endphp
@@ -40,11 +40,11 @@
             mode: "range",
             weekNumbers: true,
             defaultDate: [
-                @if(old('start_time'))
-                new Date("{{ old('start_time') }}"),
+                @if(old('start_date'))
+                new Date("{{ old('start_date') }}"),
                 @endif
-                @if(old('end_time'))
-                new Date("{{ old('end_time') }}")
+                @if(old('finish_date'))
+                new Date("{{ old('finish_date') }}")
                 @endif
             ],
             onChange: function (selectedDates, dateStr, instance) {
@@ -54,8 +54,8 @@
                         instance.clear();
                         return;
                     }
-                    $("#start_time").val(selectedDates[0].toISOString());
-                    $("#end_time").val(selectedDates[1].toISOString());
+                    $("#start_date").val(selectedDates[0].toISOString());
+                    $("#finish_date").val(selectedDates[1].toISOString());
                 }
             }
         });
@@ -81,7 +81,7 @@
         $("#form").submit(function () {
             var allFiles = [];
             $("#attachmentContainer").find("p").each(function () {
-                allFiles.push($(this).data('sha1'));
+                allFiles.push($(this).data('hash'));
             });
             $("#attachment").val(allFiles.join(','));
         });
@@ -146,17 +146,17 @@
             </div>
         </div>
 
-        <input id="start_time" name="start_time" type="hidden" value="{{ old('start_time') }}">
-        <input id="end_time" name="end_time" type="hidden" value="{{ old('end_time') }}">
-        <div class="form-group{{ $errors->has('start_time') || $errors->has('end_time') ? ' has-error' : '' }}">
+        <input id="start_date" name="start_date" type="hidden" value="{{ old('start_date') }}">
+        <input id="finish_date" name="finish_date" type="hidden" value="{{ old('finish_date') }}">
+        <div class="form-group{{ $errors->has('start_date') || $errors->has('finish_date') ? ' has-error' : '' }}">
             <label for="timeRange" class="col-md-2 control-label">起止日期</label>
             <div class="col-md-9">
                 <input id="timeRange" type="text" class="form-control flatpickr flatpickr-input"
                        placeholder="请选择起止日期" readonly autocomplete="off" required>
 
-                @if($errors->has('start_time') || $errors->has('end_time'))
+                @if($errors->has('start_date') || $errors->has('finish_date'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('start_time') . $errors->first('end_time') }}</strong>
+                        <strong>{{ $errors->first('start_date') . $errors->first('finish_date') }}</strong>
                     </span>
                 @endif
             </div>
@@ -214,7 +214,7 @@
                             附件列表
                             <span class="btn btn-default btn-sm" id="attachmentBtn">
                                 <span class="glyphicon glyphicon-file"></span>
-                                添加附件 {{ \App\Http\Controllers\FileController::getLimit() }}
+                                添加附件 {{ \App\Http\Controllers\FileController::limitHit() }}
                             </span>
                         </h3>
                     </div>

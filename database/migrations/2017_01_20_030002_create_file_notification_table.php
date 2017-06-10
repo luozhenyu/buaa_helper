@@ -16,12 +16,6 @@ class CreateFileNotificationTable extends Migration
         Schema::create('file_notification', function (Blueprint $table) {
             $table->integer('notification_id')->unsigned();
             $table->integer('file_id')->unsigned();
-            $table->timestamps();
-
-            $table->foreign('notification_id')->references('id')->on('notifications')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('file_id')->references('id')->on('files')
-                ->onUpdate('cascade')->onDelete('cascade');
 
             $table->primary(['notification_id', 'file_id']);
         });

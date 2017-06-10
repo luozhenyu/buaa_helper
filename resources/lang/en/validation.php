@@ -90,6 +90,7 @@ return [
 
     'uuid' => 'The :attribute must be a UUID.',
     'phone' => 'The :attribute must be a valid phone number.',
+    'avatar' => 'The :attribute must be a valid avatar.',
 
     /*
     |--------------------------------------------------------------------------

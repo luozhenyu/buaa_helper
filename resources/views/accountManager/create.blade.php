@@ -4,6 +4,15 @@
 <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
+@push('css')
+<style>
+    #avatarImg {
+        width: 150px;
+        height: 150px;
+    }
+</style>
+@endpush
+
 @push('jsLink')
 <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
@@ -15,7 +24,7 @@
 @php
     $nativePlace = old('native_place')?:[];
     while (!empty($nativePlace) && !end($nativePlace)) {
-    array_pop($nativePlace);
+        array_pop($nativePlace);
     }
     $tree = ($place = \App\Models\City::where('code', end($nativePlace))->first())? $place->tree() :[];
 @endphp
@@ -67,7 +76,7 @@
                 success: function (json) {
                     if (json.uploaded) {
                         $("#avatarImg").attr("src", json['url']);
-                        $("#avatarInput").val(json['sha1']);
+                        $("#avatarInput").val(json['hash']);
                     } else {
                         alert(json.message);
                     }
@@ -93,10 +102,10 @@
         <div class="form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
             <label for="avatar" class="col-md-4 control-label">用户头像</label>
             <div class="col-md-6">
+                <img id="avatarImg" src="{{ (new \App\Models\User)->avatarUrl }}" class="img-thumbnail">
                 <input id="avatarInput" type="hidden" name="avatar" value="{{ old('avatar') }}">
-                <img id="avatarImg" src="{{ (new \App\Models\User())->avatarUrl }}" class="img-thumbnail">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
+                    选择图片 {{ \App\Http\Controllers\FileController::limitHit() }}
                 </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">

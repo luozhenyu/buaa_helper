@@ -61,7 +61,7 @@ function parseFile(file, del) {
 
     var btn = del ? '<a class="glyphicon glyphicon-remove" style="color:red;display:inline-block" href="javascript:void(0)" onclick="this.parentNode.remove();"></a>' : '';
 
-    html = '<p style="line-height: 16px;" data-sha1="' + file['sha1'] + '">'
+    html = '<p style="line-height: 16px;" data-hash="' + file['hash'] + '">'
         + '<img style="vertical-align: middle; margin-right: 2px;" src="' + icon + '" />'
         + '<a style="font-size:12px; color:#0066cc;" href="' + file['url'] + '" title="' + file['fileName'] + '">'
         + file['fileName']

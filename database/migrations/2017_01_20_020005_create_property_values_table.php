@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInquiryRepliesTable extends Migration
+class CreatePropertyValuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateInquiryRepliesTable extends Migration
      */
     public function up()
     {
-        Schema::create('inquiry_replies', function (Blueprint $table) {
+        Schema::create('property_values', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('content');
-            $table->timestamps();
-
-            $table->unsignedInteger('user_id')->index();
-            $table->unsignedInteger('inquiry_id')->index();
+            $table->integer('property_id')->unsigned();
+            $table->integer('name')->unsigned();
+            $table->string('display_name', 80);
         });
     }
 
@@ -30,6 +28,6 @@ class CreateInquiryRepliesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inquiry_replies');
+        Schema::dropIfExists('property_values');
     }
 }

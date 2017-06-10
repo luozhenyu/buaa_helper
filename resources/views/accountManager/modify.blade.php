@@ -94,20 +94,21 @@
         });
         @endpermission
 
-
+        @permission('modify_owned_user')
         $("#avatarSelect").click(function () {
             $(this).upload({
                 type: 'avatar',
                 success: function (json) {
                     if (json.uploaded) {
                         $("#avatarImg").attr("src", json['url']);
-                        $("#avatarInput").val(json['sha1']);
+                        $("#avatarInput").val(json['hash']);
                     } else {
                         alert(json.message);
                     }
                 }
             });
         });
+        @endpermission
         $.setCityChoose('#province', '#city', '#area');
     });
 </script>
@@ -127,16 +128,19 @@
         <div class="form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
             <label for="avatar" class="col-md-4 control-label">用户头像</label>
             <div class="col-md-6">
-                <input id="avatarInput" type="hidden" name="avatar" value="{{ $user->avatar }}">
                 <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
+                @permission('modify_owned_user')
+                <input id="avatarInput" type="hidden" name="avatar"
+                       value="{{ ($avatarFile = $user->avatarFile)? $avatarFile->hash :'' }}">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::getLimit() }}
+                    选择图片 {{ \App\Http\Controllers\FileController::limitHit() }}
                 </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">
-                <strong>{{ $errors->first('avatar') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('avatar') }}</strong>
+                    </span>
                 @endif
+                @endpermission
             </div>
         </div>
 
@@ -151,11 +155,12 @@
             <label for="name" class="col-md-4 control-label">姓名</label>
             <div class="col-md-6">
                 <input id="name" type="text" class="form-control" name="name"
-                       value="{{ $user->name }}" required autocomplete="off">
+                       value="{{ $user->name }}" required
+                       autocomplete="off" {{ Entrust::can('modify_all_user')?'':'disabled' }}>
                 @if ($errors->has('name'))
                     <span class="help-block">
-                <strong>{{ $errors->first('name') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('name') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -182,8 +187,8 @@
 
                 @if ($errors->has('department'))
                     <span class="help-block">
-                <strong>{{ $errors->first('department') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('department') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -193,12 +198,13 @@
 
             <div class="col-md-6">
                 <input id="email" type="email" class="form-control" name="email"
-                       value="{{ $user->email }}" autocomplete="off">
+                       value="{{ $user->email }}"
+                       autocomplete="off" {{ Entrust::can('modify_all_user')?'':'disabled' }}>
 
                 @if ($errors->has('email'))
                     <span class="help-block">
-                <strong>{{ $errors->first('email') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('email') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -207,11 +213,12 @@
             <label for="phone" class="col-md-4 control-label">手机号</label>
             <div class="col-md-6">
                 <input id="phone" type="text" class="form-control" name="phone"
-                       value="{{ $user->phone }}" autocomplete="off">
+                       value="{{ $user->phone }}"
+                       autocomplete="off" {{ Entrust::can('modify_all_user')?'':'disabled' }}>
                 @if ($errors->has('phone'))
                     <span class="help-block">
-                <strong>{{ $errors->first('phone') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('phone') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -229,8 +236,8 @@
                 </select>
                 @if ($errors->has('grade'))
                     <span class="help-block">
-                <strong>{{ $errors->first('grade') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('grade') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -248,8 +255,8 @@
                 </select>
                 @if ($errors->has('class'))
                     <span class="help-block">
-                <strong>{{ $errors->first('class') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('class') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -267,8 +274,8 @@
                 </select>
                 @if ($errors->has('political_status'))
                     <span class="help-block">
-                <strong>{{ $errors->first('political_status') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('political_status') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -292,8 +299,8 @@
 
                 @if ($errors->has('native_place.*'))
                     <span class="help-block">
-                <strong>{{ $errors->first('native_place.*') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('native_place.*') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -312,8 +319,8 @@
                 </select>
                 @if ($errors->has('financial_difficulty'))
                     <span class="help-block">
-                <strong>{{ $errors->first('financial_difficulty') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('financial_difficulty') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>
@@ -333,8 +340,8 @@
                 </select>
                 @if ($errors->has('role'))
                     <span class="help-block">
-                <strong>{{ $errors->first('role') }}</strong>
-            </span>
+                        <strong>{{ $errors->first('role') }}</strong>
+                    </span>
                 @endif
             </div>
         </div>

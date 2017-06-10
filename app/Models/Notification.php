@@ -12,10 +12,12 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'user_id', 'department_id', 'start_time', 'end_time', 'important', 'excerpt', 'content',
+        'title', 'user_id', 'department_id', 'start_date', 'finish_date', 'important', 'excerpt', 'content',
     ];
 
-    protected $dates = ['created_at', 'updated_at', 'start_time', 'end_time'];
+    protected $dates = [
+        'created_at', 'updated_at', 'start_date', 'finish_date',
+    ];
 
     /**
      * 此通知的作者
@@ -77,10 +79,20 @@ class Notification extends Model
 
     /**
      * 此通知的附件
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function files()
     {
         return $this->belongsToMany('App\Models\File');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Notification $notification) {
+            $notification->notifiedUsers()->detach();
+            $notification->files()->detach();
+        });
     }
 }

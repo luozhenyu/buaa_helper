@@ -106,7 +106,8 @@ class PermissionAndRoleSeeder extends Seeder
             'display_name' => '部门管理员',
             'description' => '',
         ]);
-        $department_admin->attachPermission([$view_all_user,
+        $department_admin->attachPermission([
+            $view_all_user,
             $create_notification, $modify_owned_notification
         ]);
 

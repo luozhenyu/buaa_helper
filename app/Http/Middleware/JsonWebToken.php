@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Func\ErrCode;
 use Closure;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -18,6 +19,10 @@ class JsonWebToken extends BaseMiddleware
      */
     public function handle($request, Closure $next)
     {
+        if ($request->has('access_token')) {
+            return VerifyAccessToken::handle($request, $next);
+        }
+
         if (!$token = $this->auth->setRequest($request)->getToken()) {
             return $this->respond('tymon.jwt.absent', 'token_not_provided', 400);
         }
@@ -36,21 +41,7 @@ class JsonWebToken extends BaseMiddleware
 
         $this->events->fire('tymon.jwt.valid', $user);
 
-
-        $response = $next($request);
-
-        try {
-            $newToken = $this->auth->setRequest($request)->parseToken()->refresh();
-        } catch (TokenExpiredException $e) {
-            return $this->respond('tymon.jwt.expired', 'token_expired', $e->getStatusCode(), [$e]);
-        } catch (JWTException $e) {
-            return $this->respond('tymon.jwt.invalid', 'token_invalid', $e->getStatusCode(), [$e]);
-        }
-
-        // send the refreshed token back to the client
-        $response->headers->set('Authorization', 'Bearer ' . $newToken);
-
-        return $response;
+        return $next($request);
     }
 
     /**
@@ -66,6 +57,9 @@ class JsonWebToken extends BaseMiddleware
     {
         $response = $this->events->fire($event, $payload, true);
 
-        return $response ?: $this->response->json(['error' => $error], $status);
+        return $response ?: $this->response->json([
+            'errcode' => ErrCode::ACCESS_TOKEN_INVALID,
+            'errmsg' => $error,
+        ], $status);
     }
 }

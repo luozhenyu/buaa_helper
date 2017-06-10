@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
-use App\Func\RoleDef;
-use App\Models\User;
+use App\Models\File;
+use App\Observers\CityObserver;
+use App\Observers\DepartmentObserver;
+use App\Observers\FileObserver;
+use App\Observers\NotificationObserver;
+use App\Observers\PropertyObserver;
 use App\Observers\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
@@ -27,9 +31,11 @@ class AppServiceProvider extends ServiceProvider
             return preg_match('/^\w{8}(-\w{4}){3}-\w{12}$/', $value) > 0;
         });
 
-        Carbon::setLocale(substr(App::getLocale(), 0, 2));
+        Validator::extend('avatar', function ($attribute, $value, $parameters, $validator) {
+            return ($file = File::where('hash', $value)->first()) && str_is("image/*", $file->realFile->mime);
+        });
 
-        User::observe(UserObserver::class);
+        Carbon::setLocale(substr(App::getLocale(), 0, 2));
     }
 
     /**

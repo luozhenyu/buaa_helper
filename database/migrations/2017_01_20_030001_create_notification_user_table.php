@@ -21,11 +21,6 @@ class CreateNotificationUserTable extends Migration
             $table->timestamp('read_at')->nullable();
             $table->softDeletes();
 
-            $table->foreign('notification_id')->references('id')->on('notifications')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('cascade');
-
             $table->primary(['notification_id', 'user_id']);
         });
     }

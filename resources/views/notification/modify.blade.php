@@ -3,7 +3,7 @@
 @php
     $files = collect();
     foreach ($notification->files as $file) {
-        $files->push($file->downloadInfo());
+        $files->push($file->downloadInfo);
     }
 @endphp
 
@@ -39,15 +39,15 @@
             mode: "range",
             weekNumbers: true,
             defaultDate: [
-                new Date("{{ $notification->start_time->toIso8601String() }}"),
-                new Date("{{ $notification->end_time->toIso8601String() }}")
+                new Date("{{ $notification->start_date->toIso8601String() }}"),
+                new Date("{{ $notification->finish_date->toIso8601String() }}")
             ],
             onChange: function (selectedDates) {
                 if (selectedDates[0]) {
-                    $("#start_time").val(selectedDates[0]);
+                    $("#start_date").val(selectedDates[0]);
                 }
                 if (selectedDates[1]) {
-                    $("#end_time").val(selectedDates[1]);
+                    $("#finish_date").val(selectedDates[1]);
                 }
             }
         });
@@ -73,7 +73,7 @@
         $("#form").submit(function () {
             var allFiles = [];
             $("#attachmentContainer").find("p").each(function () {
-                allFiles.push($(this).data('sha1'));
+                allFiles.push($(this).data('hash'));
             });
             $("#attachment").val(allFiles.join(','));
         });
@@ -142,17 +142,17 @@
             </div>
         </div>
 
-        <input id="start_time" name="start_time" type="hidden" value="{{ $notification->start_time }}">
-        <input id="end_time" name="end_time" type="hidden" value="{{ $notification->end_time }}">
-        <div class="form-group{{ $errors->has('start_time') || $errors->has('end_time') ? ' has-error' : '' }}">
+        <input id="start_date" name="start_date" type="hidden" value="{{ $notification->start_date }}">
+        <input id="finish_date" name="finish_date" type="hidden" value="{{ $notification->finish_date }}">
+        <div class="form-group{{ $errors->has('start_date') || $errors->has('end_time') ? ' has-error' : '' }}">
             <label for="timeRange" class="col-md-2 control-label">起止日期</label>
             <div class="col-md-9">
                 <input id="timeRange" type="text" class="form-control flatpickr flatpickr-input"
                        placeholder="请选择起止日期" readonly autocomplete="off" required>
 
-                @if($errors->has('start_time') || $errors->has('end_time'))
+                @if($errors->has('start_date') || $errors->has('finish_date'))
                     <span class="help-block">
-                        <strong>{{ $errors->first('start_time') . $errors->first('end_time') }}</strong>
+                        <strong>{{ $errors->first('start_date') . $errors->first('finish_date') }}</strong>
                     </span>
                 @endif
             </div>
@@ -211,7 +211,7 @@
                             附件列表
                             <span class="btn btn-default btn-sm" id="attachmentBtn">
                                 <span class="glyphicon glyphicon-file"></span>
-                                添加附件 {{ \App\Http\Controllers\FileController::getLimit() }}
+                                添加附件 {{ \App\Http\Controllers\FileController::limitHit() }}
                             </span>
                         </h3>
                     </div>

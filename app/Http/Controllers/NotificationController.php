@@ -61,7 +61,7 @@ class NotificationController extends Controller
         }
 
         //paginate
-        $notifications = $query->paginate(15)
+        $notifications = $query->with('department')->paginate(15)
             ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
 
         if ($page = intval($request->input('page'))) {
@@ -123,7 +123,7 @@ class NotificationController extends Controller
         }
 
         //paginate
-        $notifications = $query->paginate(15)
+        $notifications = $query->with('department')->paginate(15)
             ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
 
         if ($page = intval($request->input('page'))) {
@@ -153,8 +153,8 @@ class NotificationController extends Controller
         $this->validate($request, [
             'title' => 'required|max:40',
             'department' => 'required|exists:departments,id',
-            'start_time' => 'required|date|after:today',
-            'end_time' => 'required|date|after:start_time',
+            'start_date' => 'required|date|after:today',
+            'finish_date' => 'required|date|after:start_date',
             'important' => 'required|in:0,1',
             'excerpt' => 'required|max:70',
             'content' => 'required|max:1048576',//2MB
@@ -162,22 +162,22 @@ class NotificationController extends Controller
         ]);
 
         $fileList = [];
-        foreach (explode(',', $request->input('attachment')) as $sha1) {
-            if ($file = File::where('sha1', $sha1)->first()) {
+        foreach (explode(',', $request->input('attachment')) as $hash) {
+            if ($file = File::where('hash', $hash)->first()) {
                 $fileList[] = $file->id;
             }
         }
 
         $title = $request->input('title');
-        $start_time = Carbon::createFromTimestamp(strtotime($request->input('start_time')));
-        $end_time = Carbon::createFromTimestamp(strtotime($request->input('end_time')));
+        $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
+        $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
 
         $user = Auth::user();
         $notification = $user->writtenNotifications()->create([
-            'title' => $end_time <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
+            'title' => $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
             'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
-            'start_time' => $start_time,
-            'end_time' => $end_time,
+            'start_date' => $start_date,
+            'finish_date' => $finish_date,
             'important' => $request->input('important') === "1",
             'excerpt' => $request->input('excerpt'),
             'content' => clean($request->input('content')),
@@ -222,8 +222,8 @@ class NotificationController extends Controller
             $this->validate($request, [
                 'title' => 'required|max:40',
                 'department' => 'required|exists:departments,id',
-                'start_time' => 'required|date|after:today',
-                'end_time' => 'required|date|after:start_time',
+                'start_date' => 'required|date|after:today',
+                'finish_date' => 'required|date|after:start_date',
                 'important' => 'required|in:0,1',
                 'excerpt' => 'required|max:70',
                 'content' => 'required|max:1048576',
@@ -233,8 +233,8 @@ class NotificationController extends Controller
             $notification = Auth::user()->writtenNotifications()->findOrFail($id);
             $this->validate($request, [
                 'title' => 'required|max:40',
-                'start_time' => 'required|date|after:today',
-                'end_time' => 'required|date|after:start_time',
+                'start_date' => 'required|date|after:today',
+                'finish_date' => 'required|date|after:start_date',
                 'important' => 'required|in:0,1',
                 'excerpt' => 'required|max:70',
                 'content' => 'required|max:1048576',
@@ -245,23 +245,23 @@ class NotificationController extends Controller
         }
 
         $fileList = [];
-        foreach (explode(',', $request->input('attachment')) as $sha1) {
-            if ($file = File::where('sha1', $sha1)->first()) {
+        foreach (explode(',', $request->input('attachment')) as $hash) {
+            if ($file = File::where('hash', $hash)->first()) {
                 $fileList[] = $file->id;
             }
         }
 
         $title = $request->input('title');
-        $start_time = Carbon::createFromTimestamp(strtotime($request->input('start_time')));
-        $end_time = Carbon::createFromTimestamp(strtotime($request->input('end_time')));
+        $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
+        $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
 
 
         $user = Auth::user();
 
-        $notification->title = $end_time <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title;
+        $notification->title = $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title;
         $notification->department_id = $user->hasRole('admin') ? $request->input('department') : $user->department_id;
-        $notification->start_time = $start_time;
-        $notification->end_time = $end_time;
+        $notification->start_date = $start_date;
+        $notification->finish_date = $finish_date;
         $notification->important = $request->input('important') === "1";
         $notification->excerpt = $request->input('excerpt');
         $notification->content = clean($request->input('content'));
@@ -276,116 +276,6 @@ class NotificationController extends Controller
 
         return redirect(route('notification') . '/' . $notification->id);
     }
-//
-//    public function selectPush($notification_id)
-//    {
-//        $auth_user = Auth::user();
-//        $departments = null;
-//
-//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-//            $notification = Notification::findOrFail($notification_id);
-//            $departments = Department::get();
-//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-//            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-//            $departments = [$auth_user->department];
-//        } else
-//            throw new AccessDeniedHttpException();
-//
-//        $notified_college = [];
-//        $notified_department = [];
-//
-//        foreach ($notification->notified_departments as $department) {
-//            if ($department->number < 100)
-//                $notified_college[] = $department->id;
-//            else
-//                $notified_department[] = $department->id;
-//        }
-//        $notified_users = $notification->notified_users;
-//
-//        return view('notification.push', [
-//            'notification' => $notification,
-//            'departments' => $departments,
-//            'notified_college' => $notified_college,
-//            'notified_department' => $notified_department,
-//            'notified_users' => $notified_users,
-//        ]);
-//    }
-//
-//    public function push(Request $request, $notification_id)
-//    {
-//        $auth_user = Auth::user();
-//        $department_array = [];
-//        $user_array = [];
-//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-//            foreach (Department::get() as $department)
-//                $department_array[] = $department->id;
-//            foreach (User::get() as $user) {
-//                $user_array[] = $user->id;
-//            }
-//            $notification = Notification::findOrFail($notification_id);
-//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-//            $department_array[] = $auth_user->department_id;
-//            $notification = $auth_user->written_notifications()->findOrFail($notification_id);
-//            foreach ($auth_user->department->users as $user) {
-//                $user_array[] = $user->id;
-//            }
-//        } else
-//            throw new AccessDeniedHttpException();
-//
-//        $this->validate($request, [
-//            'send2college' => 'required|json|json_in_array:' . implode(',', $department_array),
-//            'send2department' => 'required|json|json_in_array:' . implode(',', $department_array),
-//            'send2user' => 'required|json|json_in_array:' . implode(',', $user_array),
-//        ]);
-//
-//        $send2college = json_decode($request->input('send2college'), true);
-//        $send2department = json_decode($request->input('send2department'), true);
-//        $send2user = json_decode($request->input('send2user'), true);
-//
-//        $departments = array_merge($send2college, $send2department);
-//        $notification->notified_departments()->sync($departments);
-//        $notification->notified_users()->sync($send2user);
-//        return redirect(route('notification') . '/' . $notification_id . '/push');
-//    }
-//
-//    public function ajaxSearchUser(Request $request)
-//    {
-//        $auth_user = Auth::user();
-//        $list = $request->input('list');
-//        $array = mb_split('\s|,|;', $list);
-//
-//        $result = [];
-//        if ($auth_user->canDo(PrivilegeDef::EDIT_ALL_NOTIFICATION)) {
-//            foreach ($array as $item) {
-//                if (empty($item))
-//                    continue;
-//                else if ($this->isInteger($item)) {
-//                    $number = intval($item);
-//                    if (($user = User::where('number', $number)->first()) !== null)
-//                        $result[] = [
-//                            'id' => $user->id,
-//                            'number' => $user->number,
-//                        ];
-//                }
-//            }
-//        } else if ($auth_user->canDo(PrivilegeDef::EDIT_PERSONAL_NOTIFICATION)) {
-//            foreach ($array as $item) {
-//                if (empty($item))
-//                    continue;
-//                else if ($this->isInteger($item)) {
-//                    $number = intval($item);
-//                    if (($user = $auth_user->department->users()->where('number', $number)->first()) !== null)
-//                        $result[] = [
-//                            'id' => $user->id,
-//                            'number' => $user->number,
-//                        ];
-//                }
-//            }
-//        }
-//        $result = $this->unique_multidim_array($result, 'id');
-//        sort($result);
-//        return response()->json($result);
-//    }
 
     public function star($id)
     {

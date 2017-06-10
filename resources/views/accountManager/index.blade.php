@@ -65,6 +65,7 @@
     #td_show_hide {
         padding: 5px;
     }
+
     #show_hide:hover, #show_hide:focus {
         background-color: #dedede;
         box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
@@ -267,7 +268,7 @@
         });
         $(".base").mouseleave(function () {
             var hd = $(this);
-            setTimeout(function(){
+            setTimeout(function () {
                 hd.tooltip("hide");
                 hd.tooltip("destroy");
             }, 150);
@@ -465,7 +466,7 @@
                     </div>
                 </div>
             </td>
-            <td id = "td_show_hide">
+            <td id="td_show_hide">
                 <div id="show_hide" class="clickable slow_down">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </div>
@@ -545,9 +546,9 @@
                     @foreach($users as $user)
                         <tr>
                             <td>
-                    <span data-toggle="tooltip" title="{{$user->department->name}}">
-                        {{ $user->department->number }}
-                    </span>
+                                <span data-toggle="tooltip" title="{{$user->department->name}}">
+                                    {{ $user->department->number }}
+                                </span>
                             </td>
                             <td>{{ $user->number }}</td>
                             <td>{{ $user->name }}</td>
@@ -572,6 +573,4 @@
             </td>
         </tr>
     </table>
-
-
 @endsection

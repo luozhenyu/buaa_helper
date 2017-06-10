@@ -3,6 +3,7 @@
 use App\Models\City;
 use App\Models\Property;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PropertyTableSeeder extends Seeder
 {
@@ -13,11 +14,13 @@ class PropertyTableSeeder extends Seeder
      */
     public function run()
     {
+        DB::beginTransaction();
         $this->createGrade();
         $this->createClass();
         $this->createPoliticalStatus();
         $this->createNativePlace();
         $this->createFinancialDifficulty();
+        DB::commit();
     }
 
     private function createGrade()
@@ -94,8 +97,8 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '经济困难',
             'description' => '经济困难',
         ])->propertyValues();
-        $propertyValues->create(['name' => 0, 'display_name' => '否']);
-        $propertyValues->create(['name' => 1, 'display_name' => '一般困难']);
-        $propertyValues->create(['name' => 2, 'display_name' => '特别困难']);
+        $propertyValues->create(['name' => 1, 'display_name' => '否']);
+        $propertyValues->create(['name' => 2, 'display_name' => '一般困难']);
+        $propertyValues->create(['name' => 3, 'display_name' => '特别困难']);
     }
 }

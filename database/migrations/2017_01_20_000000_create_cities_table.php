@@ -18,9 +18,6 @@ class CreateCitiesTable extends Migration
             $table->integer('code')->unsigned()->unique();
             $table->string('name', 40);
             $table->integer('parent_id')->unsigned()->nullable();
-
-            $table->foreign('parent_id')->references('id')->on('cities')
-                ->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

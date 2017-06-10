@@ -12,12 +12,37 @@ class File extends Model
      * @var array
      */
     protected $fillable = [
-        'sha1', 'fileName', 'mime', 'path',
+        'hash', 'fileName',
     ];
 
     /**
+     * 下载此文件相关信息
+     * @return array
+     */
+    public function getDownloadInfoAttribute()
+    {
+        $domain = env('APP_URL');
+        $domain .= (substr($domain, -1) === '/' ? '' : '/');
+        return [
+            'hash' => $this->hash,
+            'fileName' => $this->fileName,
+            'mime' => $this->realFile->mime,
+            'url' => $domain . 'file/download/' . $this->hash,
+        ];
+    }
+
+    /**
+     * 此文件的物理文件
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function realFile()
+    {
+        return $this->belongsTo('App\Models\RealFile');
+    }
+
+    /**
      * 此文件所属用户
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user()
     {
@@ -33,15 +58,14 @@ class File extends Model
         return $this->belongsToMany('App\Models\Notification');
     }
 
-    public function downloadInfo()
+    public static function boot()
     {
-        $domain = env('APP_URL');
-        $url = $domain . (substr($domain, -1) === '/' ? '' : '/') . 'file/download/' . $this->sha1;
-        return [
-            "sha1" => $this->sha1,
-            "fileName" => $this->fileName,
-            "mime" => $this->mime,
-            "url" => $url,
-        ];
+        parent::boot();
+
+        static::deleted(function (File $file) {
+            $file->notifications()->detach();
+
+            $file->realFile->delete();
+        });
     }
 }

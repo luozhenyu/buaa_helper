@@ -2,6 +2,7 @@
 
 use App\Models\City;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CityTableSeeder extends Seeder
@@ -20,6 +21,8 @@ class CityTableSeeder extends Seeder
 
         $cityStack = [];
         $lines = explode(PHP_EOL, $txt);
+
+        DB::beginTransaction();
         foreach ($lines as $line) {
             if (preg_match('/^(\s*)(\d+)(\s*)([^\s#]+)/u', $line, $matches)) {
                 $whiteSpace = mb_strlen($matches[1]);
@@ -36,5 +39,6 @@ class CityTableSeeder extends Seeder
                 array_push($cityStack, $city);
             }
         }
+        DB::commit();
     }
 }

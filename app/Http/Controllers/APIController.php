@@ -6,7 +6,6 @@ use App\Func\ErrCode;
 use App\Jobs\SendText;
 use App\Models\City;
 use App\Models\Device;
-use App\Models\File;
 use App\Models\Property;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,18 +14,19 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Exception\NotReadableException;
 use Intervention\Image\Facades\Image;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class APIController extends Controller
 {
     /**
      * APIController constructor.
      * Need to pass api auth.
-     *
-     * @param Request $request
      */
-    function __construct(Request $request)
+    function __construct()
     {
-        $this->middleware('auth.api', ['except' => ['index', 'login']]);
+        $this->middleware('auth.jwt', ['except' => ['index', 'login', 'JWTLogin', 'JWTRefresh']]);
     }
 
     /**
@@ -65,7 +65,7 @@ class APIController extends Controller
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-        if (!Auth::once($this->credentials($request))) {
+        if (!Auth::attempt($this->credentials($request))) {
             return response()->json([
                 'errcode' => ErrCode::CREDENTIALS_ERROR,
                 'errmsg' => Lang::get('auth.failed'),
@@ -76,6 +76,28 @@ class APIController extends Controller
             'errcode' => ErrCode::OK,
             'access_token' => $access_token->access_token,
             'expires_in' => $access_token->expires_in,
+        ]);
+    }
+
+    public function JWTLogin(Request $request)
+    {
+        $credentials = $this->credentials($request);
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json([
+                    'errcode' => ErrCode::CREDENTIALS_ERROR,
+                    'errmsg' => Lang::get('auth.failed'),
+                ]);
+            }
+        } catch (JWTException $e) {
+            return response()->json([
+                'errcode' => ErrCode::SERVER_ERROR,
+                'errmsg' => 'could_not_create_token',
+            ]);
+        }
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'token' => $token,
         ]);
     }
 
@@ -103,11 +125,31 @@ class APIController extends Controller
         ];
     }
 
+    public function JWTRefresh(Request $request)
+    {
+        try {
+            $newToken = JWTAuth::parseToken()->refresh();
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'errcode' => ErrCode::CREDENTIALS_ERROR,
+                'errmsg' => 'token_expired',
+            ]);
+        } catch (JWTException $e) {
+            return response()->json([
+                'errcode' => ErrCode::CREDENTIALS_ERROR,
+                'errmsg' => 'token_invalid',
+            ]);
+        }
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'token' => $newToken,
+        ]);
+    }
+
 
     public function listDevice(Request $request)
     {
-        $user = $request->get('user');
-        $devices = $user->devices->map(function ($item, $key) {
+        $devices = Auth::user()->devices->map(function ($item, $key) {
             return [
                 'registrationID' => $item->registrationID,
                 'updated_at' => $item->updated_at->timestamp,
@@ -122,8 +164,6 @@ class APIController extends Controller
 
     public function createDevice(Request $request)
     {
-        $user = $request->get('user');
-
         $validator = Validator::make($request->all(), [
             'registration_id' => 'required|max:100',
         ]);
@@ -136,7 +176,7 @@ class APIController extends Controller
         }
         $registrationID = $request->input('registration_id');
         $device = Device::firstOrNew(['registrationID' => $registrationID]);
-        $device->user_id = $user->id;
+        $device->user()->associate(Auth::user());
         $device->touch();
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -146,10 +186,8 @@ class APIController extends Controller
 
     public function deleteDevice(Request $request)
     {
-        $user = $request->get('user');
-
         $validator = Validator::make($request->all(), [
-            'registration_id' => 'required|exists:devices,registrationID,user_id,' . $user->id,
+            'registration_id' => 'required|exists:devices,registrationID,user_id,' . Auth::user()->id,
         ]);
 
         if ($validator->fails()) {
@@ -171,8 +209,6 @@ class APIController extends Controller
 
     public function notifyDevice(Request $request)
     {
-        $user = $request->get('user');
-
         $validator = Validator::make($request->all(), [
             'text' => 'required|max:70',
         ]);
@@ -183,8 +219,7 @@ class APIController extends Controller
                 'errmsg' => $validator->errors()->first(),
             ]);
         }
-
-        dispatch(new SendText($request->input('text'), $user));
+        dispatch(new SendText($request->input('text'), Auth::user()));
 
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -194,7 +229,7 @@ class APIController extends Controller
 
     public function userInfo(Request $request)
     {
-        $user = $request->get('user');
+        $user = Auth::user();
         return response()->json([
             'errcode' => ErrCode::OK,
             'user' => [
@@ -219,10 +254,55 @@ class APIController extends Controller
         ]);
     }
 
+    public function userParams(Request $request)
+    {
+        $params = collect(['grade', 'class', 'political_status', 'financial_difficulty']);
+
+        return response()->json($params->map(function ($item, $key) {
+            $property = Property::where('name', $item)->firstOrFail();
+
+            return [
+                'name' => $property->name,
+                'display_name' => $property->display_name,
+                'property_values' => $property->propertyValues->map(function ($item, $key) {
+                    return [
+                        'name' => $item->name,
+                        'display_name' => $item->display_name,
+                    ];
+                }),
+            ];
+        }));
+    }
+
+    public function cities()
+    {
+        $cities = City::get()->toArray();
+
+        $cityMap = [];
+        $cityRef = [];
+        foreach ($cities as &$city) {
+            $parentID = $city['parent_id'];
+            $id = $city['id'];
+            $item = [
+                'code' => $city['code'],
+                'name' => $city['name'],
+                'children' => [],
+            ];
+
+            if (!$parentID) {
+                $cityMap[] = &$item;
+            } else {
+                $cityRef[$parentID]['children'][] = &$item;
+            }
+            $cityRef[$id] = &$item;
+            unset($item);
+        }
+
+        return response()->json($cityMap);
+    }
+
     public function modifyUserAvatar(Request $request)
     {
-        $user = $request->get('user');
-
         $uploadFile = $request->file('upload');
 
         if (!$uploadFile || !$uploadFile->isValid()) {
@@ -241,11 +321,10 @@ class APIController extends Controller
         }
 
         try {
-            $img = Image::make($uploadFile)
-                ->encode('png')
+            Image::make($uploadFile)
                 ->resize(200, 200)
+                ->encode('png')
                 ->save();
-            $mime = $img->mime();
         } catch (NotReadableException $e) {
             return response()->json([
                 "uploaded" => 0,
@@ -253,18 +332,10 @@ class APIController extends Controller
             ]);
         }
 
-        $sha1 = sha1_file($uploadFile->getRealPath());
-        if (!$file = File::where('sha1', $sha1)->first()) {
-            $path = $uploadFile->storeAs('upload/' . substr($sha1, 0, 2), $sha1);
-            $file = $user->files()->create([
-                'sha1' => $sha1,
-                'fileName' => $fileName,
-                'mime' => $mime,
-                'path' => $path,
-            ]);
-        }
+        $file = FileController::import($uploadFile->getRealPath(), $fileName);
 
-        $user->avatar = $file->sha1;
+        $user = Auth::user();
+        $user->avatarFile()->associate($file);
         $user->save();
 
         return response()->json([
@@ -274,8 +345,7 @@ class APIController extends Controller
 
     public function modifyUserInfo(Request $request)
     {
-        $user = $request->get('user');
-
+        $user = Auth::user();
         $validator = Validator::make($request->all(), [
             'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
             'phone' => 'nullable|phone|unique:users,phone,' . $user->id,
@@ -307,11 +377,11 @@ class APIController extends Controller
         while (!empty($nativePlace) && !end($nativePlace)) {
             array_pop($nativePlace);
         }
-        $user->setProperty('grade', $request->input('grade'))
-            ->setProperty('class', $request->input('class'))
-            ->setProperty('political_status', $request->input('political_status'))
-            ->setProperty('native_place', end($nativePlace))
-            ->setProperty('financial_difficulty', $request->input('financial_difficulty'));
+        $user->setProperty('grade', $request->input('grade'));
+        $user->setProperty('class', $request->input('class'));
+        $user->setProperty('political_status', $request->input('political_status'));
+        $user->setProperty('native_place', end($nativePlace));
+        $user->setProperty('financial_difficulty', $request->input('financial_difficulty'));
 
         return response()->json([
             'errcode' => ErrCode::OK,
@@ -320,21 +390,9 @@ class APIController extends Controller
 
     public function listNotification(Request $request)
     {
-        $user = $request->get('user');
-        $notifications = $user->receivedNotifications->map(function ($item, $key) {
+        $notifications = Auth::user()->receivedNotifications->map(function ($item, $key) {
             return [
                 'id' => $item->id,
-                'important' => $item->important,
-
-                'read' => (boolean)($read_at = $item->pivot->read_at),
-                'read_at' => $read_at ? strtotime($read_at) : null,
-
-                'star' => (boolean)($stared_at = $item->pivot->stared_at),
-                'stared_at' => $stared_at ? strtotime($stared_at) : null,
-
-                'delete' => (boolean)($deleted_at = $item->pivot->deleted_at),
-                'deleted_at' => $deleted_at ? strtotime($deleted_at) : null,
-
                 'updated_at' => $item->updated_at->timestamp,
             ];
         });
@@ -347,9 +405,7 @@ class APIController extends Controller
 
     public function showNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
@@ -359,17 +415,41 @@ class APIController extends Controller
         return response()->json([
             'errcode' => ErrCode::OK,
             'notification' => [
-                'id' => $notification->id,
                 'title' => $notification->title,
                 'author' => $notification->user->name,
                 'department' => $department->number,
                 'department_name' => $department->name,
-                'department_avatar' => url($department->avatar),
-                'start_time' => $notification->start_time->timestamp,
-                'end_time' => $notification->end_time->timestamp,
+                'department_avatar' => $department->avatarUrl,
+                'start_date' => $notification->start_date->timestamp,
+                'finish_date' => $notification->finish_date->timestamp,
+                'excerpt' => $notification->excerpt,
+                'important' => $notification->important,
+
+                'read' => (boolean)($read_at = $notification->pivot->read_at),
+                'read_at' => $read_at ? strtotime($read_at) : null,
+                'star' => (boolean)($stared_at = $notification->pivot->stared_at),
+                'stared_at' => $stared_at ? strtotime($stared_at) : null,
+                'delete' => (boolean)($deleted_at = $notification->pivot->deleted_at),
+                'deleted_at' => $deleted_at ? strtotime($deleted_at) : null,
+            ]
+        ]);
+    }
+
+    public function showFullNotification(Request $request, $id)
+    {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
+            return response()->json([
+                'errcode' => ErrCode::RESOURCE_NOT_FOUND,
+                'errmsg' => Lang::get('errmsg.resource_not_found'),
+            ]);
+        }
+
+        return response()->json([
+            'errcode' => ErrCode::OK,
+            'notification' => [
                 'content' => $notification->content,
                 'files' => $notification->files->map(function ($item, $key) {
-                    return $item->downloadInfo();
+                    return $item->downloadInfo;
                 }),
             ]
         ]);
@@ -377,8 +457,7 @@ class APIController extends Controller
 
     public function deleteNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
@@ -395,8 +474,7 @@ class APIController extends Controller
 
     public function restoreNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
@@ -413,8 +491,7 @@ class APIController extends Controller
 
     public function readNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
@@ -431,8 +508,7 @@ class APIController extends Controller
 
     public function starNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),
@@ -449,8 +525,7 @@ class APIController extends Controller
 
     public function unstarNotification(Request $request, $id)
     {
-        $user = $request->get('user');
-        if (!$notification = $user->receivedNotifications()->find($id)) {
+        if (!$notification = Auth::user()->receivedNotifications()->find($id)) {
             return response()->json([
                 'errcode' => ErrCode::RESOURCE_NOT_FOUND,
                 'errmsg' => Lang::get('errmsg.resource_not_found'),

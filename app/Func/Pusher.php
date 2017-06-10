@@ -3,6 +3,7 @@
 namespace App\Func;
 
 use App\Models\Device;
+use Closure;
 use JPush\Client as JPush;
 use JPush\Exceptions\JPushException;
 
@@ -49,8 +50,11 @@ class Pusher
         $this->text = $text;
     }
 
-
-    public function send(\Closure $callback = null)
+    /**
+     * 发送推送，如果失败，则调用回调函数
+     * @param Closure|null $callback
+     */
+    public function send(Closure $callback = null)
     {
         if (empty($this->deviceID)) {
             return;

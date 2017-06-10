@@ -3,7 +3,7 @@
 @php
     $files = collect();
     foreach ($notification->files as $file) {
-        $files->push($file->downloadInfo());
+        $files->push($file->downloadInfo);
     }
 @endphp
 
@@ -155,23 +155,23 @@
         <p class="text-center" id="excerpt">摘要: {{ $notification->excerpt }}</p>
 
         <div class="text-center information-line-2">
-            @if($notification->start_time)
+            @if($notification->start_date)
                 <div class="label-block">
-                    <span style="color:darkgreen">起始日期:</span> {{ $notification->start_time }}
+                    <span style="color:darkgreen">起始日期:</span> {{ $notification->start_date }}
                 </div>
             @endif
 
-            @if($notification->end_time)
+            @if($notification->finish_date)
                 <div class="label-block">
-                    <span style="color:red">截止日期:</span> {{ $notification->end_time }}
-                    @if($notification->end_time->diffInDays() < 1)
+                    <span style="color:red">截止日期:</span> {{ $notification->finish_date }}
+                    @if($notification->finish_date->diffInDays() < 1)
                         <label class="label label-danger" style="font-size: 14px;">24小时内截止</label>
                     @endif
                 </div>
             @endif
         </div>
         <div class="text-center">
-            @if($notification->start_time && $notification->end_time)
+            @if($notification->start_date && $notification->finish_date)
                 @php
                     function color($c1, $c2, $ratio) {
                         return [
@@ -181,9 +181,9 @@
                         ];
                     }
 
-                    $from_begin = $notification->start_time->diffInSeconds();
-                    $to_end = $notification->end_time->diffInSeconds();
-                    $to_end_h = $notification->end_time->diffInHours();
+                    $from_begin = $notification->start_date->diffInSeconds();
+                    $to_end = $notification->finish_date->diffInSeconds();
+                    $to_end_h = $notification->finish_date->diffInHours();
                     if ($to_end_h >= 24) {
                         $time_remain_string = floor($to_end_h / 24)."天".($to_end_h % 24)."小时";
                     } else if ($to_end_h >= 1) {
@@ -206,7 +206,7 @@
 
                     $tooltip_content = "<h5>距离截止：
                         <font style = 'font-weight: bold;color:$color;'>$time_remain_string</font></h5>";
-                    if (($notification->end_time->diffInDays() < 1) && (!$read_at) && $notification->important) {
+                    if (($notification->finish_date->diffInDays() < 1) && (!$read_at) && $notification->important) {
                         $tooltip_content = $tooltip_content
                             ."<h5>24小时内截止，<i style = 'font-weight:900;color: red;'>请抓紧时间</i></h5>";
                     }

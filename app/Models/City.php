@@ -59,4 +59,15 @@ class City extends Model
         }
         return implode(" ", $names);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (City $city) {
+            foreach ($city->children as $child) {
+                $child->delete();
+            }
+        });
+    }
 }

@@ -1,7 +1,10 @@
-## Version: 2017/06/08 15:08:39
+## Version: 2017/06/11 04:15:24
 
 
 #### ChangeLog:
+* 2017/06/11 04:15:24
+  * 添加用户信息对应表以及城市信息的JSON，通知分三步骤获取
+  * 新增JSON Web Token认证方式，目前两种方式均可认证
 * 2017/06/08 15:08:39
   * 新增删除设备和测试通知提醒功能，notifyDevice仅供测试使用
 * 2017/06/08 14:03:07
@@ -26,8 +29,15 @@
 
 
 #### Tips
-* Domain:https://api.ourbuaa.com/
+* Domain: https://api.ourbuaa.com/
 * 请先用测试号 user:10000,pwd:123456 测试所有功能
+
+#### [JSON Web Token介绍](http://www.jianshu.com/p/576dbf44b2ae)
+1. /jwt/login?user=&password=获取token
+2. 将你的token添加到header里 `Authorization: Bearer paste_your_token`
+3. 使用带有token的header请求资源
+4. 如果token过期，可在2周内使用header访问/jwt/refresh更新token
+5. 检查是否过期可以将token用点分割的第二部分，用base64解码，得到exp属性，从而判断
 
 
 #### API
@@ -41,7 +51,21 @@
   * errcode:integer
   * access_token:uuid
   * expires_in:seconds
-  
+
+`$this->any('/jwt/login', 'APIController@JWTLogin');`
+* params:
+  * user:id,email,phone
+  * password:string
+* return:
+  * errcode:integer
+  * token:string
+
+`$this->any('/jwt/refresh', 'APIController@JWTRefresh');`
+* header:
+  * Authorization: Bearer paste_your_token
+* return:
+  * errcode:integer
+  * token:string
   
 `$this->any('/device', 'APIController@listDevice');`
 * return:
@@ -94,8 +118,27 @@
   * upload:file
 * return:
   * errcode:integer
-  
-  
+
+`$this->any('/user/params', 'APIController@userParams');`
+* return:
+  * name:integer
+  * display_name:string
+  * property_values:
+    * name:integer
+    * display_name:string
+
+`$this->any('/user/cities', 'APIController@cities');`
+* return:
+  * code:integer(province)
+  * name:string
+  * children:
+    * code:integer(city)
+    * name:string
+    * children:
+      * code:integer(area)
+      * name:string
+      * children:
+    
 `$this->any('/user/modify', 'APIController@modifyUserInfo');`
 * params:
   * phone:integer(nullable)
@@ -109,40 +152,45 @@
   * errcode:integer
 
 `$this->any('/notification', 'APIController@listNotification');`
-* params:
-  * access_token:uuid
 * return:
   * errcode:integer
   * notifications:
     * id:integer
-    * important:bool
-	* read:bool
-	* read_at:unix_timestamp(nullable)
-    * star:bool
-    * stared_at:unix_timestamp(nullable)
-    * delete:bool
-    * deleted_at:unix_timestamp(nullable)
     * updated_at:unix_timestamp
 
 
 `$this->any('/notification/{id}', 'APIController@showNotification');`
 * url_params:
   * id:integer
-* params:
-  * access_token:uuid
 * return:
   * errcode:integer
   * notification:
-    * id:integer
     * title:string
     * author:string
     * department:integer
     * department_name:string
+    * department_avatar:string(url)
+    * start_date:unix_timestamp
+    * finish_date:unix_timestamp
+    * excerpt:string
+    * important:bool
+    * read:bool
+    * read_at:unix_timestamp
+    * star:bool
+    * stared_at:unix_timestamp
+    * delete:bool
+    * deleted_at:unix_timestamp
+
+`$this->any('/notification/{id}/full', 'APIController@showFullNotification');`
+* return:
+  * errcode:integer
+  * notification:
     * content:html
     * files:
-      * sha1:string
-      * fileName:string
-      * url:string
+          * hash:string
+          * fileName:string
+          * mime:string
+          * url:string
 
 `$this->any('/notification/{id}/delete', 'APIController@deleteNotification');`
 * url_params:

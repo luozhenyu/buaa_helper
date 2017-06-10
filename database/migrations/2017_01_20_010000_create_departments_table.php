@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInquiriesTable extends Migration
+class CreateDepartmentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,12 @@ class CreateInquiriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('inquiries', function (Blueprint $table) {
+        Schema::create('departments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title',160);
-            $table->string('type',80);
-            $table->text('content');
-            $table->boolean('finished');
-            $table->timestamps();
-
-            $table->unsignedInteger('user_id')->index();
+            $table->integer('number')->unsigned()->unique();
+            $table->string('name', 100)->unique();
+            $table->integer('avatar')->unsigned()->nullable();
+            $table->text('description');
         });
     }
 
@@ -32,6 +29,6 @@ class CreateInquiriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inquiries');
+        Schema::dropIfExists('departments');
     }
 }

@@ -62,9 +62,6 @@ $this->get('/notification/{id}/statistic', 'NotificationController@statisticExce
 
 //Inquiry
 $this->get('/inquiry', 'InquiryController@index')->name('inquiry');
-//$this->get('/inquiry/{id}', 'InquiryController@show');
-//$this->post('/inquiry/{id}/update', 'InquiryController@update');
-//$this->post('/inquiry/{id}/delete', 'InquiryController@delete');
 
 
 //Login Logout

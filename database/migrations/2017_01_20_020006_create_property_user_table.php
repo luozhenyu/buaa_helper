@@ -16,14 +16,7 @@ class CreatePropertyUserTable extends Migration
         Schema::create('property_user', function (Blueprint $table) {
             $table->integer('user_id')->unsigned();
             $table->integer('property_id')->unsigned();
-            $table->integer('property_value_id')->unsigned()->nullable();
-
-            $table->foreign('property_id')->references('id')->on('properties')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('property_value_id')->references('id')->on('property_values')
-                ->onUpdate('cascade')->onDelete('cascade');
+            $table->integer('property_value_id')->unsigned();
 
             $table->primary(['property_id', 'user_id']);
         });
