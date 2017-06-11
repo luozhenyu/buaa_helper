@@ -149,17 +149,30 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
         abort_unless(EntrustFacade::can('create_notification'), 403);
-        $this->validate($request, [
-            'title' => 'required|max:40',
-            'department' => 'required|exists:departments,id',
-            'start_date' => 'required|date|after:today',
-            'finish_date' => 'required|date|after:start_date',
-            'important' => 'required|in:0,1',
-            'excerpt' => 'required|max:70',
-            'content' => 'required|max:1048576',//2MB
-            'attachment' => 'nullable',
-        ]);
+        if ($user->hasRole('admin')) {
+            $this->validate($request, [
+                'title' => 'required|max:40',
+                'department' => 'required|exists:departments,id',
+                'start_date' => 'required|date|after:today',
+                'finish_date' => 'required|date|after:start_date',
+                'important' => 'required|in:0,1',
+                'excerpt' => 'required|max:70',
+                'content' => 'required|max:1048576',//2MB
+                'attachment' => 'nullable',
+            ]);
+        } else {
+            $this->validate($request, [
+                'title' => 'required|max:40',
+                'start_date' => 'required|date|after:today',
+                'finish_date' => 'required|date|after:start_date',
+                'important' => 'required|in:0,1',
+                'excerpt' => 'required|max:70',
+                'content' => 'required|max:1048576',//2MB
+                'attachment' => 'nullable',
+            ]);
+        }
 
         $fileList = [];
         foreach (explode(',', $request->input('attachment')) as $hash) {
@@ -172,7 +185,7 @@ class NotificationController extends Controller
         $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
         $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
 
-        $user = Auth::user();
+
         $notification = $user->writtenNotifications()->create([
             'title' => $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
             'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,

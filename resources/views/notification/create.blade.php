@@ -132,7 +132,7 @@
                     </select>
                 @else
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" name="department" disabled>
+                            id="department" disabled>
                         @php($department = Auth::user()->department)
                         <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
                     </select>

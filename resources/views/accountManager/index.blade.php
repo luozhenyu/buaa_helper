@@ -144,10 +144,12 @@
                             tips.append("<h4>错误信息(前10条)</h4>")
                                 .append("<div>" + resp["msg"].join("<br>") + "</div>");
                         }
-
                     } else {
                         $("#tips").html(resp["errmsg"]);
                     }
+                    $("#myModal").on("hidden.bs.modal", function () {
+                        window.location.reload();
+                    });
                 },
                 error: function () {
                     $("#tips").html("请求超时");
@@ -180,7 +182,7 @@
 
         $(window).resize(function () {
             state_adjust();
-        })
+        });
         $("#show_hide").click(function () {
             var btn = $(this).find(".glyphicon");
             var speed = 200, small = window_small_check();
@@ -207,7 +209,7 @@
                 if ($(this).attr("value") == value)
                     ignore = 1;
                 else if ((arr.length == 1) && (arr_2[0] == arr[0])) $(this).remove();
-            })
+            });
             if (ignore) {
                 if (ignore == 1) {
                     $(this).tooltip({
@@ -243,7 +245,7 @@
                     flag = false;
                     belongs_to = $(this).attr("name");
                 }
-            })
+            });
 
             if (flag) {
                 $(".selected_element.range").each(function () {
