@@ -21,6 +21,7 @@ $this->post('/account/password', 'HomeController@updatePassword');
 
 //account_manager
 $this->get('/account_manager', 'AccountManagerController@index')->name('accountManager');
+$this->post('/account_manager/ajax', 'AccountManagerController@ajaxIndex');
 $this->get('/account_manager/create', 'AccountManagerController@create');
 $this->post('/account_manager', 'AccountManagerController@store');
 

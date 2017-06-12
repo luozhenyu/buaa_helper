@@ -87,7 +87,7 @@ class AccountManagerController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $authUser = Auth::user();
 
@@ -105,8 +105,27 @@ class AccountManagerController extends Controller
         ]);
     }
 
+    public function ajaxIndex(Request $request)
+    {
+        abort_unless(EntrustFacade::can('view_all_user'), 403);
 
-    public function create()
+        if (!$request->isJson()) {
+            return response()->json([
+                'errmsg' => 'JSON格式错误',
+            ]);
+        }
+
+        $condition = $request->toArray();
+        if (!$query = User::select($condition)) {
+            return response()->json([
+                'errmsg' => 'JSON格式错误',
+            ]);
+        }
+        return $query->paginate(15);
+    }
+
+
+    public function create(Request $request)
     {
         abort_unless(EntrustFacade::can('create_user'), 403);
         return view('accountManager.create');
@@ -244,7 +263,7 @@ class AccountManagerController extends Controller
         return redirect('/account_manager/' . $user->id);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         abort_unless(EntrustFacade::can('delete_user'), 403);
 
@@ -253,7 +272,7 @@ class AccountManagerController extends Controller
         return response('成功删除！');
     }
 
-    public function getImportTemplate()
+    public function getImportTemplate(Request $request)
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
