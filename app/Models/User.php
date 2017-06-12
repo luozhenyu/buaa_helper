@@ -5,6 +5,7 @@ namespace App\Models;
 use Faker\Provider\Uuid;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
@@ -244,6 +245,73 @@ class User extends Authenticatable
         ]);
     }
 
+    public static function select(array $condition)
+    {
+        $query = static::join('property_user', 'property_user.user_id', 'users.id')
+            ->join('departments', 'users.department_id', 'departments.id')
+            ->join('properties', 'property_user.property_id', 'properties.id')
+            ->join('property_values', 'property_user.property_value_id', 'property_values.id');
+
+        if (!key_exists('range', $condition)) {
+            return false;
+        }
+        $query = $query->where(function ($subQuery) use ($condition) {
+            $ALL = -1;
+            $ALL_COLLEGE = 0;
+            $ALL_OFFICE = 100;
+            foreach ($condition['range'] as $item) {
+                if (!key_exists('department', $item)) {
+                    return false;
+                }
+                $department = $item['department'];
+
+                if ($department === $ALL) {//所有人
+                    $subQuery = $subQuery->orWhere([
+                        ['departments.number', '>', 0],
+                    ]);
+                } else if ($department === $ALL_COLLEGE) {//所有院系
+                    $subQuery = $subQuery->orWhere([
+                        ['departments.number', '<', 100],
+                    ]);
+                } else if ($department < $ALL_OFFICE) {//指定院系
+                    if (!key_exists('grade', $item)) {
+                        return false;
+                    }
+                    $subQuery = $subQuery->orWhere([
+                        ['departments.number', $department],
+                        ['properties.name', 'grade'],
+                        ['property_values.name', $item['grade']],
+                    ]);
+                } else if ($department === $ALL_OFFICE) {//所有部门
+                    $subQuery = $subQuery->orWhere([
+                        ['departments.number', '>', 100],
+                    ]);
+                } else {//指定部门
+                    $subQuery = $subQuery->orWhere([
+                        ['departments.number', $department],
+                    ]);
+                }
+            }
+        });
+        if (!key_exists('property', $condition)) {
+            return false;
+        }
+
+        foreach ($condition['property'] as $key => $value) {
+            $query = $query->whereExists(function ($query) use ($key, $value) {
+                $query->select(DB::raw(1))
+                    ->from('property_user')
+                    ->join('properties', 'property_user.property_id', 'properties.id')
+                    ->join('property_values', 'property_user.property_value_id', 'property_values.id')
+                    ->whereRaw('property_user.user_id = users.id')
+                    ->where([
+                        ['properties.name', $key],
+                        ['property_values.name', $value],
+                    ]);
+            });
+        }
+        return $query->select('users.*');
+    }
 
     public static function boot()
     {
