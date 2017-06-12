@@ -23,10 +23,13 @@ class File extends Model
     {
         $domain = env('APP_URL');
         $domain .= (substr($domain, -1) === '/' ? '' : '/');
+        $realFile = $this->realFile;
         return [
             'hash' => $this->hash,
             'fileName' => $this->fileName,
-            'mime' => $this->realFile->mime,
+            'mime' => $realFile->mime,
+            'size' => $realFile->size,
+            'sha1' => $realFile->sha1,
             'url' => $domain . 'file/download/' . $this->hash,
         ];
     }
