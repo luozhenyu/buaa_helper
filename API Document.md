@@ -189,7 +189,9 @@
     * files:
           * hash:string
           * fileName:string
+          * sha1:string
           * mime:string
+          * size:integer
           * url:string
 
 `$this->any('/notification/{id}/delete', 'APIController@deleteNotification');`

@@ -27,9 +27,9 @@ class File extends Model
         return [
             'hash' => $this->hash,
             'fileName' => $this->fileName,
-            'mime' => $realFile->mime,
-            'size' => $realFile->size,
             'sha1' => $realFile->sha1,
+            'size' => $realFile->size,
+            'mime' => $realFile->mime,
             'url' => $domain . 'file/download/' . $this->hash,
         ];
     }
