@@ -8,6 +8,7 @@ use App\Models\File;
 use App\Models\Property;
 use App\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -111,16 +112,19 @@ class AccountManagerController extends Controller
 
         if (!$request->isJson()) {
             return response()->json([
-                'errmsg' => 'JSON格式错误',
+                'errmsg' => 'Your upload is not a valid JSON.',
             ]);
         }
 
         $condition = $request->toArray();
-        if (!$query = User::select($condition)) {
+        try {
+            $query = User::select($condition);
+        } catch (Exception $e) {
             return response()->json([
-                'errmsg' => 'JSON格式错误',
+                'errmsg' => $e->getMessage(),
             ]);
         }
+
         return $query->paginate(15);
     }
 

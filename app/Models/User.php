@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Faker\Provider\Uuid;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -253,7 +254,7 @@ class User extends Authenticatable
             ->join('property_values', 'property_user.property_value_id', 'property_values.id');
 
         if (!key_exists('range', $condition)) {
-            return false;
+            throw new Exception("range键不存在");
         }
         $query = $query->where(function ($subQuery) use ($condition) {
             $ALL = -1;
@@ -261,21 +262,23 @@ class User extends Authenticatable
             $ALL_OFFICE = 100;
             foreach ($condition['range'] as $item) {
                 if (!key_exists('department', $item)) {
-                    return false;
+                    throw new Exception("department键不存在");
                 }
                 $department = $item['department'];
 
                 if ($department === $ALL) {//所有人
                     $subQuery = $subQuery->orWhere([
                         ['departments.number', '>', 0],
+                        ['properties.name', 'grade'],
                     ]);
                 } else if ($department === $ALL_COLLEGE) {//所有院系
                     $subQuery = $subQuery->orWhere([
                         ['departments.number', '<', 100],
+                        ['properties.name', 'grade'],
                     ]);
                 } else if ($department < $ALL_OFFICE) {//指定院系
                     if (!key_exists('grade', $item)) {
-                        return false;
+                        throw new Exception("grade键不存在");
                     }
                     $subQuery = $subQuery->orWhere([
                         ['departments.number', $department],
@@ -285,16 +288,18 @@ class User extends Authenticatable
                 } else if ($department === $ALL_OFFICE) {//所有部门
                     $subQuery = $subQuery->orWhere([
                         ['departments.number', '>', 100],
+                        ['properties.name', 'grade'],
                     ]);
                 } else {//指定部门
                     $subQuery = $subQuery->orWhere([
                         ['departments.number', $department],
+                        ['properties.name', 'grade'],
                     ]);
                 }
             }
         });
         if (!key_exists('property', $condition)) {
-            return false;
+            throw new Exception("property键不存在");
         }
 
         foreach ($condition['property'] as $key => $value) {
