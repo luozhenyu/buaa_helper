@@ -19,7 +19,7 @@ $factory->define(App\Models\User::class, function (Faker\Generator $faker) {
         'email' => $faker->unique()->safeEmail,
         'phone' => $faker->unique()->randomNumber(8),
         'remember_token' => str_random(10),
-        'department_id' => $faker->numberBetween(1, 21),
+        'department_id' => ($num = $faker->numberBetween(1, 20)) > 10 ? $num + 90 : $num,
     ];
 });
 

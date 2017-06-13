@@ -114,6 +114,10 @@
 </style>
 @endpush
 
+
+@push('jsLink')
+<script src = "/js/paginate.js"></script>
+@endpush
 @push('js')
 <script>
     $(function () {
@@ -189,18 +193,30 @@
             var query_json = {"range": range, "property": property};
             console.log(JSON.stringify(query_json));
 
-            $.ajax({
-                url: "/account_manager/ajax",
-                type: 'POST',
-                contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(query_json),
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (json) {
-                    console.log(json);
-                }
-            });
+            function new_page(page) {
+                $.ajax({
+                    url: "/account_manager/ajax?page=" + page,
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(query_json),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(json){
+                        console.log(json);
+
+                        $("#page").paginate({
+                            at: json.current_page,
+                            total: json.last_page,
+                            call_backs: function(page){
+                                new_page(page);
+                            }
+                        });
+                    }
+                });
+            }
+
+            new_page(1);
         })
     });
     function window_small_check() {
@@ -238,7 +254,6 @@
                 state_adjust();
             } else {
                 $("#td_search_tools").show(speed);
-
                 btn.attr("class", "glyphicon glyphicon-chevron-left");
                 state_adjust();
             }
@@ -346,6 +361,7 @@
     }
 </script>
 @endpush
+
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
@@ -596,7 +612,7 @@
                     </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id = "table_content">
                     @foreach($users as $user)
                         <tr>
                             <td>
@@ -623,7 +639,7 @@
                     <h2 style="color:gray;text-align:center;">(没有用户)</h2>
                 @endif
 
-                <div class="text-center">{{ $users->links() }}</div>
+                <div id = "page" class="text-center">{{ $users->links() }}</div>
             </td>
         </tr>
     </table>
