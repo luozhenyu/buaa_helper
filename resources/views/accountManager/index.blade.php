@@ -156,6 +156,52 @@
                 }
             });
         });
+
+        $("#btn_query").click(function(){
+            var range = [];
+            $(".selected_element.range").each(function () {
+                var arrs = $(this).attr("value").split(",");
+                if ((arrs.length == 1) && (arrs[0] == '')) range.push({"department": -1}); else
+                if ((arrs.length == 1) && (arrs[0] == '0')) range.push({"department": 100}); else
+                if ((arrs.length == 1) && (arrs[0] == '1')) range.push({"department": 0}); else
+                if (arrs[0] == '0')  range.push({"department": parseInt(arrs[1])});
+                else if (arrs[0] == '1') {
+                    if (arrs.length == 2)
+                        range.push({"grade": parseInt(arrs[2])});
+                    else
+                        range.push({"department": parseInt(arrs[1]), "grade": parseInt(arrs[2])});
+                }
+            });
+            if (range.length == 0) range = [{"department": -1}];
+
+            var property = [];
+            $(".selected_element.limit").each(function(){
+                var arrs = $(this).attr("value").split(",");
+                if (arrs.length >= 2) {
+                    if (arrs[0] == '0') {
+                        property.push({"political_status": parseInt(arrs[1])});
+                    } else if (arrs[0] == '1') {
+                        property.push({"financial_difficulty": parseInt(arrs[1])});
+                    }
+                }
+            });
+
+            var query_json = {"range": range, "property": property};
+            console.log(JSON.stringify(query_json));
+
+            $.ajax({
+                url: "/account_manager/ajax",
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(query_json),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (json) {
+                    console.log(json);
+                }
+            });
+        })
     });
     function window_small_check() {
         return $(window).width() < 600;
@@ -330,6 +376,12 @@
                         <div class="selected_content">
                             <h4 class="empty_label">(无任何选中对象)</h4>
                         </div>
+                        <div style = "padding-top: 6px;text-align: right;">
+                            <button id = "btn_query" class = "btn btn-primary">
+                                <span class = "glyphicon glyphicon-filter"></span>筛选
+                            </button>
+                        </div>
+
                         <div class="select_div">
                             <div class="panel-group" id="accordion">
                                 <div class="panel panel-default">
@@ -414,7 +466,7 @@
                                     </div>
                                 </div>
 
-                                <div class="panel panel-primary">
+                                <div class="panel panel-info">
                                     <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
                                          href="#collapse_3">
                                         <h5 class="panel-title">
@@ -439,7 +491,7 @@
                                     </div>
                                 </div>
 
-                                <div class="panel panel-primary">
+                                <div class="panel panel-info">
                                     <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
                                          href="#collapse_4">
                                         <h5 class="panel-title">
