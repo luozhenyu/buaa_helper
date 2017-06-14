@@ -4,6 +4,7 @@ namespace App\Func;
 
 use App\Models\Device;
 use Closure;
+use Exception;
 use JPush\Client as JPush;
 use JPush\Exceptions\JPushException;
 
@@ -20,8 +21,10 @@ class Pusher
 
     public function __construct()
     {
-        if (!($app_key = env('JPUSH_APPKEY')) || !($master_secret = env('JPUSH_SECRET'))) {
-            throw new \Exception('JPUSH_APPKEY or JPUSH_SECRET missing.');
+        $app_key = env('JPUSH_APPKEY');
+        $master_secret = env('JPUSH_SECRET');
+        if (!$app_key || !$master_secret) {
+            throw new Exception('JPUSH_APPKEY or JPUSH_SECRET missing.');
         }
         $this->pusher = new JPush($app_key, $master_secret, null);
     }
@@ -41,10 +44,9 @@ class Pusher
      * 设置推送文本(最多70个unicode字符)
      * @param string $text
      */
-    public function setText($text)
+    public function setText(string $text)
     {
-        $len = mb_strlen($text);
-        if ($len > 70) {
+        if (mb_strlen($text) > 70) {
             $text = mb_substr($text, 0, 70);
         }
         $this->text = $text;
