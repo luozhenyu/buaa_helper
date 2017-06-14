@@ -19,7 +19,9 @@ class CreateUsersTable extends Migration
             $table->integer('department_id')->unsigned();
             $table->string('name', 80);
             $table->string('email', 80)->nullable()->unique();
+            $table->boolean('email_verified')->default(false);
             $table->bigInteger('phone')->unsigned()->nullable()->unique();
+            $table->boolean('phone_verified')->default(false);
             $table->char('password', 60)->nullable();
             $table->integer('avatar')->unsigned()->nullable();
             $table->rememberToken();

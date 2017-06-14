@@ -12,7 +12,7 @@ $.fn.paginate = function(options){
             return null;
         }
     };
-    var settings = $.extend(defaults, options)
+    var settings = $.extend(defaults, options);
 
     var btns = [];
     var call_backs = settings.call_backs;
@@ -25,11 +25,11 @@ $.fn.paginate = function(options){
 
 
     //头部<<
-    if (at == 1)
+    if (at === 1)
         btns.push("<li class = 'disabled'><span>&laquo;</span></li>");
     else {
         var lnk = make_page(at - 1);
-        if (lnk == null) {
+        if (lnk === null) {
             btns.push("<li><span class = 'click slow_down' rel = 'prev' page = '" + (at - 1) + "'>&laquo;</span></li>");
         } else {
             btns.push("<li><a href = '" + lnk + "' rel = 'prev' page = '" + (at - 1) + "'>&laquo;</a></li>");
@@ -40,12 +40,12 @@ $.fn.paginate = function(options){
     //中部
     var last_state = true;
     for (i = 1;i <= total;i++) {
-        if (i == at) {
+        if (i === at) {
             btns.push("<li class = 'active'><span>" + i + "</span></li>");
             last_state = true;
         } else if ((i <= left_length) || (i >= (total - right_length + 1)) || ((i >= (at - mid_length + 1)) && (i <= (at + mid_length - 1)))) {
             var lnk = make_page(i);
-            if (lnk == null) {
+            if (lnk === null) {
                 btns.push("<li><span class = 'click slow_down' page = '" + (i) + "'>" + i + "</span></li>");
             } else {
                 btns.push("<li><a href = '" + make_page(i) + "' page = '" + (i) + "'>" + i + "</a></li>");
@@ -58,11 +58,11 @@ $.fn.paginate = function(options){
     }
 
     //尾部>>
-    if (at == total)
+    if (at === total)
         btns.push("<li class = 'disabled'><span>&raquo;</span></li>");
     else{
         var lnk = make_page(at + 1);
-        if (lnk == null) {
+        if (lnk === null) {
             btns.push("<li><span class = 'click slow_down' rel = 'prev' page = '" + (at + 1) + "'>&raquo;</span></li>");
         } else {
             btns.push("<li><a href='" + make_page(at + 1) + "' rel = 'prev' page = '" + (at + 1) + "'>&raquo;</a></li>");
@@ -82,7 +82,7 @@ $.fn.paginate = function(options){
         if ($(this).parent().hasClass("active")) return;
         var pg = parseInt($(this).attr("page"));
         call_backs(pg);
-    })
+    });
 
     return this;
-}
+};
