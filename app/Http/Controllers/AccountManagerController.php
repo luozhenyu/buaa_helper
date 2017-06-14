@@ -118,7 +118,7 @@ class AccountManagerController extends Controller
 
         $condition = $request->toArray();
         try {
-            $query = User::select($condition);
+            $query = User::select($condition)->orderBy('name', 'desc');
         } catch (Exception $e) {
             return response()->json([
                 'errmsg' => $e->getMessage(),

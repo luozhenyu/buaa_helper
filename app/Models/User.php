@@ -261,7 +261,10 @@ class User extends Authenticatable
         $query = static::join('property_user', 'property_user.user_id', 'users.id')
             ->join('departments', 'users.department_id', 'departments.id')
             ->join('properties', 'property_user.property_id', 'properties.id')
-            ->join('property_values', 'property_user.property_value_id', 'property_values.id');
+            ->join('property_values', 'property_user.property_value_id', 'property_values.id')
+            //role
+            ->join('role_user', 'users.id', 'role_user.user_id')
+            ->join('roles', 'roles.id', 'role_user.role_id');
 
         if (!key_exists('range', $condition)) {
             throw new Exception("range键不存在");
@@ -293,19 +296,42 @@ class User extends Authenticatable
             }
         });
 
-        $property = $condition['property'] ?? [];
+        $properties = $condition['property'] ?? [];
 
-        foreach ($property as $key => $value) {
+        foreach ($properties as $key => $value) {
             $query = $query->whereExists(function ($query) use ($key, $value) {
                 $query->select(DB::raw(1))
                     ->from('property_user')
                     ->join('properties', 'property_user.property_id', 'properties.id')
                     ->join('property_values', 'property_user.property_value_id', 'property_values.id')
                     ->whereRaw('property_user.user_id = users.id')
-                    ->where([['properties.name', $key], ['property_values.name', $value]]);
+                    ->where(function ($subQuery) use ($key, $value) {
+                        foreach ((array)$value as $opt) {
+                            $subQuery = $subQuery->orWhere([
+                                ['properties.name', $key],
+                                ['property_values.name', $opt]
+                            ]);
+                        }
+                    });
             });
         }
-        return $query->select('users.*');
+
+        $query = $query->select(
+            'departments.number as department',
+            'users.number as number',
+            'users.name as name',
+            'property_values.display_name as grade',
+            'roles.display_name as role'
+        );
+
+        $orderBy = $condition['orderBy'] ?? null;
+        $sort = $condition['sort'] ?? "asc";
+
+        if ($orderBy) {
+            $query = $query->orderBy($orderBy, $sort);
+        }
+
+        return $query;
     }
 
     public static function boot()
