@@ -108,7 +108,7 @@ class AccountManagerController extends Controller
 
     public function ajaxIndex(Request $request)
     {
-        abort_unless(EntrustFacade::can('view_all_user'), 403);
+        abort_unless(EntrustFacade::can(['view_all_user', 'view_owned_user']), 403);
 
         if (!$request->isJson()) {
             return response()->json([
@@ -118,7 +118,12 @@ class AccountManagerController extends Controller
 
         $condition = $request->toArray();
         try {
-            $query = User::select($condition)->orderBy('name', 'desc');
+            if (EntrustFacade::can('view_all_user')) {
+                $query = User::select($condition);
+            } else {
+               $query = User::select($condition, Auth::user()->department->number);
+            }
+            $query = $query->orderBy('name', 'desc');
         } catch (Exception $e) {
             return response()->json([
                 'errmsg' => $e->getMessage(),
