@@ -241,7 +241,7 @@
                             }
                             $("#nobody").addClass("hidden");
                             $("[data-toggle='tooltip']").tooltip();
-                            console.log(json.current_page, json.last_page)
+
                             $("#page").paginate({
                                 currentPage: json.current_page,
                                 lastPage: json.last_page,
@@ -249,6 +249,11 @@
                                     new_page(page);
                                 }
                             });
+                            console.log(json.current_page, json.last_page);
+                            /*if (json.last_page > 1)
+                                $("#page").removeClass("hidden");
+                            else
+                                $("#page").addClass("hidden");*/
                         } else {
                             $("#page").empty();
                             $("#nobody").removeClass("hidden");
