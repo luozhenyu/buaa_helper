@@ -192,8 +192,10 @@
                 }
             });
 
-            var query_json = {"range": range, "property": property};
+            query_json = {"range": range, "property": property};
             console.log(JSON.stringify(query_json));
+
+            new_page(1);
 
             function new_page(page) {
                 $.ajax({
@@ -206,18 +208,45 @@
                     },
                     success: function (json) {
                         console.log(json);
-
-                        $("#page").paginate({
-                            currentPage: json.current_page,
-                            lastPage: json.last_page,
-                            callback: function (page) {
-                                new_page(page);
+                        $("#table_content").empty();
+                        if (json.data.length > 0) {
+                            for (var i = 0; i < json.data.length; i++) {
+                                var dat = json.data[i];
+                                $("#table_content").append(
+                                    $("<tr></tr>").append(
+                                        $("<td></td>").append(
+                                            $("<span></span>")
+                                                .attr("data-toggle", "tooltip").attr("title", "请震宇dalao提供部门名")
+                                                .append(dat.department)
+                                        )
+                                    ).append(
+                                        $("<td></td>").append(dat.number)
+                                    ).append(
+                                        $("<td></td>").append(dat.name)
+                                    ).append(
+                                        $("<td></td>").append(dat.role)
+                                    ).append(
+                                        $("<td></td>").append("XXX")
+                                    )
+                                )
                             }
-                        });
+                            $("#nobody").addClass("hidden");
+                            $("#page").paginate({
+                                currentPage: json.current_page,
+                                lastPage: json.last_page,
+                                callback: function (page) {
+                                    new_page(page);
+                                }
+                            });
+                        } else {
+                            $("#page").empty();
+                            $("#nobody").removeClass("hidden");
+                        }
                     }
                 });
             }
-            new_page(1);
+
+
         })
     });
     function window_small_check() {
@@ -370,6 +399,7 @@
 @endpush
 
 @section('content')
+
     <table id="main" border="0">
         <tr>
             <td id="td_search_tools">
@@ -635,9 +665,8 @@
                     @endforeach
                     </tbody>
                 </table>
-                @if($users->count() === 0)
-                    <h2 style="color:gray;text-align:center;">(没有用户)</h2>
-                @endif
+
+                <h2 id = "nobody" style="color:gray;text-align:center;" class = "{{ ($users->count() > 0) ? "hidden" : ""  }}">(没有用户)</h2>
 
                 <div id="page" class="text-center">{{ $users->links() }}</div>
             </td>
