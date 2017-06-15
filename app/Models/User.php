@@ -29,7 +29,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'email_verified', 'phone_verified'
+    ];
+
+    protected $casts = [
+        'email_verified' => 'boolean',
+        'phone_verified' => 'boolean',
     ];
 
     /**
@@ -246,76 +251,87 @@ class User extends Authenticatable
         ]);
     }
 
+    /**
+     * @param array $condition
+     * @return mixed
+     * @throws Exception
+     */
     public static function select(array $condition)
     {
         $query = static::join('property_user', 'property_user.user_id', 'users.id')
             ->join('departments', 'users.department_id', 'departments.id')
             ->join('properties', 'property_user.property_id', 'properties.id')
-            ->join('property_values', 'property_user.property_value_id', 'property_values.id');
+            ->join('property_values', 'property_user.property_value_id', 'property_values.id')
+            //role
+            ->join('role_user', 'users.id', 'role_user.user_id')
+            ->join('roles', 'roles.id', 'role_user.role_id');
 
         if (!key_exists('range', $condition)) {
             throw new Exception("range键不存在");
         }
         $query = $query->where(function ($subQuery) use ($condition) {
-            $ALL = -1;
-            $ALL_COLLEGE = 0;
-            $ALL_OFFICE = 100;
+            list($ALL, $ALL_COLLEGE, $ALL_OFFICE) = [-1, 0, 100];
+
             foreach ($condition['range'] as $item) {
-                if (!key_exists('department', $item)) {
+                $department = $item['department'] ??null;
+                if (!$department) {
                     throw new Exception("department键不存在");
                 }
-                $department = $item['department'];
-
+                $limit = [['properties.name', 'grade']];
                 if ($department === $ALL) {//所有人
-                    $subQuery = $subQuery->orWhere([
-                        ['departments.number', '>', 0],
-                        ['properties.name', 'grade'],
-                    ]);
+                    $limit[] = ['departments.number', '>', 0];
                 } else if ($department === $ALL_COLLEGE) {//所有院系
-                    $subQuery = $subQuery->orWhere([
-                        ['departments.number', '<', 100],
-                        ['properties.name', 'grade'],
-                    ]);
-                } else if ($department < $ALL_OFFICE) {//指定院系
-                    if (!key_exists('grade', $item)) {
-                        throw new Exception("grade键不存在");
-                    }
-                    $subQuery = $subQuery->orWhere([
-                        ['departments.number', $department],
-                        ['properties.name', 'grade'],
-                        ['property_values.name', $item['grade']],
-                    ]);
+                    $limit[] = ['departments.number', '<', 100];
                 } else if ($department === $ALL_OFFICE) {//所有部门
-                    $subQuery = $subQuery->orWhere([
-                        ['departments.number', '>', 100],
-                        ['properties.name', 'grade'],
-                    ]);
-                } else {//指定部门
-                    $subQuery = $subQuery->orWhere([
-                        ['departments.number', $department],
-                        ['properties.name', 'grade'],
-                    ]);
+                    $limit[] = ['departments.number', '>', 100];
+                } else {//指定院系或部门
+                    $limit[] = ['departments.number', $department];
                 }
+
+                $grade = $item['grade'] ?? null;
+                if ($grade) {
+                    $limit[] = ['property_values.name', $grade];
+                }
+                $subQuery = $subQuery->orWhere($limit);
             }
         });
-        if (!key_exists('property', $condition)) {
-            throw new Exception("property键不存在");
-        }
 
-        foreach ($condition['property'] as $key => $value) {
+        $properties = $condition['property'] ?? [];
+
+        foreach ($properties as $key => $value) {
             $query = $query->whereExists(function ($query) use ($key, $value) {
                 $query->select(DB::raw(1))
                     ->from('property_user')
                     ->join('properties', 'property_user.property_id', 'properties.id')
                     ->join('property_values', 'property_user.property_value_id', 'property_values.id')
                     ->whereRaw('property_user.user_id = users.id')
-                    ->where([
-                        ['properties.name', $key],
-                        ['property_values.name', $value],
-                    ]);
+                    ->where(function ($subQuery) use ($key, $value) {
+                        foreach ((array)$value as $opt) {
+                            $subQuery = $subQuery->orWhere([
+                                ['properties.name', $key],
+                                ['property_values.name', $opt]
+                            ]);
+                        }
+                    });
             });
         }
-        return $query->select('users.*');
+
+        $query = $query->select(
+            'departments.number as department',
+            'users.number as number',
+            'users.name as name',
+            'property_values.display_name as grade',
+            'roles.display_name as role'
+        );
+
+        $orderBy = $condition['orderBy'] ?? null;
+        $sort = $condition['sort'] ?? "asc";
+
+        if ($orderBy) {
+            $query = $query->orderBy($orderBy, $sort);
+        }
+
+        return $query;
     }
 
     public static function boot()

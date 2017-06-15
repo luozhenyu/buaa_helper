@@ -82,7 +82,7 @@ $this->post('/register/{user_id}', 'Auth\RegisterController@register');
 $this->get('/password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm');
 $this->post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 $this->get('/password/reset/{token}', 'Auth\ResetPasswordController@showResetForm');
-$this->post('/password/reset', 'Auth\ResetPasswordController@reset');
+$this->post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.reset');
 
 
 //File upload

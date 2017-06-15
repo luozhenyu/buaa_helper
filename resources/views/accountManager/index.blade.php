@@ -116,7 +116,7 @@
 
 
 @push('jsLink')
-<script src = "/js/paginate.js"></script>
+<script src="/js/paginate.js"></script>
 @endpush
 @push('js')
 <script>
@@ -161,14 +161,14 @@
             });
         });
 
-        $("#btn_query").click(function(){
+        $("#btn_query").click(function () {
             var range = [];
             $(".selected_element.range").each(function () {
                 var arrs = $(this).attr("value").split(",");
-                if ((arrs.length == 1) && (arrs[0] == '')) range.push({"department": -1}); else
-                if ((arrs.length == 1) && (arrs[0] == '0')) range.push({"department": 100}); else
-                if ((arrs.length == 1) && (arrs[0] == '1')) range.push({"department": 0}); else
-                if (arrs[0] == '0')  range.push({"department": parseInt(arrs[1])});
+                if ((arrs.length == 1) && (arrs[0] == '')) range.push({"department": -1});
+                else if ((arrs.length == 1) && (arrs[0] == '0')) range.push({"department": 100});
+                else if ((arrs.length == 1) && (arrs[0] == '1')) range.push({"department": 0});
+                else if (arrs[0] == '0') range.push({"department": parseInt(arrs[1])});
                 else if (arrs[0] == '1') {
                     if (arrs.length == 2)
                         range.push({"grade": parseInt(arrs[2])});
@@ -178,14 +178,16 @@
             });
             if (range.length == 0) range = [{"department": -1}];
 
-            var property = [];
-            $(".selected_element.limit").each(function(){
+            var property = {};
+            $(".selected_element.limit").each(function () {
                 var arrs = $(this).attr("value").split(",");
                 if (arrs.length >= 2) {
                     if (arrs[0] == '0') {
-                        property.push({"political_status": parseInt(arrs[1])});
+                        property["political_status"] = property["political_status"] || [];
+                        property["political_status"].push(parseInt(arrs[1]));
                     } else if (arrs[0] == '1') {
-                        property.push({"financial_difficulty": parseInt(arrs[1])});
+                        property["financial_difficulty"] = property["financial_difficulty"] || [];
+                        property["financial_difficulty"].push(parseInt(arrs[1]));
                     }
                 }
             });
@@ -202,13 +204,13 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(json){
+                    success: function (json) {
                         console.log(json);
 
                         $("#page").paginate({
                             at: json.current_page,
                             total: json.last_page,
-                            call_backs: function(page){
+                            call_backs: function (page) {
                                 new_page(page);
                             }
                         });
@@ -392,9 +394,9 @@
                         <div class="selected_content">
                             <h4 class="empty_label">(无任何选中对象)</h4>
                         </div>
-                        <div style = "padding-top: 6px;text-align: right;">
-                            <button id = "btn_query" class = "btn btn-primary">
-                                <span class = "glyphicon glyphicon-filter"></span>筛选
+                        <div style="padding-top: 6px;text-align: right;">
+                            <button id="btn_query" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-filter"></span>筛选
                             </button>
                         </div>
 
@@ -612,7 +614,7 @@
                     </tr>
                     </thead>
 
-                    <tbody id = "table_content">
+                    <tbody id="table_content">
                     @foreach($users as $user)
                         <tr>
                             <td>
@@ -639,7 +641,7 @@
                     <h2 style="color:gray;text-align:center;">(没有用户)</h2>
                 @endif
 
-                <div id = "page" class="text-center">{{ $users->links() }}</div>
+                <div id="page" class="text-center">{{ $users->links() }}</div>
             </td>
         </tr>
     </table>
