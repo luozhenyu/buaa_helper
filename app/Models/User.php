@@ -316,12 +316,15 @@ class User extends Authenticatable
             });
         }
 
+        $url = url('/account_manager') . '/';
         $query = $query->select(
             'departments.number as department',
+            'departments.name as department_name',
             'users.number as number',
             'users.name as name',
             'property_values.display_name as grade',
-            'roles.display_name as role'
+            'roles.display_name as role',
+            DB::raw("if(roles.name='admin',concat('{$url}',users.id),null) as url")
         );
 
         $orderBy = $condition['orderBy'] ?? null;

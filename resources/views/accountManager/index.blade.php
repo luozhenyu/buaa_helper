@@ -208,16 +208,15 @@
                         console.log(json);
 
                         $("#page").paginate({
-                            at: json.current_page,
-                            total: json.last_page,
-                            call_backs: function (page) {
+                            currentPage: json.current_page,
+                            lastPage: json.last_page,
+                            callback: function (page) {
                                 new_page(page);
                             }
                         });
                     }
                 });
             }
-
             new_page(1);
         })
     });
@@ -371,7 +370,6 @@
 @endpush
 
 @section('content')
-
     <table id="main" border="0">
         <tr>
             <td id="td_search_tools">
