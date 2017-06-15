@@ -212,11 +212,20 @@
                         if (json.data.length > 0) {
                             for (var i = 0; i < json.data.length; i++) {
                                 var dat = json.data[i];
+                                var btn_modify = $("<td></td>");
+                                if (!(dat.url === null)) {
+                                    btn_modify.append(
+                                        $("<button></button>").append("修改")
+                                            .addClass("btn").addClass("btn-info").addClass("btn-xs")
+                                            .attr("type", "button").attr("onclick", "window.open('" + dat.url + "')")
+                                    )
+                                }
+
                                 $("#table_content").append(
                                     $("<tr></tr>").append(
                                         $("<td></td>").append(
                                             $("<span></span>")
-                                                .attr("data-toggle", "tooltip").attr("title", "请震宇dalao提供部门名")
+                                                .attr("data-toggle", "tooltip").attr("title", dat.department_name)
                                                 .append(dat.department)
                                         )
                                     ).append(
@@ -226,11 +235,12 @@
                                     ).append(
                                         $("<td></td>").append(dat.role)
                                     ).append(
-                                        $("<td></td>").append("XXX")
+                                        btn_modify
                                     )
                                 )
                             }
                             $("#nobody").addClass("hidden");
+                            $("[data-toggle='tooltip']").tooltip();
                             $("#page").paginate({
                                 currentPage: json.current_page,
                                 lastPage: json.last_page,
