@@ -684,7 +684,7 @@
 
                 <h2 id = "nobody" style="color:gray;text-align:center;" class = "{{ ($users->count() > 0) ? "hidden" : ""  }}">(没有用户)</h2>
 
-                <div id="page" class="text-center">{{ $users->links() }}</div>
+                <div id = "page" class="text-center">{{ $users->links() }}</div>
             </td>
         </tr>
     </table>

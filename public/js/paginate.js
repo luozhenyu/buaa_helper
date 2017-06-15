@@ -201,6 +201,7 @@ $.fn.paginate = function () {
     };
 
     this.createLinks = function (paginator) {
+        this.empty();
         if (paginator.hasPages()) {
             var ul = $("<ul>").addClass("pagination");
 
@@ -249,10 +250,9 @@ $.fn.paginate = function () {
             }
             ul.append(li);
 
-            this.empty().append(ul);
+            this.append(ul);
         }
     };
-
     this.init(arguments[0] || {});
     this.createLinks(paginator);
 };
