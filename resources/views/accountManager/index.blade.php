@@ -207,6 +207,12 @@
                     },
                     success: function (json) {
                         $("#table_content").empty();
+                        $("#information")
+                            .empty().append("共搜到 ")
+                            .append(
+                                $("<b>").append(json.total)
+                            )
+                            .append(" 条记录");
                         if (json.data.length > 0) {
                             for (var i = 0; i < json.data.length; i++) {
                                 var dat = json.data[i];
@@ -587,14 +593,19 @@
                     <caption>
                         @permission('create_user')
                         <div class="col-xs-12">
-                            <div class="btn-group">
-                                <a type="button" class="btn btn-primary"
-                                   href="{{route('accountManager').'/create'}}">创建新用户
-                                </a>
-                                <button type="button" class="btn btn-success" data-toggle="modal"
-                                        data-target="#myModal">
-                                    导入Excel
-                                </button>
+                            <div style="display: inline-block;">
+                                <div class="btn-group">
+                                    <a type="button" class="btn btn-primary"
+                                       href="{{route('accountManager').'/create'}}">创建新用户
+                                    </a>
+                                    <button type="button" class="btn btn-success" data-toggle="modal"
+                                            data-target="#myModal">
+                                        导入Excel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="pull-right" style="display: inline-block;">
+                                <h5 id="information"></h5>
                             </div>
                         </div>
                         <!-- 模态框（Modal） -->
