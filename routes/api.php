@@ -42,3 +42,7 @@ $this->any('/notification/{id}/restore', 'APIController@restoreNotification');
 $this->any('/notification/{id}/read', 'APIController@readNotification');
 $this->any('/notification/{id}/star', 'APIController@starNotification');
 $this->any('/notification/{id}/unstar', 'APIController@unstarNotification');
+
+$this->any('/log', 'LogController@index');
+$this->any('/log/write', 'LogController@write');
+$this->any('/log/clear', 'LogController@clear');

@@ -229,7 +229,19 @@
   * errcode:integer
   * msg:’Unstared!’
 
+`$this->any('/log', 'LogController@index');`
+* return:
+  * html 
 
+`$this->any('/log/write', 'LogController@index');`
+* params:
+  * log:string
+* return:
+  * ok
+
+`$this->any('/log/clear', 'LogController@index');`
+* return:
+  * ok 
 #### ErrCode Reference
 ```php
 //服务器异常
