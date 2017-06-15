@@ -161,7 +161,8 @@
             });
         });
 
-        $("#btn_query").click(function () {
+
+        var query = function () {
             var range = [];
             $(".selected_element.range").each(function () {
                 var arrs = $(this).attr("value").split(",");
@@ -171,9 +172,9 @@
                 else if (arrs[0] == '0') range.push({"department": parseInt(arrs[1])});
                 else if (arrs[0] == '1') {
                     if (arrs.length == 2)
-                        range.push({"grade": parseInt(arrs[2])});
+                        range.push({"department": 0, "grade": parseInt(arrs[1])});
                     else
-                        range.push({"department": parseInt(arrs[1]), "grade": parseInt(arrs[2])});
+                        range.push({"department": parseInt(arrs[2]), "grade": parseInt(arrs[1])});
                 }
             });
             if (range.length == 0) range = [{"department": -1}];
@@ -193,10 +194,8 @@
             });
 
             query_json = {"range": range, "property": property};
-            console.log(JSON.stringify(query_json));
 
             new_page(1);
-
             function new_page(page) {
                 $.ajax({
                     url: "/account_manager/ajax?page=" + page,
@@ -207,7 +206,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function (json) {
-                        console.log(json);
                         $("#table_content").empty();
                         if (json.data.length > 0) {
                             for (var i = 0; i < json.data.length; i++) {
@@ -241,6 +239,7 @@
                             }
                             $("#nobody").addClass("hidden");
                             $("[data-toggle='tooltip']").tooltip();
+
                             $("#page").paginate({
                                 currentPage: json.current_page,
                                 lastPage: json.last_page,
@@ -255,9 +254,12 @@
                     }
                 });
             }
+        }
 
-
-        })
+        $("#btn_query").click(function () {
+            query();
+        });
+        query();
     });
     function window_small_check() {
         return $(window).width() < 600;
@@ -401,7 +403,6 @@
     }
 </script>
 @endpush
-
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
@@ -652,33 +653,11 @@
                     </tr>
                     </thead>
 
-                    <tbody id="table_content">
-                    @foreach($users as $user)
-                        <tr>
-                            <td>
-                                <span data-toggle="tooltip" title="{{$user->department->name}}">
-                                    {{ $user->department->number }}
-                                </span>
-                            </td>
-                            <td>{{ $user->number }}</td>
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->roles->implode('display_name', ',') }}</td>
-                            <td>
-                                @permission(['modify_all_user','modify_owned_user'])
-                                <button type="button" class="btn btn-info btn-xs"
-                                        onclick="window.open('{{ route('accountManager').'/'.$user->id }}')">
-                                    修改
-                                </button>
-                                @endpermission
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
+                    <tbody id="table_content"></tbody>
                 </table>
 
-                <h2 id = "nobody" style="color:gray;text-align:center;" class = "{{ ($users->count() > 0) ? "hidden" : ""  }}">(没有用户)</h2>
-
-                <div id="page" class="text-center">{{ $users->links() }}</div>
+                <h2 id="nobody" style="color:gray;text-align:center;" class="hidden">(没有用户)</h2>
+                <div id="page" class="text-center"></div>
             </td>
         </tr>
     </table>
