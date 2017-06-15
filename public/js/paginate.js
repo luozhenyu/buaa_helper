@@ -1,3 +1,4 @@
+
 "use strict";
 
 $.fn.paginate = function () {
@@ -106,6 +107,7 @@ $.fn.paginate = function () {
         this._lastPage = lastPage;
         this._currentPage = currentPage;
         this.callback = callback;
+
 
         this.isValidPageNumber = function (page) {
             return typeof page === "number" && page >= 1;
@@ -254,3 +256,4 @@ $.fn.paginate = function () {
     this.init(arguments[0] || {});
     this.createLinks(paginator);
 };
+
