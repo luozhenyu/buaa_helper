@@ -171,9 +171,9 @@
                 else if (arrs[0] == '0') range.push({"department": parseInt(arrs[1])});
                 else if (arrs[0] == '1') {
                     if (arrs.length == 2)
-                        range.push({"grade": parseInt(arrs[2])});
+                        range.push({"department": 0, "grade": parseInt(arrs[1])});
                     else
-                        range.push({"department": parseInt(arrs[1]), "grade": parseInt(arrs[2])});
+                        range.push({"department": parseInt(arrs[2]), "grade": parseInt(arrs[1])});
                 }
             });
             if (range.length == 0) range = [{"department": -1}];
@@ -241,6 +241,7 @@
                             }
                             $("#nobody").addClass("hidden");
                             $("[data-toggle='tooltip']").tooltip();
+                            console.log(json.current_page, json.last_page)
                             $("#page").paginate({
                                 currentPage: json.current_page,
                                 lastPage: json.last_page,
