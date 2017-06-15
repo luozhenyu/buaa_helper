@@ -273,8 +273,8 @@ class User extends Authenticatable
             list($ALL, $ALL_COLLEGE, $ALL_OFFICE) = [-1, 0, 100];
 
             foreach ($condition['range'] as $item) {
-                $department = $item['department'] ??null;
-                if (!$department) {
+                $department = $item['department'] ?? null;
+                if (is_null($department)) {
                     throw new Exception("department键不存在");
                 }
                 $limit = [['properties.name', 'grade']];
