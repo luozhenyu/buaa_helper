@@ -240,7 +240,7 @@ class User extends Authenticatable
      * @param integer $expires_in
      * @return string
      */
-    public function createAccessToken($expires_in = 0)
+    public function createAccessToken(int $expires_in = 0)
     {
         do {
             $uuid = Uuid::uuid();
@@ -254,10 +254,11 @@ class User extends Authenticatable
 
     /**
      * @param array $condition
+     * @param int|null $limit
      * @return mixed
      * @throws Exception
      */
-    public static function select(array $condition)
+    public static function select(array $condition, int $limit = null)
     {
         $query = static::join('property_user', 'property_user.user_id', 'users.id')
             ->join('departments', 'users.department_id', 'departments.id')
@@ -266,6 +267,9 @@ class User extends Authenticatable
             //role
             ->join('role_user', 'users.id', 'role_user.user_id')
             ->join('roles', 'roles.id', 'role_user.role_id');
+        if (!is_null($limit)) {
+            $query = $query->where('departments.number', $limit);
+        }
 
         if (!key_exists('range', $condition)) {
             throw new Exception("range键不存在");
@@ -316,7 +320,7 @@ class User extends Authenticatable
                     });
             });
         }
-        $isAdmin = EntrustFacade::hasRole('admin');
+        $isAdmin = (int)EntrustFacade::hasRole('admin');
         $url = url('/account_manager') . '/';
         $query = $query->select(
             'departments.number as department',
