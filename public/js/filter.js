@@ -1,40 +1,33 @@
-(function ($) {
-    $.fn.CreateFilter = function (options) {
-        var defaults = {
-            key: "",
-            ranges: [],
-            limits: [],
+function Filter(options) {
+    this.key = "";
+    this.ranges = [];
+    this.limits = [];
+
+    var defaults = {
+        key: "",
+        ranges: [],
+        limits: [],
+        callbacks: {
             filter_trigger: function (data) {
                 return null;
             }
-        };
+        }
+    }
+    this.settings = $.extend(defaults, options);
 
+    this.bind = function (filter, options) {
         var settings = $.extend(defaults, options);
         var key = "filter_" + settings.key;
 
         var ranges = settings.ranges;
         var limits = settings.limits;
-        var filter_trigger = settings.filter_trigger;
+        var filter_trigger = settings.callbacks.filter_trigger;
+        var box = $(filter);
 
-        var acc_num = 0;
-        var get_acc = function () {
-            var acc = "acc_" + settings.key + "_";
-            if (arguments.length > 0)
-                return acc + arguments[0]
-            else return acc + (acc_num++);
-        }
 
-        var col_num = 0;
-        var get_col = function () {
-            var col = "col_" + settings.key + "_";
-            if (arguments.length > 0)
-                return col + arguments[0]
-            else return col + (col_num++);
-        }
-
-        $(this).empty();
-        $(this).append($("<div id = '" + key + "'></div>"));
-        var main_box = $(this).find("#" + key);
+        box.empty();
+        box.append($("<div id = '" + key + "'></div>"));
+        var main_box = box.find("#" + key);
 
         main_box.append(
             $("<div></div>")
@@ -56,7 +49,6 @@
                 )
                 .append(
                     $("<div class = 'select_div'></div>")
-                        .append("<div class = 'panel-group' id = '" + get_acc() + "'></div>")
                 )
         );
 
@@ -69,7 +61,7 @@
             }
         }
 
-        var select_div = main_box.find(".select_div .panel-group");
+        var select_div = main_box.find(".select_div").css("padding-top", "8px");
 
 
         console.log(ranges.length)
@@ -78,23 +70,55 @@
             select_div.append(
                 $("<div class = 'panel panel-default'></div>")
                     .append(
-                        $("<div class = 'panel-heading click' data-toggle = 'collapse' data-parent = '#"
-                            + get_acc(acc_num - 1) + "' href = '#range_select'></div>")
+                        $("<div class = 'panel-heading click' data-toggle = 'collapse' href = '#range_select'></div>")
                             .append($("<h5 class = 'panel-title'>选定范围</h5>"))
                     )
                     .append(
                         $("<div id = 'range_select' class = 'panel-collapse collapse'></div>")
                     )
             )
-            var range_select = $(this).find("#range_select");
+            var range_select = box.find("#range_select");
+            var ss = $("<ul class = 'list-group'></ul>")
             for (var i = 0; i < ranges.length; i++) {
-                
+
+                ss.append("<li class = 'list-group-item slow_down click'>i</li>");
+            }
+            range_select.append(ss);
+
+
+            var make_list = function (data, pre, dp) {
+                var lst = $("<ul class = 'list-group'></ul>");
+                if (data.allow_all) {
+                    lst.append(
+                        $("<li class = 'list-group-item slow_down click base range' " +
+                            "value = '" + pre.join(",") + "' name = '" + dp + " - " + data.all_name + "'></li>")
+                            .append($("<b></b>").append(data.all_name))
+                    )
+                }
+                for (var i = 0;i < data.list.length;i++) {
+                    var ele = data.list[i];
+                    var p = pre; p.push(ele.value);
+                    var d = dp + " - " + ele.display_name;
+                    var div =  $("<li class = 'list-group-item slow_down click'></li>")
+
+                    if ((ele.child == null) || (ele.child.length == 0)) {
+                        div = div.addClass("base").addClass("range").attr("value", p).attr("name", d);
+                    } else {
+                        div.append(
+                            $()
+                        )
+                    }
+                    lst.append(div)
+                }
             }
         }
 
         if (limits.length > 0) {
 
         }
+    }
+
+    this.getResult = function () {
 
     }
-})(window.jQuery);
+}
