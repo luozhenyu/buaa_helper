@@ -100,7 +100,7 @@
         };
         setStarState(star,{{ $stared_at? 'true': 'false' }});
 
-        var files = JSON.parse("{!! addslashes($files->toJson()) !!}");
+        var files = {!! $files->toJson() !!};
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
                 $("#attachmentContainer").append(parseFile(files[i], false));

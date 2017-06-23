@@ -80,7 +80,7 @@
 
         $("#department").selectpicker("val", "{{ $notification->department_id }}");
         $("#important").selectpicker("val", "{{ $notification->important }}");
-        var files = JSON.parse("{!! addslashes($files->toJson()) !!}");
+        var files = {!! $files->toJson() !!};
         for (var i = 0; i < files.length; i++) {
             $("#attachmentContainer").append(parseFile(files[i], true));
         }

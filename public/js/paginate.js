@@ -1,4 +1,3 @@
-
 "use strict";
 
 $.fn.paginate = function () {
@@ -256,4 +255,3 @@ $.fn.paginate = function () {
     this.init(arguments[0] || {});
     this.createLinks(paginator);
 };
-

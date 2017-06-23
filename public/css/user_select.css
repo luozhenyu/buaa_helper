@@ -1,0 +1,16 @@
+.list-group-item {
+    padding: 5px 15px;
+    font-size: 14px;
+}
+
+.select-field {
+    margin-top: 12px;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1) inset;
+    background-color: #dedede;
+    border-radius: 5px;
+    padding: 6px;
+}
+
+.select-hit {
+    text-align: center;
+}
