@@ -34,7 +34,7 @@ $.fn.user_select = function (data, callback) {
                 );
 
             case undefined:  //按钮
-                return $("<button>").addClass("list-group-item")
+                return $("<button>").addClass("list-group-item").addClass("slow_down")
                     .text(displayName).click(function () {
                         callback(sel);
                     });
