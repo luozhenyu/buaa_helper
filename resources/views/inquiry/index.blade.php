@@ -18,8 +18,8 @@
     <script src="{{ url('/js/filter.js') }}"></script>
     <script>
         $(function () {
-            var c = { xx: "kldj"}.yy;
-            console.log((c == null) || (c.length == 0));
+            var c = [1,2].concat("jf");
+            console.log(c);
             $("#page_test").paginate({
                 currentPage: 1,
                 lastPage: 20,
@@ -29,7 +29,33 @@
             });
 
             new Filter({
-                ranges: [1,2]
+                ranges: {
+                    allow_all: true,
+                    all_name: "全体人员",
+                    list: [
+                        {
+                            display_name: "蛤蛤",
+                            value: 1,
+                            enable: true
+                        },
+                        {
+                            display_name: "蛤蛤蛤",
+                            value: 2,
+                            enable: true,
+                            child: {
+                                allow_all: true,
+                                all_name: "全体人员",
+                                list: [
+                                    {
+                                        display_name: "蛤蛤",
+                                        value: 3,
+                                        enable: true
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
             }).bind("#filter_test");
         });
     </script>

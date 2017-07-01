@@ -118,6 +118,10 @@
         .clickable, .click {
             cursor: pointer;
         }
+
+        .forbidden {
+            cursor: not-allowed;
+        }
     </style>
     @stack('css')
 

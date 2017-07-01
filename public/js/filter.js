@@ -64,8 +64,7 @@ function Filter(options) {
         var select_div = main_box.find(".select_div").css("padding-top", "8px");
 
 
-        console.log(ranges.length)
-        if (ranges.length > 0) {
+        if (ranges != null) {
 
             select_div.append(
                 $("<div class = 'panel panel-default'></div>")
@@ -78,39 +77,55 @@ function Filter(options) {
                     )
             )
             var range_select = box.find("#range_select");
-            var ss = $("<ul class = 'list-group'></ul>")
-            for (var i = 0; i < ranges.length; i++) {
 
-                ss.append("<li class = 'list-group-item slow_down click'>i</li>");
-            }
-            range_select.append(ss);
-
-
-            var make_list = function (data, pre, dp) {
+            var make_ranges = function (data, data_list, name_list) {
                 var lst = $("<ul class = 'list-group'></ul>");
+                console.log(data);
                 if (data.allow_all) {
                     lst.append(
-                        $("<li class = 'list-group-item slow_down click base range' " +
-                            "value = '" + pre.join(",") + "' name = '" + dp + " - " + data.all_name + "'></li>")
-                            .append($("<b></b>").append(data.all_name))
+                        $("<li class = 'list-group-item slow_down click base range'></li>")
+                            .append($("<b></b>").append(data.all_name)).css("padding", "4px")
+                            .data("value", data_list.join(",")).data("name", name_list.concat(data.all_name).join(" - "))
                     )
                 }
                 for (var i = 0;i < data.list.length;i++) {
                     var ele = data.list[i];
-                    var p = pre; p.push(ele.value);
-                    var d = dp + " - " + ele.display_name;
-                    var div =  $("<li class = 'list-group-item slow_down click'></li>")
+                    var new_data_list = data_list.concat(ele.value);
+                    var new_name_list = name_list.concat(ele.display_name);
+                    var div = $("<li class = 'list-group-item slow_down click'></li>")
+                        .css("padding", "4px");
 
                     if ((ele.child == null) || (ele.child.length == 0)) {
-                        div = div.addClass("base").addClass("range").attr("value", p).attr("name", d);
+                        div.addClass("base").addClass("range")
+                            .data("value", new_data_list.join(","))
+                            .data("name", new_name_list.join(" - "))
+                            .append(ele.display_name)
                     } else {
                         div.append(
-                            $()
+                            $("<div class = 'panel panel-default'>")
+                                .attr("data-toggle", "collapse").attr("href", ["#col", key].concat(new_data_list).join("_"))
+                                .css("margin", "0px")
+                                .append(
+                                    $("<div class = 'panel-heading click'>")
+                                        .append(
+                                            $("<h5 class = 'panel-title'>")
+                                                .append(ele.display_name).css("font-weight", "bold")
+                                        )
+                                        .css("padding", "5px")
+                                )
+                                .append(
+                                    $("<div class = 'panel-collapse collapse'>")
+                                        .attr("id", ["col", key].concat(new_data_list).join("_"))
+                                        .append(make_ranges(ele.child, new_data_list, new_name_list))
+                                )
                         )
                     }
                     lst.append(div)
                 }
+                return lst;
             }
+
+            range_select.append(make_ranges(ranges, [], []));
         }
 
         if (limits.length > 0) {
