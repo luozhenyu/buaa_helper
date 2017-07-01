@@ -19,9 +19,19 @@
 
     $(function () {
         var data = {!! json_encode($data) !!};
-        console.log(data);
-        $(".select-panel-main").user_select(data, function (value) {
-            console.log(value);
+        //console.log(data);
+        var pp = ["1"];
+        console.log(pp.concat(["2"]).join(" - "))
+        $(".select-panel-main").user_select({
+            data: data,
+            callback_change: function(data){
+                console.log(data)
+            },
+            department_relation_check: function(parent, child) {
+                if (parent.grade === child.grade) return true;
+                return false;
+            }
+
         });
     });
 
@@ -52,7 +62,7 @@
                 </button>
             </div>
 
-            <div class="select-panel-main">
+            <div class="select-panel-main" style = "border: 1px solid black">
             </div>
         </div>
         <div class="col-md-8">1</div>
