@@ -47,7 +47,7 @@ class AccountManagerController extends Controller
         } else {
             return abort(403);
         }
-        //search
+
         if ($wd = $request->input('wd')) {
             $qWd = str_replace("_", "\\_", $wd);
             $qWd = str_replace("%", "\\%", $qWd);
@@ -81,11 +81,13 @@ class AccountManagerController extends Controller
                 return redirect($users->url(1));
         }
 
-        return view('accountManager.index', [
-            'users' => $users,
-            'wd' => $wd,
-            'orders' => $this->orders,
-        ]);
+        return view('accountManager.index'
+            , [
+                'users' => $users,
+                'wd' => $wd,
+                'orders' => $this->orders,
+            ]
+        );
     }
 
     public function show(Request $request, $id)
@@ -121,7 +123,7 @@ class AccountManagerController extends Controller
             if (EntrustFacade::can('view_all_user')) {
                 $query = User::select($condition);
             } else {
-               $query = User::select($condition, Auth::user()->department->number);
+                $query = User::select($condition, Auth::user()->department->number);
             }
             $query = $query->orderBy('name', 'desc');
         } catch (Exception $e) {

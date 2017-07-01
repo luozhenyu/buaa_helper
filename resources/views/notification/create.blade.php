@@ -88,7 +88,7 @@
 
         $("#department").selectpicker("val", "{{ old('department')?: Auth::user()->department_id }}");
         $("#important").selectpicker("val", "{{ old('important') }}");
-        var files = JSON.parse("{!! addslashes($files->toJson()) !!}");
+        var files = {!! $files->toJson() !!};
         for (var i = 0; i < files.length; i++) {
             $("#attachmentContainer").append(parseFile(files[i], true));
         }
