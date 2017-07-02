@@ -21,8 +21,8 @@ $.fn.user_select = function (options) {
             if ((child.department === 0) && (child.grade === undefined) && (parent.department < 100)) return false;
 
             //整个年级
-            if ((parent.grade === child.grade) && (parent.department === 0)) return true;
-            if ((parent.grade === child.grade) && (child.department === 0)) return false;
+            if (parent.grade && (parent.grade === child.grade) && (parent.department === 0)) return true;
+            if (parent.grade && (parent.grade === child.grade) && (child.department === 0)) return false;
 
             //相同元素
             if ((parent.department === child.department) && (parent.grade === child.grade)) return true;
@@ -53,12 +53,11 @@ $.fn.user_select = function (options) {
         return "" + Math.floor(Math.random() * 10000000);
     }
 
-    // 生成树结构
+    // 生成树结构 - for department
     // parentID: 父节点的accordionID
     // data: 该层次节点的数据
     // choice_array: 各层次父亲节点（用于生成标签文字）
-    // mode: 生成模式 0,department 1,property
-    function parsePanel(parentID, data, choice_array, mode) {
+    function parseDepartmentPanel(parentID, data, choice_array) {
 
         var displayName = data['display_name'],
             children = data['children'];
@@ -68,15 +67,10 @@ $.fn.user_select = function (options) {
 
         if (data['name']) {
             var spt = data['name'].split(",");
-            if (mode === 0) {
-                spt[0] && (sel.department = parseInt(spt[0]));
-                spt[1] && (sel.grade = parseInt(spt[1]));
-            } else if (mode === 1) {
-                spt[0] && (sel[""] = parseInt(spt[0]));
-            }
+            spt[0] && (sel.department = parseInt(spt[0]));
+            spt[1] && (sel.grade = parseInt(spt[1]));
         }
 
-        console.log("xxx");
         switch (children) {
             case null:  //全体成员
                 return $("<div>").addClass("panel panel-info").append(
@@ -88,7 +82,7 @@ $.fn.user_select = function (options) {
                         buttonTriggered({
                             display_name: choice_array.concat(displayName).join(" - "),
                             data: sel,
-                            mode: mode,
+                            mode: 0,
                             element: $(this)
                         });
                     }).mouseleave(function(){
@@ -106,7 +100,7 @@ $.fn.user_select = function (options) {
                         buttonTriggered({
                             display_name: choice_array.concat(displayName).join(" - "),
                             data: sel,
-                            mode: mode,
+                            mode: 0,
                             element: $(this)
                         });
                     }).mouseleave(function(){
@@ -122,16 +116,14 @@ $.fn.user_select = function (options) {
                 var panelHead = $("<div>").addClass("panel-heading").addClass("click").append(
                     $("<h5>").addClass("panel-title").text(displayName)
                 ).attr("data-toggle", "collapse").attr("data-parent", "#" + parentID).attr("data-target", "#" + collapseID);
-                var panel = $("<div>").addClass("panel").addClass((mode === 0) ? "panel-default" : "panel-primary")
+                var panel = $("<div>").addClass("panel").addClass("panel-default")
                     .append(panelHead);
-
 
                 var panelCollapse = $("<div>").attr("id", collapseID).addClass("panel-collapse collapse");
                 //recursion
                 var mainPanel = $("<div>").addClass("panel-group").css("margin-bottom", "2px").attr("id", accordionID);
                 for (var i = 0; i < children.length; i++) {
-
-                    mainPanel.append(parsePanel(accordionID, children[i], choice_array.concat([displayName]), mode));
+                    mainPanel.append(parseDepartmentPanel(accordionID, children[i], choice_array.concat([displayName])));
                 }
                 var panelBody = $("<div>").addClass("panel-body").css("padding", "2px").append(mainPanel);
 
@@ -198,7 +190,6 @@ $.fn.user_select = function (options) {
             if (check_method(data, $(this).data("data"))) $(this).remove();
         });
 
-        console.log(type);
         var filter_element = $("<div>").addClass("us-select").addClass((type === 0) ? "department" : "property")
             .append(
                 $("<b>").text(display_name).css("color", (type === 0) ? "black" : "darkblue")
@@ -228,10 +219,22 @@ $.fn.user_select = function (options) {
         callback_change(getData());
     }
 
-    //用于检测是否显示无选择项提示
+    // 清空条件
+    function clearFilter() {
+        if (countFilter() === 0) return;
+        selectHit.find(".us-select").each(function(){ $(this).remove(); });
+        nobodyStateCheck();
+        callback_change(getData());
+    }
+
+    // 用于检测是否显示无选择项提示
     function nobodyStateCheck() {
-        var cnt = $(".us-select.department").length + $(".us-select.property").length;
-        if (cnt === 0) nobodyLabel.show(); else nobodyLabel.hide();
+        if (countFilter() === 0) nobodyLabel.show(); else nobodyLabel.hide();
+    }
+
+    // 条件总个数
+    function countFilter() {
+        return selectHit.find(".us-select").length;
     }
 
     var departments = data['department'], properties = data['property'];
@@ -243,7 +246,7 @@ $.fn.user_select = function (options) {
 
     // 范围选择部分
     for (var i = 0; i < departments.length; i++) {
-        var panel = parsePanel(accordionID, departments[i], [], 0);
+        var panel = parseDepartmentPanel(accordionID, departments[i], [], 0);
         mainPanel.append(panel);
     }
 
@@ -269,12 +272,20 @@ $.fn.user_select = function (options) {
     // 筛选按钮部分
     var filterButton = $("<div></div>").css("padding-top", "6px").css("text-align", "right")
         .append(
+            $("<button class = 'btn btn-warning'></button>")
+                .append(" <span class = 'glyphicon glyphicon-remove'></span> 清空 ")
+                .css("margin-bottom", "6px").css("margin-right", "4px")
+                .click(function(){
+                    clearFilter();
+                })
+        ).append(
             $("<button class = 'btn_query btn btn-primary'></button>")
                 .append(" <span class = 'glyphicon glyphicon-filter'></span> 筛选 ")
                 .css("margin-bottom", "6px")
-        ).click(function(){
-            callback_filter(getData());
-        });
+                .click(function(){
+                    callback_filter(getData());
+                })
+        );
 
     // 整个组件
     var userSelect = $("<div>").append(selectHit).append(filterButton).append(mainPanel);

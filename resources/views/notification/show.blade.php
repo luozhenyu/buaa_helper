@@ -130,15 +130,15 @@
 @section('content')
     <div class="col-md-12">
         <h3 class="text-center">
-            {{ ($notification->important? '[必读] ' : '') . $notification->title }}
+            @if($notification->important)
+                <span class = "label label-danger">必读</span>
+            @endif
+            {{ $notification->title }}
         </h3>
         <div class="text-center information-line-1">
             <div class="label-block">
-                <label class="label label-info">发布部门</label> {{ $notification->department->name }}
-            </div>
-
-            <div class="label-block">
-                <label class="label label-warning">作者</label> {{ $notification->user->name}}
+                <label class="label label-info">发布部门</label>
+                {{ $notification->department->name }} - {{ $notification->user->name}}
             </div>
 
             <div class="label-block">
@@ -151,8 +151,6 @@
                 </span>
             </div>
         </div>
-
-        <p class="text-center" id="excerpt">摘要: {{ $notification->excerpt }}</p>
 
         <div class="text-center information-line-2">
             @if($notification->start_date)

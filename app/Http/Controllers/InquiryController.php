@@ -17,8 +17,8 @@ class InquiryController extends Controller
     {
         $departments[] = ['name' => '-1', 'display_name' => '全校人员', 'children' => null];
 
-        $office[] = ['name' => '100', 'display_name' => '选择所有部门'];
-        $college[] = ['name' => '0', 'display_name' => '选择全年级学生'];
+        $office[] = ['name' => '100', 'display_name' => '所有部门'];
+        $college[] = ['name' => '0', 'display_name' => '全年级学生'];
 
         foreach (Department::get() as $department) {
             $item = [
@@ -32,7 +32,7 @@ class InquiryController extends Controller
 
         //grade
         $grade = Property::where('name', 'grade')->firstOrFail();
-        $students = array_merge([['name' => '0', 'display_name' => '选择全校学生', 'children' => null]],
+        $students = array_merge([['name' => '0', 'display_name' => '全校学生', 'children' => null]],
             $grade->propertyValues->map(function ($item, $key) use ($college) {
                 $gradeNumber = $item->name;
                 return [

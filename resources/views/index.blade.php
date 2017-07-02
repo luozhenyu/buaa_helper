@@ -248,7 +248,7 @@
 @push("js_2")
 <script>
 
-    $(function() {
+    $(function () {
         $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
         @if (Auth::guest())
             $("#title_one").delay(450).fadeTo(320, 1);
@@ -312,7 +312,7 @@
                                     </div>
                                 </div>
 
-                                @permission(['view_all_user','view_owned_user'])
+                                @permission(['view_all_user','view_owned_user', 'create_user'])
                                 <div class="function_btn clickable slow_down"
                                      href="{{ url("/account_manager") }}">
                                     <div class="content_box">
@@ -320,29 +320,13 @@
                                             <span class="glyphicon glyphicon-book"></span>
                                         </div>
                                         <div class="content">
-                                            <h4 class="content_title">用户列表</h4>
+                                            <h4 class="content_title">用户管理</h4>
                                             <p>查看用户列表，查看常用分类中的用户等</p>
                                         </div>
                                     </div>
                                 </div>
                                 @endpermission
 
-                                @permission(['create_user'])
-                                <div class="function_btn clickable slow_down"
-                                     href="{{ url("/account_manager/create") }}">
-                                    <div class="content_box">
-                                        <div class="icon">
-                                            <span class="glyphicon glyphicon-plus"></span>
-                                        </div>
-                                        <div class="content">
-                                            <h4 class="content_title">添加用户</h4>
-                                            <p>可输入相关信息或导入Excel工作表添加用户</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endpermission
-                                {{-- </div> --}}
-                                {{-- @endpermission --}}
 
                                 {{-- <div class="function_block"> --}}
                                 <div class="function_btn clickable slow_down"
@@ -352,41 +336,25 @@
                                             <span class="glyphicon glyphicon-list-alt"></span>
                                         </div>
                                         <div class="content">
-                                            <h4 class="content_title">通知列表</h4>
+                                            <h4 class="content_title">通知中心</h4>
                                             <p>查看通知列表、必读通知、已收藏通知等</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                @if(Entrust::can(["create_notification", "delete_notification", "modify_all_notification", "modify_owned_notification"]))
-                                    <div class="function_btn clickable slow_down"
-                                         href="{{ url("/notification/manage") }}">
-                                        <div class="content_box">
-                                            <div class="icon">
-                                                <span class="glyphicon glyphicon-cog"></span>
-                                            </div>
-                                            <div class="content">
-                                                <h4 class="content_title">通知管理</h4>
-                                                <p>对通知进行管理，可查询通知的阅读人数</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @permission(['create_notification'])
                                 <div class="function_btn clickable slow_down"
-                                     href="{{ url("/notification/create") }}">
+                                     href="{{ url("/inquiry") }}">
                                     <div class="content_box">
                                         <div class="icon">
-                                            <span class="glyphicon glyphicon-pencil"></span>
+                                            <span class="glyphicon glyphicon-cog"></span>
                                         </div>
                                         <div class="content">
-                                            <h4 class="content_title">通知发布</h4>
-                                            <p>在权限内发布通知，可发布必读通知</p>
+                                            <h4 class="content_title">留言管理</h4>
+                                            <p>对留言进行管理，可查看留言状况</p>
                                         </div>
                                     </div>
                                 </div>
-                                @endpermission
+
                             </div>
 
                         </div>
