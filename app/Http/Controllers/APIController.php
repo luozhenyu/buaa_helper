@@ -423,7 +423,7 @@ class APIController extends Controller
                 'start_date' => $notification->start_date->timestamp,
                 'finish_date' => $notification->finish_date->timestamp,
                 'excerpt' => $notification->excerpt,
-                'important' => $notification->important,
+                'important' => (boolean)$notification->important,
 
                 'updated_at' => $notification->updated_at->timestamp,
                 'read' => (boolean)($read_at = $notification->pivot->read_at),
