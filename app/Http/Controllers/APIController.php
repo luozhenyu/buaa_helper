@@ -393,7 +393,7 @@ class APIController extends Controller
         $notifications = Auth::user()->receivedNotifications->map(function ($item, $key) {
             return [
                 'id' => $item->id,
-                'updated_at' => $item->updated_at->timestamp,
+                'version' => $item->updated_at->timestamp,
             ];
         });
 
@@ -425,7 +425,7 @@ class APIController extends Controller
                 'excerpt' => $notification->excerpt,
                 'important' => $notification->important,
 
-                'released_at' => $notification->updated_at,
+                'updated_at' => $notification->updated_at->timestamp,
                 'read' => (boolean)($read_at = $notification->pivot->read_at),
                 'read_at' => $read_at ? strtotime($read_at) : null,
                 'star' => (boolean)($stared_at = $notification->pivot->stared_at),
