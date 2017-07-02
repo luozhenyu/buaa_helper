@@ -298,12 +298,26 @@
                         <div class="functions col-md-10 col-md-offset-1 col-xs-12 text-center">
                             {{-- @permission(['view_all_user','view_owned_user','modify_all_user', 'view_all_user']) --}}
                             <div class="function_block">
+
+                                <div class="function_btn clickable slow_down"
+                                     href="{{ url("/account") }}">
+                                    <div class="content_box">
+                                        <div class="icon">
+                                            <span class="glyphicon glyphicon-user"></span>
+                                        </div>
+                                        <div class="content">
+                                            <h4 class="content_title">个人中心</h4>
+                                            <p>查看和管理个人信息</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 @permission(['view_all_user','view_owned_user'])
                                 <div class="function_btn clickable slow_down"
                                      href="{{ url("/account_manager") }}">
                                     <div class="content_box">
                                         <div class="icon">
-                                            <span class="glyphicon glyphicon-user"></span>
+                                            <span class="glyphicon glyphicon-book"></span>
                                         </div>
                                         <div class="content">
                                             <h4 class="content_title">用户列表</h4>

@@ -425,6 +425,7 @@ class APIController extends Controller
                 'excerpt' => $notification->excerpt,
                 'important' => $notification->important,
 
+                'released_at' => $notification->updated_at,
                 'read' => (boolean)($read_at = $notification->pivot->read_at),
                 'read_at' => $read_at ? strtotime($read_at) : null,
                 'star' => (boolean)($stared_at = $notification->pivot->stared_at),

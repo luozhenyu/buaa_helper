@@ -230,28 +230,24 @@ $.fn.user_select = function (options) {
 
     //用于检测是否显示无选择项提示
     function nobodyStateCheck() {
-        var department_cnt = $(".us-select.department").length;
-        var property_cnt = $(".us-select.property").length;
-        var total_cnt = department_cnt + property_cnt;
-        if (total_cnt === 0)
-            nobodyLabel.show();
-        else nobodyLabel.hide();
+        var cnt = $(".us-select.department").length + $(".us-select.property").length;
+        if (cnt === 0) nobodyLabel.show(); else nobodyLabel.hide();
     }
 
-
-    var departments = data['department'],
-        properties = data['property'];
+    var departments = data['department'], properties = data['property'];
 
 
     // 选择部分
     var accordionID = "accordion-" + random();
     var mainPanel = $("<div>").addClass("panel-group").attr("id", accordionID).css("margin-bottom", "0px");
 
+    // 范围选择部分
     for (var i = 0; i < departments.length; i++) {
         var panel = parsePanel(accordionID, departments[i], [], 0);
         mainPanel.append(panel);
     }
 
+    //
     /*console.log("yyy");
     for (var i = 0; i < properties.length; i++) {
         console.log(properties[i]);
