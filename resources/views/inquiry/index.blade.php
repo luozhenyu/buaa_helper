@@ -19,18 +19,16 @@
 
     $(function () {
         var data = {!! json_encode($data) !!};
-        //console.log(data);
-        var pp = ["1"];
-        console.log(pp.concat(["2"]).join(" - "))
+        console.log(data);
         $(".select-panel-main").user_select({
             data: data,
             callback_change: function(data){
                 console.log(data)
             },
-            department_relation_check: function(parent, child) {
-                if (parent.grade === child.grade) return true;
-                return false;
+            callback_filter: function(data){
+                console.log(JSON.stringify(data));
             }
+
 
         });
     });
