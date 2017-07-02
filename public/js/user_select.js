@@ -5,9 +5,13 @@ $.fn.user_select = function (options) {
     //默认设置
     var defaults = {
         data: null,
-        callback_change: function(data) { return null; },
-        callback_filter: function(data) { return null; },
-        department_relation_check: function(parent, child) {
+        callback_change: function (data) {
+            return null;
+        },
+        callback_filter: function (data) {
+            return null;
+        },
+        department_relation_check: function (parent, child) {
             //全体成员
             if (parent.department === -1) return true;
             if (child.department === -1) return false;
@@ -29,8 +33,11 @@ $.fn.user_select = function (options) {
 
             return false;
         },
-        property_relation_check: function(x, y) { return false; },
-        conflict_template: function(conflict_name, conflict_data){
+        property_relation_check: function (parent, child) {
+            if ((parent.key === child.key) && (parent.value === child.value)) return true;
+            return false;
+        },
+        conflict_template: function (conflict_name, conflict_data) {
             return $("<div>").append(
                 $("<h5>").text("该限制存在冲突")
             ).append(
@@ -85,7 +92,7 @@ $.fn.user_select = function (options) {
                             mode: 0,
                             element: $(this)
                         });
-                    }).mouseleave(function(){
+                    }).mouseleave(function () {
                         var btn = $(this);
                         setTimeout(function () {
                             btn.tooltip("hide");
@@ -103,7 +110,7 @@ $.fn.user_select = function (options) {
                             mode: 0,
                             element: $(this)
                         });
-                    }).mouseleave(function(){
+                    }).mouseleave(function () {
                         var btn = $(this);
                         setTimeout(function () {
                             btn.tooltip("hide");
@@ -137,16 +144,18 @@ $.fn.user_select = function (options) {
     //获取全部条件信息
     function getData() {
         var departments = [];
-        selectHit.find(".us-select.department").each(function(){
+        selectHit.find(".us-select.department").each(function () {
             departments.push($(this).data("data"));
         });
 
-        var properties = [];
-        selectHit.find(".us-select.property").each(function(){
-            properties.push($(this).data("data"));
+        var properties = {};
+        selectHit.find(".us-select.property").each(function () {
+            var data = $(this).data("data");
+            if (properties[data.key] === undefined) properties[data.key] = [];
+            properties[data.key].push(data.value);
         })
 
-        return { departments: departments, properties: properties };
+        return {departments: departments, properties: properties};
     }
 
     //按钮按下响应事件
@@ -180,13 +189,13 @@ $.fn.user_select = function (options) {
         }
 
         //检测是否已被包含
-        selectHit.find(select_el).each(function(){
+        selectHit.find(select_el).each(function () {
             if (check_method($(this).data("data"), data)) check = check || $(this);
         });
         //如果被包含则退出
         if (!(check === null)) return check;
         //清空所有包含的已选元素
-        selectHit.find(select_el).each(function(){
+        selectHit.find(select_el).each(function () {
             if (check_method(data, $(this).data("data"))) $(this).remove();
         });
 
@@ -196,7 +205,7 @@ $.fn.user_select = function (options) {
             )
             .append(
                 $("<span class = 'glyphicon glyphicon-remove click'></span>")
-                    .click(function(){
+                    .click(function () {
                         removeFilter(this);
                     }).css("color", "red")
             ).css("border-radius", "6px").css("padding", "2px 4px").css("display", "inline-block")
@@ -222,7 +231,9 @@ $.fn.user_select = function (options) {
     // 清空条件
     function clearFilter() {
         if (countFilter() === 0) return;
-        selectHit.find(".us-select").each(function(){ $(this).remove(); });
+        selectHit.find(".us-select").each(function () {
+            $(this).remove();
+        });
         nobodyStateCheck();
         callback_change(getData());
     }
@@ -250,13 +261,62 @@ $.fn.user_select = function (options) {
         mainPanel.append(panel);
     }
 
+
     //
-    /*console.log("yyy");
     for (var i = 0; i < properties.length; i++) {
-        console.log(properties[i]);
-        var panel = parsePanel(accordionID, properties[i], [], 1);
+        var property = properties[i];
+        var collapseID = "collapse-" + random();
+
+        var list_group = $("<div>").addClass("list-group");
+        for (var j = 0; j < property.children.length; j++) {
+            var choice = property.children[j];
+            var sel = {key: property.name, value: choice.name};
+            var display_name = property.display_name + " - " + choice.display_name;
+            list_group.append(
+                $("<button>").addClass("list-group-item").addClass("slow_down")
+                    .text(choice.display_name)
+                    .click(
+                        {
+                            display_name: display_name,
+                            sel: sel
+                        }
+                        , function (evt) {
+                            buttonTriggered({
+                                display_name: evt.data.display_name,
+                                data: evt.data.sel,
+                                mode: 1,
+                                element: $(this)
+                            })
+                        })
+                    .mouseleave(function () {
+                        var btn = $(this);
+                        setTimeout(function () {
+                            btn.tooltip("hide");
+                            btn.tooltip("destroy");
+                        }, 150);
+                    })
+            )
+        }
+
+        var panel = $("<div>").addClass("panel").addClass("panel-primary")
+            .append(
+                $("<div>").addClass("panel-heading").addClass("click")
+                    .attr("data-toggle", "collapse")
+                    .attr("data-parent", "#" + accordionID).attr("data-target", "#" + collapseID)
+                    .append(
+                        $("<h5>").addClass("panel-title").text(property.display_name)
+                    )
+            ).append(
+                $("<div>").attr("id", collapseID).addClass("panel-collapse collapse").append(list_group)
+            )
         mainPanel.append(panel);
-    }*/
+    }
+    /*console.log("yyy");
+     for (var i = 0; i < properties.length; i++) {
+     console.log(properties[i]);
+     var panel = parsePanel(accordionID, properties[i], [], 1);
+     mainPanel.append(panel);
+     }*/
 
     // 被选中内容部分
     // 无选中文字显示
@@ -275,14 +335,14 @@ $.fn.user_select = function (options) {
             $("<button class = 'btn btn-warning'></button>")
                 .append(" <span class = 'glyphicon glyphicon-remove'></span> 清空 ")
                 .css("margin-bottom", "6px").css("margin-right", "4px")
-                .click(function(){
+                .click(function () {
                     clearFilter();
                 })
         ).append(
             $("<button class = 'btn_query btn btn-primary'></button>")
                 .append(" <span class = 'glyphicon glyphicon-filter'></span> 筛选 ")
                 .css("margin-bottom", "6px")
-                .click(function(){
+                .click(function () {
                     callback_filter(getData());
                 })
         );
