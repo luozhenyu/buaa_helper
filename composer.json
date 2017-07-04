@@ -17,6 +17,7 @@
     "phpoffice/phpspreadsheet": "dev-develop",
     "phpoffice/phpword": "^0.13.0",
     "predis/predis": "^1.1",
+    "rishi-ramawat/laravel-postgresql-inherit": "^2.2",
     "torann/geoip": "^1.0",
     "tymon/jwt-auth": "^0.5.11",
     "zizaco/entrust": "^1.8"

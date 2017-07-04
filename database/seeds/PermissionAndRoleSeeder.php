@@ -81,12 +81,12 @@ class PermissionAndRoleSeeder extends Seeder
         ]);
 
 
-        $admin = Role::create([
-            'name' => 'admin',
+        $superAdmin = Role::create([
+            'name' => 'superAdmin',
             'display_name' => '超级管理员',
             'description' => '',
         ]);
-        $admin->attachPermission([
+        $superAdmin->attachPermission([
             $create_user, $delete_user, $modify_all_user, $view_all_user,
             $create_notification, $delete_notification, $modify_all_notification
         ]);
@@ -101,29 +101,29 @@ class PermissionAndRoleSeeder extends Seeder
             $create_notification, $delete_notification, $modify_all_notification
         ]);
 
-        $department_admin = Role::create([
-            'name' => 'department.admin',
+        $departmentAdmin = Role::create([
+            'name' => 'departmentAdmin',
             'display_name' => '部门管理员',
             'description' => '',
         ]);
-        $department_admin->attachPermission([
+        $departmentAdmin->attachPermission([
             $view_all_user,
             $create_notification, $modify_owned_notification
         ]);
 
-        $college_admin = Role::create([
-            'name' => 'college.admin',
-            'display_name' => '学院管理员',
+        $counsellor = Role::create([
+            'name' => 'counsellor',
+            'display_name' => '学院辅导员',
             'description' => '',
         ]);
-        $college_admin->attachPermission([
+        $counsellor->attachPermission([
             $view_owned_user, $modify_owned_user,
             $create_notification, $modify_owned_notification
         ]);
 
-        $normal = Role::create([
-            'name' => 'normal',
-            'display_name' => '普通用户',
+        $student = Role::create([
+            'name' => 'student',
+            'display_name' => '学生用户',
             'description' => '',
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Closure;
 use App\Models\File;
 use App\Models\RealFile;
 use Illuminate\Http\Request;
@@ -97,9 +98,10 @@ class FileController extends Controller
     /**
      * 上传文件
      * @param Request $request
+     * @param Closure|null $callback
      * @return \Illuminate\Http\JsonResponse
      */
-    public function upload(Request $request)
+    public function upload(Request $request, Closure $callback = null)
     {
         $uploadFile = $request->file('upload');
 
@@ -143,6 +145,7 @@ class FileController extends Controller
 
         $file = static::import($uploadFile->getRealPath(), $fileName);
 
+        $callback && $callback($file);
         return response()->json(
             array_merge(["uploaded" => 1], $file->downloadInfo)
         );

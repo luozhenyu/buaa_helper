@@ -111,7 +111,7 @@ class APIController extends Controller
     {
         $user = $request->input('user');
         if (ctype_digit($user)) {
-            if (strlen($user) == 11) {
+            if (strlen($user) === 11) {
                 $credential_type = 'phone';
             } else {
                 $credential_type = 'number';

@@ -2,9 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAccessTokensTable extends Migration
+class CreateQuestionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +14,13 @@ class CreateAccessTokensTable extends Migration
      */
     public function up()
     {
-        Schema::create('access_tokens', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->increments('id');
-            $table->uuid('access_token')->unique();
-            $table->integer('expires_in')->unsigned();
-            $table->timestamps();
-
+            $table->integer('department_id')->unsigned();
             $table->integer('user_id')->unsigned();
+            $table->text('content');
+            $table->text('secret');
+            $table->timestamps();
         });
     }
 
@@ -30,6 +31,6 @@ class CreateAccessTokensTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('access_tokens');
+        Schema::dropIfExists('questions');
     }
 }

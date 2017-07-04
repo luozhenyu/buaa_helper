@@ -26,7 +26,7 @@ class CreateNotificationsTable extends Migration
             $table->mediumText('content');
             $table->timestamps();
         });
-        DB::statement('ALTER TABLE `notifications` ADD FULLTEXT INDEX `ft_index`(`title`,`excerpt`,`content`) WITH PARSER ngram;');
+       // DB::statement('ALTER TABLE `notifications` ADD FULLTEXT INDEX `ft_index`(`title`,`excerpt`,`content`) WITH PARSER ngram;');
     }
 
     /**

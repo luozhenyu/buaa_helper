@@ -66,7 +66,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            'driver' => 'multitype',
             'model' => App\Models\User::class,
             'table' => 'users',
         ],

@@ -8,6 +8,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\SuperAdmin;
+use App\Models\DepartmentAdmin;
+use App\Models\Counsellor;
 
 class UserTableSeeder extends Seeder
 {
@@ -19,31 +22,28 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         DB::beginTransaction();
-        $user = User::create([
+        $superAdmin = SuperAdmin::create([
             'number' => 10000,
             'name' => '超级管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
-        $user->attachRole(Role::where('name', 'admin')->firstOrFail());
-        Auth::login($user);
+        Auth::login($superAdmin);
         $this->setDepartmentAvatar();
 
-        $user = User::create([
+        $departmentAdmin = DepartmentAdmin::create([
             'number' => 10001,
             'name' => '部门管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
-        $user->attachRole(Role::where('name', 'department.admin')->firstOrFail());
 
-        $user = User::create([
+        $counsellor = Counsellor::create([
             'number' => 10002,
-            'name' => '院系管理员',
+            'name' => '学院辅导员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
-        $user->attachRole(Role::where('name', 'college.admin')->firstOrFail());
         DB::commit();
     }
 

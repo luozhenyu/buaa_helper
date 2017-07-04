@@ -3,12 +3,6 @@
 namespace App\Providers;
 
 use App\Models\File;
-use App\Observers\CityObserver;
-use App\Observers\DepartmentObserver;
-use App\Observers\FileObserver;
-use App\Observers\NotificationObserver;
-use App\Observers\PropertyObserver;
-use App\Observers\UserObserver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;

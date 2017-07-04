@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use App\Providers\Auth\MultitypeUserProvider;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Hashing\BcryptHasher;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -24,6 +28,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Auth::provider('multitype', function ($app, array $config) {
+            $model = $config['model'];
+            return new MultitypeUserProvider(new BcryptHasher(), $model);
+        });
     }
 }

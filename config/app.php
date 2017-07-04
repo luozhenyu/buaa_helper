@@ -173,6 +173,7 @@ return [
         Mews\Purifier\PurifierServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        RishiRamawat\PostgresSchema\PostgresqlSchemaServiceProvider::class,
         /*
          * Application Service Providers...
          */
