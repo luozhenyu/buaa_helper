@@ -214,7 +214,7 @@
                             附件列表
                             <span class="btn btn-default btn-sm" id="attachmentBtn">
                                 <span class="glyphicon glyphicon-file"></span>
-                                添加附件 {{ \App\Http\Controllers\FileController::limitHit() }}
+                                添加附件 {{ \App\Http\Controllers\FileController::uploadLimitHit() }}
                             </span>
                         </h3>
                     </div>

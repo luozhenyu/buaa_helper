@@ -38,8 +38,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapWebRoutes();
 
         $this->mapApiRoutes();
-
-        $this->mapMobileRoutes();
     }
 
     /**
@@ -70,20 +68,5 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('web')
             ->namespace($this->namespace)
             ->group(base_path('routes/web.php'));
-    }
-
-    /**
-     * Define the "mobile" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     *
-     * @return void
-     */
-    protected function mapMobileRoutes()
-    {
-        Route::domain('m.ourbuaa.com')
-            ->middleware('web')
-            ->namespace($this->namespace)
-            ->group(base_path('routes/mobile.php'));
     }
 }

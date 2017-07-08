@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Question extends Model
+class Inquiry extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -37,18 +37,18 @@ class Question extends Model
      * 此问题的回复
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function questionReply()
+    public function inquiryReply()
     {
-        return $this->hasMany('App\Models\QuestionReply');
+        return $this->hasMany('App\Models\InquiryReply');
     }
 
     public static function boot()
     {
         parent::boot();
 
-        static::deleted(function (Question $question) {
-            foreach ($question->questionReply as $questionReply) {
-                $questionReply->delete();
+        static::deleted(function (Inquiry $inquiry) {
+            foreach ($inquiry->inquiryReply as $inquiryReply) {
+                $inquiryReply->delete();
             }
         });
     }

@@ -105,7 +105,7 @@
                 <img id="avatarImg" src="{{ (new \App\Models\User)->avatarUrl }}" class="img-thumbnail">
                 <input id="avatarInput" type="hidden" name="avatar" value="{{ old('avatar') }}">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::limitHit() }}
+                    选择图片 {{ \App\Http\Controllers\FileController::uploadLimitHit() }}
                 </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">

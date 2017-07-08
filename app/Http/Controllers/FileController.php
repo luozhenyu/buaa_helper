@@ -25,7 +25,7 @@ class FileController extends Controller
      * 大小限制提示
      * @return string
      */
-    public static function limitHit()
+    public static function uploadLimitHit()
     {
         $limit = round(static::UPLOAD_MAX_SIZE / 1024 / 1024, 2);
         return "[大小限制:{$limit}MB]";
@@ -36,7 +36,7 @@ class FileController extends Controller
      * @param string $source
      * @return \App\Models\RealFile|bool
      */
-    private static function createRealFile($source)
+    protected static function createRealFile(string $source)
     {
         if (!file_exists($source)) {
             return false;
@@ -76,7 +76,7 @@ class FileController extends Controller
      * @param string|null $fileName
      * @return File|bool
      */
-    public static function import($source, $fileName = null)
+    public static function import(string $source, string $fileName = null)
     {
         if (!$realFile = static::createRealFile($source)) {
             return false;
@@ -107,24 +107,24 @@ class FileController extends Controller
 
         if (!$uploadFile || !$uploadFile->isValid()) {
             return response()->json([
-                "uploaded" => 0,
-                "message" => "文件上传失败，原因可能是文件过大",
+                'uploaded' => 0,
+                'message' => '文件上传失败，原因可能是文件过大',
             ]);
         }
 
         $size = $uploadFile->getSize();
         if ($size <= 0 || $size > static::UPLOAD_MAX_SIZE) {
             return response()->json([
-                "uploaded" => 0,
-                "message" => "文件超过最大允许长度" . static::limitHit(),
+                'uploaded' => 0,
+                'message' => '文件超过最大允许长度' . static::uploadLimitHit(),
             ]);
         }
 
         $fileName = $uploadFile->getClientOriginalName();
         if (strlen($fileName) > 200) {
             return response()->json([
-                "uploaded" => 0,
-                "message" => "文件名最多为200字符",
+                'uploaded' => 0,
+                'message' => '文件名最多为200字符',
             ]);
         }
 
@@ -137,8 +137,8 @@ class FileController extends Controller
                     ->save();
             } catch (NotReadableException $e) {
                 return response()->json([
-                    "uploaded" => 0,
-                    "message" => "文件不是图片类型",
+                    'uploaded' => 0,
+                    'message' => '文件不是图片类型',
                 ]);
             }
         }
@@ -147,7 +147,7 @@ class FileController extends Controller
 
         $callback && $callback($file);
         return response()->json(
-            array_merge(["uploaded" => 1], $file->downloadInfo)
+            array_merge(['uploaded' => 1], $file->downloadInfo)
         );
     }
 
@@ -162,7 +162,7 @@ class FileController extends Controller
         unset($file);
         $absolutePath = Storage::url($realFile->relativePath);
 
-        if (str_is("image/*", $realFile->mime)) {
+        if (str_is('image/*', $realFile->mime)) {
             return response()->file($absolutePath, [
                 'Content-Type' => $realFile->mime
             ]);

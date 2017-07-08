@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class QuestionReply extends Model
+class InquiryReply extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -30,6 +30,6 @@ class QuestionReply extends Model
      */
     public function question()
     {
-        return $this->belongsTo('App\Models\Question');
+        return $this->belongsTo('App\Models\Inquiry');
     }
 }

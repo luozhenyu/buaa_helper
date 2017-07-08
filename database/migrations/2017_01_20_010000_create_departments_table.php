@@ -17,8 +17,10 @@ class CreateDepartmentsTable extends Migration
             $table->increments('id');
             $table->integer('number')->unsigned()->unique();
             $table->string('name', 100)->unique();
-            $table->integer('avatar')->unsigned()->nullable();
             $table->text('description');
+
+            $table->integer('default_file_id')->unsigned()->nullable();
+            $table->integer('file_id')->unsigned()->nullable();
         });
     }
 

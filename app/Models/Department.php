@@ -19,32 +19,21 @@ class Department extends Model
     ];
 
     /**
-     * 更改院系图标
-     * @param string $relativePath
-     */
-    public function changeAvatar($relativePath)
-    {
-        $file = FileController::import($relativePath);
-        $this->avatar()->associate($file);
-        $this->save();
-    }
-
-    /**
-     * 部门拥有的头像
+     * 部门的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function avatarFile()
+    public function avatar()
     {
-        return $this->belongsTo('App\Models\File', 'avatar', 'id');
+        return $this->belongsTo('App\Models\File', 'file_id', 'id');
     }
 
     /**
-     * 用户头像的链接
-     * @return string
+     * 部门的默认头像
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function getAvatarUrlAttribute()
+    public function defaultAvatar()
     {
-        return ($avatar = $this->avatarFile) ? $avatar->downloadInfo['url'] : null;
+        return $this->belongsTo('App\Models\File', 'default_file_id', 'id');
     }
 
     /**

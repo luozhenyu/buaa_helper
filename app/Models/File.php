@@ -15,14 +15,19 @@ class File extends Model
         'hash', 'fileName',
     ];
 
+    public function getUrlAttribute()
+    {
+        $domain = env('APP_URL');
+        $domain .= (substr($domain, -1) === '/' ? '' : '/');
+        return $domain . 'file/' . $this->hash;
+    }
+
     /**
      * 下载此文件相关信息
      * @return array
      */
-    public function getDownloadInfoAttribute()
+    public function getFileInfoAttribute()
     {
-        $domain = env('APP_URL');
-        $domain .= (substr($domain, -1) === '/' ? '' : '/');
         $realFile = $this->realFile;
         return [
             'hash' => $this->hash,
@@ -30,7 +35,7 @@ class File extends Model
             'sha1' => $realFile->sha1,
             'size' => $realFile->size,
             'mime' => $realFile->mime,
-            'url' => $domain . 'file/download/' . $this->hash,
+            'url' => $this->url,
         ];
     }
 

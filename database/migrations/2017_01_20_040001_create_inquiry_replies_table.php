@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateQuestionRepliesTable extends Migration
+class CreateInquiryRepliesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,9 @@ class CreateQuestionRepliesTable extends Migration
      */
     public function up()
     {
-        Schema::create('question_replies', function (Blueprint $table) {
+        Schema::create('inquiry_replies', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('question_id')->unsigned();
+            $table->integer('inquiry_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->text('content');
             $table->timestamps();
@@ -30,6 +30,6 @@ class CreateQuestionRepliesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('question_replies');
+        Schema::dropIfExists('inquiry_replies');
     }
 }

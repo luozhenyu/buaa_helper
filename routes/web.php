@@ -64,6 +64,12 @@ $this->get('/notification/{id}/statistic', 'NotificationController@statisticExce
 //Inquiry
 $this->get('/inquiry', 'InquiryController@index')->name('inquiry');
 
+$this->get('/inquiry/{department_id}', 'InquiryController@department');
+$this->post('/inquiry/{department_id}', 'InquiryController@create');
+
+$this->get('/inquiry/{department_id}/{question_id}', 'InquiryController@show');
+$this->post('/inquiry/{department_id}/{question_id}', 'InquiryController@reply');
+
 
 //Login Logout
 $this->get('/login', 'Auth\LoginController@showLoginForm')->name('login');
@@ -87,4 +93,4 @@ $this->post('/password/reset', 'Auth\ResetPasswordController@reset')->name('pass
 
 //File upload
 $this->post('/file/upload', 'FileController@upload');
-$this->get('/file/download/{sha1}', 'FileController@download');
+$this->get('/file/{sha1}', 'FileController@download');

@@ -133,7 +133,7 @@
                 <input id="avatarInput" type="hidden" name="avatar"
                        value="{{ ($avatarFile = $user->avatarFile)? $avatarFile->hash :'' }}">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::limitHit() }}
+                    选择图片 {{ \App\Http\Controllers\FileController::uploadLimitHit() }}
                 </span>
                 @if ($errors->has('avatar'))
                     <span class="help-block">
