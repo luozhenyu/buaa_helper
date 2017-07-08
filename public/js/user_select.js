@@ -351,4 +351,5 @@ $.fn.user_select = function (options) {
     var userSelect = $("<div>").append(selectHit).append(filterButton).append(mainPanel);
 
     $(this).empty().append(userSelect);
+    return $(this);
 };

@@ -40,29 +40,13 @@
     {{--<h2>这个是留言面板qaq</h2>--}}
     {{--<h3 style="color:grey;">尚未完成，敬请期待</h3>--}}
     <div class="container">
-        <div class="col-md-4">
-            <div class="input-group">
-                <input type="search" class="form-control" name="wd" placeholder="学号／工号／姓名">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-search"></span> 搜索
-                    </button>
-                </span>
+        <div class="col-md-6">
+
+            <div style = "max-height: 500px;overflow: auto;">
+                <div class="select-panel-main" style = "border: 1px solid black">
+                </div>
             </div>
 
-            <div class="select-field">
-                <h4 class="select-hit">(未选中对象)</h4>
-            </div>
-
-            <div style="padding-top: 6px;text-align: right;">
-                <button class="btn btn-primary">
-                    <span class="glyphicon glyphicon-filter"></span>筛选
-                </button>
-            </div>
-
-            <div class="select-panel-main" style = "border: 1px solid black">
-            </div>
         </div>
-        <div class="col-md-8">1</div>
     </div>
 @endsection

@@ -9,10 +9,6 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-        $users = User::select([
-            'range' => [
-            ],
-        ])->get();
-        dd($users);
+        dd(User::get());
     }
 }
