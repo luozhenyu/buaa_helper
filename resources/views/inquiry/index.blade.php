@@ -5,48 +5,157 @@
 <li class="active">留言管理</li>
 @endpush
 
-@push('cssLink')
-<link rel="stylesheet" href="{{ url('/css/user_select.css') }}">
-@endpush
+@push("css")
+<style>
+    a, button, .slow-down {
+        -webkit-transition-duration: 0.45s;
+        transition-duration: 0.45s;
+    }
 
-@push('jsLink')
-<script src="{{ url('/js/paginate.js') }}"></script>
-<script src="{{ url('/js/user_select.js') }}"></script>
-@endpush
+    .bh-inquiry-title {
+        text-align: center;
+        margin: 8px 0px 13px 0px;
+        font-size: 30px;
+        font-weight: bold;
+    }
 
-@push('js')
-<script>
+    .bh-inquiry-subtitle {
+        text-align: center;
+        margin: 4px 0px 8px 0px;
+        font-size: 18px;
+        color: gray;
+    }
 
-    $(function () {
-        var data = {!! json_encode($data) !!};
-        console.log(data);
-        $(".select-panel-main").user_select({
-            data: data,
-            callback_change: function(data){
-                console.log(data)
-            },
-            callback_filter: function(data){
-                console.log(JSON.stringify(data));
-            }
+    .bh-inquiry-plate .panel-heading .panel-title {
+        padding: 5px;
+        font-size: 18px;
+        font-weight: bold;
+    }
 
+    .bh-inquiry-plate .panel-body {
+        width: 100%;
+        padding: 4px;
+    }
 
-        });
-    });
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block {
+        display: inline-block;
+        vertical-align: middle;
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 6px;
+        white-space: nowrap;
 
-</script>
+        margin-top: 5px;
+        margin-bottom: 5px;
+        margin-left: 0.2%;
+        margin-right: 0.2%;
+        width: 24.1%;
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block:hover {
+        border: 1px solid #2277da;
+        background-color: #eeeeee;
+        cursor: pointer;
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block > a {
+        text-decoration: none;
+        color: black;
+    }
+
+    @media (max-width: 1132px) {
+        .bh-inquiry-plate .panel-body > .bh-inquiry-block {
+            margin-right: 0.6%;
+            margin-left: 0.6%;
+            width: 31.5%;
+        }
+    }
+
+    @media (max-width: 692px) {
+        .bh-inquiry-plate .panel-body > .bh-inquiry-block {
+            margin-right: 1%;
+            margin-left: 1%;
+            width: 47.5%;
+        }
+    }
+
+    @media (max-width: 532px) {
+        .bh-inquiry-plate .panel-body > .bh-inquiry-block {
+            margin-right: 1.3%;
+            margin-left: 1.3%;
+            width: 97%;
+        }
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-inner {
+        margin-right: 45px;
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-icon,
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-content {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-icon > img {
+        border-radius: 8px;
+        width: 45px;
+    }
+
+    .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-content > * {
+        white-space: normal;
+        margin-right: 7px;
+        font-size: 18px;
+    }
+</style>
 @endpush
 
 @section('content')
-    {{--<h2>这个是留言面板qaq</h2>--}}
-    {{--<h3 style="color:grey;">尚未完成，敬请期待</h3>--}}
-    <div class="container">
-        <div class="col-md-6">
-
-            <div style = "max-height: 500px;overflow: auto;">
-                <div class="select-panel-main" style = "border: 1px solid black">
+    <h3 class="bh-inquiry-title">板块列表</h3>
+    <h5 class="bh-inquiry-subtitle">请选择一个留言的板块
+    </h5>
+    <div class="panel panel-info bh-inquiry-plate">
+        <div class="panel-heading">
+            <h5 class="panel-title">学院</h5>
+        </div>
+        <div class="panel-body">
+            @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key => $value)
+                <div class="bh-inquiry-block slow-down">
+                    <a href="/inquiry/{{ $value->number }}">
+                        <div class="bh-inquiry-block-inner">
+                            <div class="bh-inquiry-block-icon">
+                                <img src="{{ $value->defaultAvatar->url }}" alt="{{ $value->name }}">
+                            </div>
+                            <div class="bh-inquiry-block-content">
+                                <h5>{{ $value->name }}</h5>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </div>
-
+            @endforeach
         </div>
     </div>
+
+    <div class="panel panel-info bh-inquiry-plate">
+        <div class="panel-heading">
+            <h5 class="panel-title">机关部处</h5>
+        </div>
+        <div class="panel-body">
+            @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
+                <div class="bh-inquiry-block slow-down">
+                    <a href="/inquiry/{{ $value->number }}">
+                        <div class="bh-inquiry-block-inner">
+                            <div class="bh-inquiry-block-icon">
+                                <img src="{{ $value->defaultAvatar->url }}" alt="{{ $value->name }}">
+                            </div>
+                            <div class="bh-inquiry-block-content">
+                                <h5>{{ $value->name }}</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
 @endsection

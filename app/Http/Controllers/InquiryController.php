@@ -15,6 +15,26 @@ class InquiryController extends Controller
 
     public function index(Request $request)
     {
+        return view('inquiry.index');
+    }
 
+    public function department(Request $request)
+    {
+        return view('inquiry.department');
+    }
+
+    public function create(Request $request)
+    {
+        return;
+    }
+
+    public function show(Request $request)
+    {
+        return view('inquiry.show');
+    }
+
+    public function reply(Request $request)
+    {
+        return;
     }
 }

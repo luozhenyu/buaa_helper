@@ -126,9 +126,49 @@ class User extends Authenticatable
      */
     public static function select(array $condition, int $limit = null)
     {
+        $query = new static;
+        if (!is_null($limit)) {
+            $query = $query->whereHas('department', function ($subQuery) use ($limit) {
+                $subQuery->where('number', $limit);
+            });
+        }
+
+        if (!key_exists('range', $condition)) {
+            throw new Exception('range键不存在');
+        }
+
+        $query = $query->whereHas(function ($subQuery) use ($condition) {
+            list($ALL, $ALL_COLLEGE, $ALL_OFFICE) = [-1, 0, 100];
+
+            foreach ($condition['range'] as $item) {
+                $department = $item['department'] ?? null;
+                if (is_null($department)) {
+                    throw new Exception("department键不存在");
+                }
+                $limit = [['properties.name', 'grade']];
+                if ($department === $ALL) {//所有人
+                    $limit[] = ['departments.number', '>', 0];
+                } else if ($department === $ALL_COLLEGE) {//所有院系
+                    $limit[] = ['departments.number', '<', 100];
+                } else if ($department === $ALL_OFFICE) {//所有部门
+                    $limit[] = ['departments.number', '>', 100];
+                } else {//指定院系或部门
+                    $limit[] = ['departments.number', $department];
+                }
+
+                $grade = $item['grade'] ?? null;
+                if ($grade) {
+                    $limit[] = ['property_values.name', $grade];
+                }
+                $subQuery = $subQuery->orWhere($limit);
+            }
+        });
+
+        return;
+
         $query = static::join('departments', 'users.department_id', 'departments.id')
             ->join('properties', 'property_user.property_id', 'properties.id')
-//            ->join('property_values', 'property_user.property_value_id', 'property_values.id')
+            ->join('property_values', 'property_user.property_value_id', 'property_values.id')
             //role
             ->join('role_user', 'users.id', 'role_user.user_id')
             ->join('roles', 'roles.id', 'role_user.role_id');

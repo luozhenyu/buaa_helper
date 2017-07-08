@@ -28,10 +28,8 @@
 <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 
 <script src="{{ url('/js/file_upload.js') }}"></script>
-<script src="{{ url('/js/city_choose.js') }}"></script>
 @endpush
 
-@php($tree = ($place = \App\Models\City::where('code',$user->getProperty('native_place'))->first())? $place->tree() :[])
 @push('js')
 <script>
     $(function () {

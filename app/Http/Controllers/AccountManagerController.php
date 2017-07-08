@@ -23,71 +23,9 @@ class AccountManagerController extends Controller
         $this->middleware('auth', ['except' => 'getImportTemplate']);
     }
 
-    private $orders = [
-        'department_id' => [
-            'name' => '院系',
-            'by' => 'asc',
-        ],
-        'number' => [
-            'name' => '学号/工号',
-            'by' => 'asc',
-        ],
-        'name' => [
-            'name' => '姓名',
-            'by' => 'asc',
-        ],
-    ];
-
     public function index(Request $request)
     {
-        if (EntrustFacade::can('view_all_user')) {
-            $query = new User;
-        } else if (EntrustFacade::can('view_owned_user')) {
-            $query = Auth::user()->department->users();
-        } else {
-            return abort(403);
-        }
-
-        if ($wd = $request->input('wd')) {
-            $qWd = str_replace("_", "\\_", $wd);
-            $qWd = str_replace("%", "\\%", $qWd);
-            $qWd = str_replace("\\", "\\\\", $qWd);
-            $qWd = "%{$qWd}%";
-            $query = $query->where('number', 'like', $qWd)
-                ->orWhere('name', 'like', $qWd);
-        }
-        //orderBy
-        $sort = $request->input('sort');
-        $by = $request->input('by');
-        if (!$wd || $sort || $by) {
-            if (!array_key_exists($sort, $this->orders)) {
-                $sort = 'number';//默认number
-            }
-            if (!in_array($by, ['asc', 'desc'])) {
-                $by = $this->orders[$sort]['by'];
-            }
-            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
-            $query = $query->orderBy($sort, $by);
-        }
-
-        //paginate
-        $users = $query->with('department')->paginate(15)
-            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
-
-        if ($page = intval($request->input('page'))) {
-            if ($page > ($lastPage = $users->lastPage()))
-                return redirect($users->url($lastPage));
-            if ($page < 1)
-                return redirect($users->url(1));
-        }
-
-        return view('accountManager.index'
-            , [
-                'users' => $users,
-                'wd' => $wd,
-                'orders' => $this->orders,
-            ]
-        );
+        return view('accountManager.index');
     }
 
     public function show(Request $request, $id)
@@ -102,9 +40,8 @@ class AccountManagerController extends Controller
             return abort(403);
         }
         abort_unless($authUser->can(['modify_all_user', 'modify_owned_user']), 403);
-
         return view('accountManager.modify', [
-            'user' => $user,
+            'user' => User::downcasting($user),
         ]);
     }
 
