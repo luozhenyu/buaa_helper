@@ -426,7 +426,7 @@
                             <form class="form-iniline" role="form" method="get"
                                   action="{{ route('accountManager') }}">
                                 <div class="input-group">
-                                    <input type="search" class="form-control" name="wd" value="{{ $wd }}"
+                                    <input type="search" class="form-control" name="wd" value="{{ "" }}"
                                            placeholder="学号／工号／姓名">
                                     <span class="input-group-btn">
                                     <button type="submit" class="btn btn-primary">

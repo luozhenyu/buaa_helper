@@ -121,6 +121,11 @@
         width: 50px;
     }
 
+    @media (max-width: 596px) {
+        .bh-inquiry-head-icon { width: 30px; }
+        .bh-inquiry-head-icon img { width: 30px; }
+    }
+
     .bh-inquiry-detail-recode {
         padding-top: 5px;
         padding-left: 10px;
@@ -129,24 +134,24 @@
     .bh-inquiry-list-item-black .bh-inquiry-detail-recode-identity,
     .bh-inquiry-list-item-black .bh-inquiry-detail-recode-time,
     .bh-inquiry-list-item-black .bh-inquiry-detail-recode-content,
-    .bh-inquiry-list-item-black .bh-inquiry-detail-recode-secret {
+    .bh-inquiry-list-item-black .bh-inquiry-detail-recode-secret-full {
         color: black;
     }
 
     .bh-inquiry-list-item-black .bh-inquiry-detail-recode-content,
-    .bh-inquiry-list-item-black .bh-inquiry-detail-recode-secret {
+    .bh-inquiry-list-item-black .bh-inquiry-detail-recode-secret-full {
         background-color: #f8f8f8;
     }
 
     .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-identity,
     .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-time,
     .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-content,
-    .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-secret {
+    .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-secret-full {
         color: #858585;
     }
 
     .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-content,
-    .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-secret {
+    .bh-inquiry-list-item-gray .bh-inquiry-detail-recode-secret-full {
         background-color: #f6f6f6;
     }
 
@@ -166,10 +171,13 @@
     }
 
     .bh-inquiry-detail-recode-content,
-    .bh-inquiry-detail-recode-secret {
+    .bh-inquiry-detail-recode-secret-content {
         word-wrap: break-word;
         white-space: pre-wrap;
+    }
 
+    .bh-inquiry-detail-recode-content,
+    .bh-inquiry-detail-recode-secret-full {
         border-radius: 5px;
         border: none;
         padding: 7px 12px;
@@ -185,9 +193,9 @@
 
 @push("js")
 <script>
-    $(function(){
+    $(function () {
         // 左侧信息栏自动滚动（窄屏时无效）
-        var scroll_info_check = function(){
+        var scroll_info_check = function () {
             var info_margin = 0; // 窄屏幕下默认margin-top: 0px;
             if (!($(".bh-inquiry-left").css("width") === $(".bh-inquiry-right").css("width"))) {
                 // 识别为宽屏幕，根据滚动状况进行自动调整
@@ -199,6 +207,31 @@
         };
         scroll_info_check();
         $(window).scroll(scroll_info_check).resize(scroll_info_check);
+
+        // 显示或隐藏机密信息
+        $(".bh-inquiry-detail-recode-show-secret").click(function () {
+            if ($(this).hasClass("glyphicon-eye-open")) {  //展开机密信息
+                $(this).removeClass("glyphicon-eye-open");
+                $(this).addClass("glyphicon-eye-close");
+            } else if ($(this).hasClass("glyphicon-eye-close")) {  //隐藏机密信息
+                $(this).removeClass("glyphicon-eye-close");
+                $(this).addClass("glyphicon-eye-open");
+            }
+            open_state_check(this);
+        });
+        // 检测机密显示状态
+        var open_state_check = function (secret_box) {
+            var full_box = $(secret_box).parent().parent();
+            var content_box = $(full_box).find(".bh-inquiry-detail-recode-secret-content");
+            var content_hidden = $(full_box).find(".bh-inquiry-detail-recode-secret-content-hidden");
+            if ($(secret_box).hasClass("glyphicon-eye-close")) {  //展开机密信息
+                $(content_box).removeClass("hidden");
+                $(content_hidden).addClass("hidden");
+            } else if ($(secret_box).hasClass("glyphicon-eye-open")) {  //隐藏机密信息
+                $(content_box).addClass("hidden");
+                $(content_hidden).removeClass("hidden");
+            }
+        }
     });
 </script>
 @endpush
@@ -227,9 +260,11 @@
                 </h5>
                 <h5>
                     状态：
-                    <span class="label label-danger" style="font-size: 14px">待回答</span>
-                    <!--<span class = "label label-warning" style = "font-size: 14px">待确认解决</span>-->
+                    <span class="label label-warning" style="font-size: 14px">待回答</span>
+                    <!--<span class="label label-warning" style="font-size: 14px">待回答（追问）</span>-->
+                    <!--<span class = "label label-info" style = "font-size: 14px">待确认解决</span>-->
                     <!--<span class = "label label-success" style = "font-size: 14px">已解决</span>-->
+                    <!--<span class = "label label-danger" style = "font-size: 14px">已关闭</span>-->
                 </h5>
 
             </div>
@@ -260,8 +295,18 @@
                                     2017-06-19 00:30:19
                                 </div>
                             </div>
-                            <pre class="bh-inquiry-detail-recode-content">Questionor.cn上不去了</pre>
-                            <pre class="bh-inquiry-detail-recode-secret"><b>机密信息：</b></br>******</pre>
+                            <div class="bh-inquiry-detail-recode-content">Questionor.cn上不去了</div>
+
+                            <div class="bh-inquiry-detail-recode-secret-full">
+                                <b>机密信息：
+                                    <span class="bh-inquiry-detail-recode-show-secret glyphicon glyphicon-eye-open click"></span>
+                                </b>
+                                <div class="bh-inquiry-detail-recode-secret">
+                                    <i class="bh-inquiry-detail-recode-secret-content-hidden"><b>******</b></i>
+                                    <i class="bh-inquiry-detail-recode-secret-content hidden">你苟利国家
+                                        生死以，岂因祸福避趋之，天若有情天亦老，我为蛤蛤续一秒，好</i>
+                                </div>
+                            </div>
                         </div>
                     </li>
 
@@ -279,60 +324,10 @@
                                     2017-06-19 00:30:19
                                 </div>
                             </div>
-                            <pre class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</pre>
+                            <div class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</div>
                         </div>
                     </li>
 
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="departmentLogo/109.png" alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    管理员回复
-                                </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
-                            </div>
-                            <pre class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</pre>
-                        </div>
-                    </li>
-
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="departmentLogo/109.png" alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    管理员回复
-                                </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
-                            </div>
-                            <pre class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</pre>
-                        </div>
-                    </li>
-
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="departmentLogo/109.png" alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    管理员回复
-                                </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
-                            </div>
-                            <pre class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</pre>
-                        </div>
-                    </li>
 
                     <li class="bh-inquiry-list-item bh-inquiry-list-item-gray">
                         <div class="bh-inquiry-head-icon">
@@ -348,7 +343,7 @@
                                     2017-06-19 00:30:19
                                 </div>
                             </div>
-                            <pre class="bh-inquiry-detail-recode-content">不行啊，Questionor.cn还是上不去，究竟怎么回事，求尽快解决，我们还要复习航概，谢谢</pre>
+                            <div class="bh-inquiry-detail-recode-content">不行啊，Questionor.cn还是上不去，究竟怎么回事，求尽快解决，我们还要复习航概，谢谢</div>
                         </div>
                     </li>
 
@@ -366,7 +361,7 @@
                                     2017-06-19 00:30:19
                                 </div>
                             </div>
-                            <pre class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</pre>
+                            <div class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</div>
                         </div>
                     </li>
 

@@ -115,6 +115,9 @@
                         <span class = "label label-warning">
                             <span class = "glyphicon glyphicon-time"></span>待回答
                         </span>
+                        <span class = "label label-warning">
+                            <span class = "glyphicon glyphicon-time"></span>待回答（追问）
+                        </span>
                         <span class = "label label-info">
                             <span class = "glyphicon glyphicon-comment"></span>待确认解决
                         </span>
