@@ -9,10 +9,8 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-        $users = User::select([
-            'range' => [
-            ],
-        ])->get();
+        $lim = json_decode("{\"range\":[{\"department\":-1}],\"property\":{}}", true);
+        $users = User::select($lim,21)->get();
         dd($users);
     }
 }

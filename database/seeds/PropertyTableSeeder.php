@@ -85,7 +85,7 @@ class PropertyTableSeeder extends Seeder
             'display_name' => '籍贯',
             'description' => '籍贯',
         ])->propertyValues();
-        City::get()->each(function ($item, $key) use ($propertyValues) {
+        City::doesntHave('parent')->each(function ($item, $key) use ($propertyValues) {
             $propertyValues->create(['name' => $item->code, 'display_name' => $item->name]);
         });
     }
