@@ -116,7 +116,8 @@
 
 
 @push('jsLink')
-<script src="/js/paginate.js"></script>
+<script src = "/js/paginate.js"></script>
+<script src = "/js/user_select.js"></script>
 @endpush
 @push('js')
 <script>
@@ -227,17 +228,19 @@
 
                                 $("#table_content").append(
                                     $("<tr></tr>").append(
-                                        $("<td></td>").append(
-                                            $("<span></span>")
-                                                .attr("data-toggle", "tooltip").attr("title", dat.department_name)
-                                                .append(dat.department)
+                                        $("<td>")
+                                            .addClass("bh-account-list-department")
+                                            .append(
+                                                $("<span>")
+                                                    .attr("data-toggle", "tooltip").attr("title", dat.department_name)
+                                                    .append(dat.department)
                                         )
                                     ).append(
-                                        $("<td></td>").append(dat.number)
+                                        $("<td>").addClass("bh-account-list-number").append(dat.number)
                                     ).append(
-                                        $("<td></td>").append(dat.name)
+                                        $("<td>").addClass("bh-account-list-name").append(dat.name)
                                     ).append(
-                                        $("<td></td>").append(dat.role)
+                                        $("<td>").addClass("bh-account-list-role").append(dat.role)
                                     ).append(
                                         btn_modify
                                     )
@@ -437,6 +440,17 @@
                             </form>
                         </div>
 
+                        <div class = "bh-account-selector">
+
+                        </div>
+                        <script>
+                            $(function(){
+                                $(".bh-account-selector").user_select({
+
+                                })
+                            })
+                        </script>
+                        {{-- <!--
                         <div class="selected_content">
                             <h4 class="empty_label">(无任何选中对象)</h4>
                         </div>
@@ -581,6 +595,7 @@
                                 </div>
                             </div>
                         </div>
+                        --> --}}
                     </div>
                 </div>
             </td>
@@ -655,11 +670,22 @@
 
                     <thead>
                     <tr>
+                        <th>
+                            院系 / 部门
+                        </th>
+                        <th>
+                            学号 / 工号
+                        </th>
+                        <th>
+                            姓名
+                        </th>
+                        {{--
                         @foreach($orders as $key => $value)
                             <th>
                                 <a href="{{ route('accountManager').'?wd='.$wd.'&sort='.$key.'&by='.$value['by'] }}">{{ $value['name'] }}</a>
                             </th>
                         @endforeach
+                        --}}
                         <th>账号类型</th>
                         <th></th>
                     </tr>

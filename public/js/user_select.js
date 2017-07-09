@@ -4,14 +4,14 @@
 $.fn.user_select = function (options) {
     //默认设置
     var defaults = {
-        data: null,
-        callback_change: function (data) {
+        data: null,  //选择数据
+        callback_change: function (data) {  //选择内容改变时的回调函数（data为最新的数据）
             return null;
         },
-        callback_filter: function (data) {
+        callback_filter: function (data) {  //点击筛选时的回调函数（data为最新的数据）
             return null;
         },
-        department_relation_check: function (parent, child) {
+        department_relation_check: function (parent, child) {  //部门从属关系判定，一般情况下缺省即可
             //全体成员
             if (parent.department === -1) return true;
             if (child.department === -1) return false;
@@ -33,11 +33,11 @@ $.fn.user_select = function (options) {
 
             return false;
         },
-        property_relation_check: function (parent, child) {
+        property_relation_check: function (parent, child) {  //属性从属关系，一般情况下缺省即可
             if ((parent.key === child.key) && (parent.value === child.value)) return true;
             return false;
         },
-        conflict_template: function (conflict_name, conflict_data) {
+        conflict_template: function (conflict_name, conflict_data) {  //冲突提示模板，一般情况下缺省即可
             return $("<div>").append(
                 $("<h5>").text("该限制存在冲突")
             ).append(
