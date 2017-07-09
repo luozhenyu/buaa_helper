@@ -12,7 +12,7 @@ function Filter(options) {
                 return null;
             }
         }
-    }
+    };
     this.settings = $.extend(defaults, options);
 
     this.bind = function (filter, options) {
@@ -59,7 +59,7 @@ function Filter(options) {
             } else {
                 emp.removeClass("hidden");
             }
-        }
+        };
 
         var select_div = main_box.find(".select_div").css("padding-top", "8px");
 
@@ -75,7 +75,7 @@ function Filter(options) {
                     .append(
                         $("<div id = 'range_select' class = 'panel-collapse collapse'></div>")
                     )
-            )
+            );
             var range_select = box.find("#range_select");
 
             var make_ranges = function (data, data_list, name_list) {
@@ -123,7 +123,7 @@ function Filter(options) {
                     lst.append(div)
                 }
                 return lst;
-            }
+            };
 
             range_select.append(make_ranges(ranges, [], []));
         }
@@ -131,7 +131,7 @@ function Filter(options) {
         if (limits.length > 0) {
 
         }
-    }
+    };
 
     this.getResult = function () {
 

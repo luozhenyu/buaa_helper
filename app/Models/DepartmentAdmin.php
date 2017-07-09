@@ -6,44 +6,57 @@ use App\Models\ModelInterface\HasDepartmentAvatar;
 
 class DepartmentAdmin extends Admin implements HasDepartmentAvatar
 {
-    /**
-     * 此用户所属department的头像
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function departmentAvatar()
+    public function __construct(array $attributes = [])
     {
-        $department = $this->department;
-        return $department->avatar ?? $department->defaultAvatar;
-    }
-
-    /**
-     * 设置此用户所属department的头像
-     * @param File $file
-     */
-    public function setDepartmentAvatar(File $file)
-    {
-        $department = $this->department;
-        $department->avatar()->associate($file);
-        $department->save();
-    }
-
-    /**
-     * 恢复此用户所属department的默认头像
-     */
-    public function restoreDefault()
-    {
-        $department = $this->department;
-        $department->avatar()->dissociate();
-        $department->save();
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, [
+            'view_all_user',
+        ]);
     }
 
     public static function boot()
     {
         parent::boot();
+    }
 
-        static::created(function (DepartmentAdmin $user) {
-            $role = Role::where('name', 'departmentAdmin')->firstOrFail();
-            $user->attachRole($role);
-        });
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'DepartmentAdmin',
+            'display_name' => '部门管理员',
+        ];
+    }
+
+    /**
+     * 设置用户的头像
+     * @param File $file
+     * @return void
+     */
+    public function setAvatar(File $file)
+    {
+        $department = $this->department;
+        $department->customAvatar()->associate($file);
+        $department->save();
+    }
+
+    /**
+     * 获得用户头像的链接
+     * @return string
+     */
+    public function getAvatarUrlAttribute()
+    {
+        $department = $this->department;
+        return $department->avatar->url;
+    }
+
+    /**
+     * 恢复默认头像
+     * @return mixed
+     */
+    public function restore()
+    {
+        $department = $this->department;
+        $department->customAvatar()->dissociate();
+        $department->save();
     }
 }

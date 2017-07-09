@@ -15,6 +15,26 @@ class File extends Model
         'hash', 'fileName',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (File $file) {
+            $file->notifications()->detach();
+
+            $file->realFile->delete();
+        });
+    }
+
+    /**
+     * 此文件所属通知
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function notifications()
+    {
+        return $this->belongsToMany('App\Models\Notification');
+    }
+
     public function getUrlAttribute()
     {
         $domain = env('APP_URL');
@@ -55,25 +75,5 @@ class File extends Model
     public function user()
     {
         return $this->belongsTo('App\Models\User');
-    }
-
-    /**
-     * 此文件所属通知
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
-     */
-    public function notifications()
-    {
-        return $this->belongsToMany('App\Models\Notification');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleted(function (File $file) {
-            $file->notifications()->detach();
-
-            $file->realFile->delete();
-        });
     }
 }

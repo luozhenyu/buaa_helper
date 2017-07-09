@@ -64,11 +64,11 @@ $this->get('/notification/{id}/statistic', 'NotificationController@statisticExce
 //Inquiry
 $this->get('/inquiry', 'InquiryController@index')->name('inquiry');
 
-$this->get('/inquiry/{department_id}', 'InquiryController@department');
-$this->post('/inquiry/{department_id}', 'InquiryController@create');
+$this->get('/inquiry/{department_number}', 'InquiryController@department');
+$this->post('/inquiry/{department_number}', 'InquiryController@create');
 
-$this->get('/inquiry/{department_id}/{question_id}', 'InquiryController@show');
-$this->post('/inquiry/{department_id}/{question_id}', 'InquiryController@reply');
+$this->get('/inquiry/{department_number}/{inquiry_id}', 'InquiryController@show');
+$this->post('/inquiry/{department_number}/{inquiry_id}', 'InquiryController@reply');
 
 
 //Login Logout

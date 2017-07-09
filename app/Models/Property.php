@@ -17,13 +17,17 @@ class Property extends Model
         'name', 'display_name', 'description',
     ];
 
-    /**
-     * 此property拥有的value
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function propertyValues()
+    public static function boot()
     {
-        return $this->hasMany('App\Models\PropertyValue');
+        parent::boot();
+
+        static::deleted(function (Property $property) {
+            $property->users()->detach();
+
+            foreach ($property->propertyValues as $propertyValue) {
+                $propertyValue->delete();
+            }
+        });
     }
 
     /**
@@ -37,16 +41,12 @@ class Property extends Model
             ->using('App\Models\PropertyUser');
     }
 
-    public static function boot()
+    /**
+     * 此property拥有的value
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function propertyValues()
     {
-        parent::boot();
-
-        static::deleted(function (Property $property) {
-            $property->users()->detach();
-
-            foreach ($property->propertyValues as $propertyValue) {
-                $propertyValue->delete();
-            }
-        });
+        return $this->hasMany('App\Models\PropertyValue');
     }
 }

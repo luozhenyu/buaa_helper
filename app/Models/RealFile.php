@@ -16,6 +16,17 @@ class RealFile extends Model
         'sha1', 'mime', 'size',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function (RealFile $realFile) {
+            if ($realFile->files->count() > 0) {
+                return false;
+            }
+        });
+    }
+
     /**
      * 此文件保存的路径
      * @return string
@@ -42,16 +53,5 @@ class RealFile extends Model
     public function files()
     {
         return $this->hasMany('App\Models\File');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleting(function (RealFile $realFile) {
-            if ($realFile->files->count() > 0) {
-                return false;
-            }
-        });
     }
 }

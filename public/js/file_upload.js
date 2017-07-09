@@ -6,13 +6,13 @@ $.fn.upload = function (fun) {
         formData.append("upload", $(this)[0].files[0]);
         formData.append("type", fun.type);
         $.ajax({
-            url: "/file/upload",
-            type: 'POST',
+            url: fun.url,
+            type: "POST",
             data: formData,
             processData: false,
             contentType: false,
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
             },
             success: fun.success,
             error: fun.error
@@ -56,15 +56,15 @@ function getFileIcon(url) {
 }
 
 function parseFile(file, del) {
-    var html, iconDir = '/img/fileTypeImages/';
-    var icon = iconDir + getFileIcon(file['fileName']);
+    var html, iconDir = "/img/fileTypeImages/";
+    var icon = iconDir + getFileIcon(file["fileName"]);
 
     var btn = del ? '<a class="glyphicon glyphicon-remove" style="color:red;display:inline-block" href="javascript:void(0)" onclick="this.parentNode.remove();"></a>' : '';
 
-    html = '<p style="line-height: 16px;" data-hash="' + file['hash'] + '">'
+    html = '<p style="line-height: 16px;" data-hash="' + file["hash"] + '">'
         + '<img style="vertical-align: middle; margin-right: 2px;" src="' + icon + '" />'
-        + '<a style="font-size:12px; color:#0066cc;" href="' + file['url'] + '" title="' + file['fileName'] + '">'
-        + file['fileName']
+        + '<a style="font-size:12px; color:#0066cc;" href="' + file["url"] + '" title="' + file["fileName"] + '">'
+        + file["fileName"]
         + '</a>'
         + btn
         + '</p>';

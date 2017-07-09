@@ -266,7 +266,7 @@
                 sub_delay += 150;
             });
             main_delay += 400;
-        })
+        });
         @endif
     });
 
@@ -356,15 +356,11 @@
                                 </div>
 
                             </div>
-
                         </div>
                     </div>
                 @endif
 
             </div>
-
-
         </div>
     </td>
-
 @endsection

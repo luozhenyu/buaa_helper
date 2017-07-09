@@ -14,14 +14,14 @@
 
     .bh-inquiry-title {
         text-align: center;
-        margin: 8px 0px 13px 0px;
+        margin: 8px 0 13px 0;
         font-size: 30px;
         font-weight: bold;
     }
 
     .bh-inquiry-subtitle {
         text-align: center;
-        margin: 4px 0px 8px 0px;
+        margin: 4px 0 8px 0;
         font-size: 18px;
         color: gray;
     }
@@ -45,10 +45,7 @@
         padding: 6px;
         white-space: nowrap;
 
-        margin-top: 5px;
-        margin-bottom: 5px;
-        margin-left: 0.2%;
-        margin-right: 0.2%;
+        margin: 5px 0.2%;
         width: 24.1%;
     }
 
@@ -119,15 +116,21 @@
             <h5 class="panel-title">学院</h5>
         </div>
         <div class="panel-body">
-            @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key => $value)
+            @foreach(\App\Models\Department::where('number', '<', '100')->get() as $department)
                 <div class="bh-inquiry-block slow-down">
-                    <a href="/inquiry/{{ $value->number }}">
+                    <a href="{{ route('inquiry') . "/{$department->number}" }}">
                         <div class="bh-inquiry-block-inner">
                             <div class="bh-inquiry-block-icon">
-                                <img src="{{ $value->defaultAvatar->url }}" alt="{{ $value->name }}">
+                                <img src="{{ $department->avatar->url }}" alt="{{ $department->name }}">
                             </div>
+
                             <div class="bh-inquiry-block-content">
-                                <h5>{{ $value->name }}</h5>
+                                <h5>{{ $department->name }}</h5>
+                            </div>
+
+                            <div>
+                                <span style="color: blue;">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
+                                / {{ $department->inquiries->count() }}
                             </div>
                         </div>
                     </a>
@@ -141,15 +144,15 @@
             <h5 class="panel-title">机关部处</h5>
         </div>
         <div class="panel-body">
-            @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
+            @foreach(\App\Models\Department::where('number', '>', '100')->get() as $department)
                 <div class="bh-inquiry-block slow-down">
-                    <a href="/inquiry/{{ $value->number }}">
+                    <a href="{{ route('inquiry') . "/{$department->number}" }}">
                         <div class="bh-inquiry-block-inner">
                             <div class="bh-inquiry-block-icon">
-                                <img src="{{ $value->defaultAvatar->url }}" alt="{{ $value->name }}">
+                                <img src="{{ $department->avatar->url }}" alt="{{ $department->name }}">
                             </div>
                             <div class="bh-inquiry-block-content">
-                                <h5>{{ $value->name }}</h5>
+                                <h5>{{ $department->name }}</h5>
                             </div>
                         </div>
                     </a>
@@ -157,5 +160,4 @@
             @endforeach
         </div>
     </div>
-
 @endsection

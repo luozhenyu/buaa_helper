@@ -55,7 +55,7 @@ class HomeController extends Controller
         ]);
         $auth_user = Auth::user();
         if (Hash::check($request->input('old_password'), $auth_user->password)) {
-            $auth_user->updatePassword($request->input('password'));
+            $auth_user->password = bcrypt($request->input('password'));
             $auth_user->save();
 
             return redirect('/account');
@@ -63,10 +63,5 @@ class HomeController extends Controller
         return redirect()->back()->withErrors([
             'old_password' => Lang::get('auth.failed'),
         ]);
-    }
-
-    public function viewInquiry()
-    {
-        return view('inquiry');
     }
 }

@@ -1,16 +1,14 @@
 <?php
 
 use App\Http\Controllers\FileController;
+use App\Models\Counsellor;
 use App\Models\Department;
-use App\Models\Role;
-use App\Models\User;
+use App\Models\DepartmentAdmin;
+use App\Models\SuperAdmin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Models\SuperAdmin;
-use App\Models\DepartmentAdmin;
-use App\Models\Counsellor;
 
 class UserTableSeeder extends Seeder
 {

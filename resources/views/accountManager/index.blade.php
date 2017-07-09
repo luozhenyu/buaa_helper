@@ -144,7 +144,7 @@
                 success: function (resp) {
                     if (resp["errmsg"] === undefined) {
                         clock = Date.now() - clock;
-                        var tips = $("#tips").html("<p>成功：" + resp["success"] + " 跳过：" + resp["skip"] + " 失败：" + resp["fail"] + " 耗时: " + clock + "ms</p>")
+                        var tips = $("#tips").html("<p>成功：" + resp["success"] + " 跳过：" + resp["skip"] + " 失败：" + resp["fail"] + " 耗时: " + clock + "ms</p>");
                         if (resp["msg"].length > 0) {
                             tips.append("<h4>错误信息(前10条)</h4>")
                                 .append("<div>" + resp["msg"].join("<br>") + "</div>");
@@ -263,7 +263,7 @@
                     }
                 });
             }
-        }
+        };
 
         $("#btn_query").click(function () {
             query();

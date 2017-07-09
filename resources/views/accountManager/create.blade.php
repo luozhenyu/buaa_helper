@@ -297,9 +297,7 @@
             <div class="col-md-6">
                 <select class="selectpicker form-control{{ $errors->has('role') ? ' has-error' : '' }}"
                         id="role" name="role">
-                    @foreach(\App\Models\Role::get() as $role)
-                        <option value="{{ $role->name }}">{{ $role->display_name }}</option>
-                    @endforeach
+                    <option value="{{ $role->name }}">{{ $role->display_name }}</option>
                 </select>
                 @if ($errors->has('role'))
                     <span class="help-block">

@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use App\Models\Department;
 use App\Models\File;
 use App\Models\Property;
-use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Zizaco\Entrust\EntrustFacade;
 
 class AccountManagerController extends Controller
 {
@@ -32,14 +30,14 @@ class AccountManagerController extends Controller
     {
         $authUser = Auth::user();
 
-        if ($authUser->can('view_all_user')) {
+        if ($authUser->hasPermission('view_all_user')) {
             $user = User::findOrFail($id);
-        } else if ($authUser->can('view_owned_user')) {
+        } else if ($authUser->hasPermission('view_owned_user')) {
             $user = $authUser->department->users()->findOrFail($id);
         } else {
             return abort(403);
         }
-        abort_unless($authUser->can(['modify_all_user', 'modify_owned_user']), 403);
+        abort_unless($authUser->hasPermission(['modify_all_user', 'modify_owned_user']), 403);
         return view('accountManager.modify', [
             'user' => User::downcasting($user),
         ]);
@@ -47,7 +45,7 @@ class AccountManagerController extends Controller
 
     public function ajaxIndex(Request $request)
     {
-        abort_unless(EntrustFacade::can(['view_all_user', 'view_owned_user']), 403);
+        abort_unless(Auth::user()->hasPermission(['view_all_user', 'view_owned_user']), 403);
 
         if (!$request->isJson()) {
             return response()->json([
@@ -57,7 +55,7 @@ class AccountManagerController extends Controller
 
         $condition = $request->toArray();
         try {
-            if (EntrustFacade::can('view_all_user')) {
+            if (Auth::user()->hasPermission('view_all_user')) {
                 $query = User::select($condition);
             } else {
                 $query = User::select($condition, Auth::user()->department->number);
@@ -75,14 +73,14 @@ class AccountManagerController extends Controller
 
     public function create(Request $request)
     {
-        abort_unless(EntrustFacade::can('create_user'), 403);
+        abort_unless(Auth::user()->hasPermission('create_user'), 403);
         return view('accountManager.create');
     }
 
 
     public function store(Request $request)
     {
-        abort_unless(EntrustFacade::can('create_user'), 403);
+        abort_unless(Auth::user()->hasPermission('create_user'), 403);
 
         $this->validate($request, [
             'avatar' => 'nullable|avatar',
@@ -213,7 +211,7 @@ class AccountManagerController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        abort_unless(EntrustFacade::can('delete_user'), 403);
+        abort_unless(Auth::user()->hasPermission('delete_user'), 403);
 
         $user = User::findOrFail($id);
         $user->delete();
@@ -240,7 +238,7 @@ class AccountManagerController extends Controller
 
     public function import(Request $request)
     {
-        if (EntrustFacade::can('create_user')
+        if (Auth::user()->hasPermission('create_user')
             && $request->hasFile('file')
             && ($file = $request->file('file'))->isValid()
         ) {

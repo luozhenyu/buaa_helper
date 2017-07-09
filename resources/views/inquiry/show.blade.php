@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@php($authUser = Auth::user())
+
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
 <li class="active">留言管理</li>
@@ -14,14 +16,14 @@
 
     .bh-inquiry-title {
         text-align: center;
-        margin: 8px 0px 13px 0px;
+        margin: 8px 0 13px 0;
         font-size: 30px;
         font-weight: bold;
     }
 
     .bh-inquiry-subtitle {
         text-align: center;
-        margin: 4px 0px 8px 0px;
+        margin: 4px 0 8px 0;
         font-size: 18px;
         color: gray;
     }
@@ -90,7 +92,7 @@
     }
 
     .bh-inquiry-list {
-        padding: 0px;
+        padding: 0;
     }
 
     .bh-inquiry-list .bh-inquiry-list-item {
@@ -104,7 +106,7 @@
 
     .bh-inquiry-list .bh-inquiry-list-item:first-child {
         border-top: none;
-        padding-top: 0px;
+        padding-top: 0;
     }
 
     .bh-inquiry-list .bh-inquiry-list-item:last-child {
@@ -122,8 +124,13 @@
     }
 
     @media (max-width: 596px) {
-        .bh-inquiry-head-icon { width: 30px; }
-        .bh-inquiry-head-icon img { width: 30px; }
+        .bh-inquiry-head-icon {
+            width: 30px;
+        }
+
+        .bh-inquiry-head-icon img {
+            width: 30px;
+        }
     }
 
     .bh-inquiry-detail-recode {
@@ -182,7 +189,7 @@
         border: none;
         padding: 7px 12px;
         margin-top: 3px;
-        margin-bottom: 0px;
+        margin-bottom: 0;
 
         font-family: inherit;
         font-size: 16px;
@@ -207,37 +214,12 @@
         };
         scroll_info_check();
         $(window).scroll(scroll_info_check).resize(scroll_info_check);
-
-        // 显示或隐藏机密信息
-        $(".bh-inquiry-detail-recode-show-secret").click(function () {
-            if ($(this).hasClass("glyphicon-eye-open")) {  //展开机密信息
-                $(this).removeClass("glyphicon-eye-open");
-                $(this).addClass("glyphicon-eye-close");
-            } else if ($(this).hasClass("glyphicon-eye-close")) {  //隐藏机密信息
-                $(this).removeClass("glyphicon-eye-close");
-                $(this).addClass("glyphicon-eye-open");
-            }
-            open_state_check(this);
-        });
-        // 检测机密显示状态
-        var open_state_check = function (secret_box) {
-            var full_box = $(secret_box).parent().parent();
-            var content_box = $(full_box).find(".bh-inquiry-detail-recode-secret-content");
-            var content_hidden = $(full_box).find(".bh-inquiry-detail-recode-secret-content-hidden");
-            if ($(secret_box).hasClass("glyphicon-eye-close")) {  //展开机密信息
-                $(content_box).removeClass("hidden");
-                $(content_hidden).addClass("hidden");
-            } else if ($(secret_box).hasClass("glyphicon-eye-open")) {  //隐藏机密信息
-                $(content_box).addClass("hidden");
-                $(content_hidden).removeClass("hidden");
-            }
-        }
     });
 </script>
 @endpush
 
 @section('content')
-    <h3 class="bh-inquiry-title">（示例标题）Questionor上不去了</h3>
+    <h3 class="bh-inquiry-title">{{ $inquiry->title }}</h3>
     <div class="bh-inquiry-left">
         <div class="panel panel-info bh-inquiry-info">
             <div class="panel-heading">
@@ -248,25 +230,23 @@
             <div class="panel-body">
                 <h5>
                     提问者：
-                    <b>HansBug</b>
+                    <b>{{ $inquiry->user->name }}</b>
                 </h5>
                 <h5>
                     提问部门：
-                    <b>Questionor</b>
+                    <b>{{ $inquiry->department->name }}</b>
                 </h5>
                 <h5>
                     提问时间：
-                    <b>2017-06-19 10:30:01</b>
+                    <b>{{ $inquiry->created_at }}</b>
                 </h5>
-                <h5>
-                    状态：
-                    <span class="label label-warning" style="font-size: 14px">待回答</span>
-                    <!--<span class="label label-warning" style="font-size: 14px">待回答（追问）</span>-->
-                    <!--<span class = "label label-info" style = "font-size: 14px">待确认解决</span>-->
-                    <!--<span class = "label label-success" style = "font-size: 14px">已解决</span>-->
-                    <!--<span class = "label label-danger" style = "font-size: 14px">已关闭</span>-->
+                <h5>状态：
+                    @if($inquiry->replied)
+                        <span class="label label-success" style="font-size: 14px">已回答</span>
+                    @else
+                        <span class="label label-warning" style="font-size: 14px">待回答</span>
+                    @endif
                 </h5>
-
             </div>
         </div>
     </div>
@@ -279,12 +259,11 @@
             </div>
             <div class="panel-body">
                 <ul class="bh-inquiry-list">
-
                     <!-- 问题描述demo -->
                     <li class="bh-inquiry-list-item bh-inquiry-list-item-gray">
                         <div class="bh-inquiry-head-icon">
-                            <img src="https://cdn.v2ex.com/gravatar/554cee7335fc3490a6c93fe128d1519d?s=60"
-                                 alt="UserName" class="img-circle">
+                            <img src="{{ \App\Models\User::downcasting($inquiry->user)->avatarUrl }}"
+                                 alt="{{ $inquiry->user->name }}" class="img-circle">
                         </div>
                         <div class="bh-inquiry-detail-recode">
                             <div class="bh-inquiry-detail-recode-title">
@@ -292,82 +271,78 @@
                                     问题描述
                                 </div>
                                 <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
+                                    {{ $inquiry->created_at }}
                                 </div>
                             </div>
-                            <div class="bh-inquiry-detail-recode-content">Questionor.cn上不去了</div>
+                            <div class="bh-inquiry-detail-recode-content">{{ $inquiry->content }}</div>
 
                             <div class="bh-inquiry-detail-recode-secret-full">
-                                <b>机密信息：
-                                    <span class="bh-inquiry-detail-recode-show-secret glyphicon glyphicon-eye-open click"></span>
-                                </b>
+                                <b>机密信息：</b>
                                 <div class="bh-inquiry-detail-recode-secret">
-                                    <i class="bh-inquiry-detail-recode-secret-content-hidden"><b>******</b></i>
-                                    <i class="bh-inquiry-detail-recode-secret-content hidden">你苟利国家
-                                        生死以，岂因祸福避趋之，天若有情天亦老，我为蛤蛤续一秒，好</i>
+                                    <i class="bh-inquiry-detail-recode-secret-content">
+                                        {{ $authUser->hasPermission('view_all_inquiry')
+                                        ||($authUser->hasPermission('view_owned_inquiry')
+                                        && $authUser->department->id === $inquiry->department->id)?
+                                        $inquiry->secret :"******" }}
+                                    </i>
                                 </div>
                             </div>
                         </div>
                     </li>
 
-
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="departmentLogo/109.png" alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    管理员回复
-                                </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
+                    @foreach($inquiryReplies as $inquiryReply)
+                        <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
+                            <div class="bh-inquiry-head-icon">
+                                <img src="{{ \App\Models\User::downcasting($inquiryReply->user)->avatarUrl }}"
+                                     alt="{{ $inquiryReply->user->name }}" class="img-circle">
                             </div>
-                            <div class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</div>
-                        </div>
-                    </li>
-
-
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-gray">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="https://cdn.v2ex.com/gravatar/554cee7335fc3490a6c93fe128d1519d?s=60"
-                                 alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    追问
+                            <div class="bh-inquiry-detail-recode">
+                                <div class="bh-inquiry-detail-recode-title">
+                                    <div class="pull-left bh-inquiry-detail-recode-identity">
+                                        {{ $inquiryReply->user->name }}回复
+                                    </div>
+                                    <div class="pull-right bh-inquiry-detail-recode-time">
+                                        {{ $inquiryReply->created_at }}
+                                    </div>
                                 </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
+                                <div class="bh-inquiry-detail-recode-content">{{ $inquiryReply->content }}</div>
                             </div>
-                            <div class="bh-inquiry-detail-recode-content">不行啊，Questionor.cn还是上不去，究竟怎么回事，求尽快解决，我们还要复习航概，谢谢</div>
-                        </div>
-                    </li>
-
-
-                    <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
-                        <div class="bh-inquiry-head-icon">
-                            <img src="departmentLogo/109.png" alt="UserName" class="img-circle">
-                        </div>
-                        <div class="bh-inquiry-detail-recode">
-                            <div class="bh-inquiry-detail-recode-title">
-                                <div class="pull-left bh-inquiry-detail-recode-identity">
-                                    追答
-                                </div>
-                                <div class="pull-right bh-inquiry-detail-recode-time">
-                                    2017-06-19 00:30:19
-                                </div>
-                            </div>
-                            <div class="bh-inquiry-detail-recode-content">已经让站长HansBug同学去修复了，感谢您的反馈</div>
-                        </div>
-                    </li>
-
-
+                        </li>
+                    @endforeach
                 </ul>
             </div>
         </div>
     </div>
+
+    @if($authUser->hasPermission('view_all_inquiry')
+    ||($authUser->hasPermission('view_owned_inquiry') && $authUser->department->id === $inquiry->department->id)
+    ||$authUser->id === $inquiry->user->id)
+        <form class="form-horizontal" role="form" method="POST"
+              action="{{ route('inquiry')."/{$department->number}/{$inquiry->id}" }}">
+            {{ csrf_field() }}
+            <h3 class="text-center">我要回复</h3>
+
+            <div class="form-group{{ $errors->has('content')?' has-error' :'' }}">
+                <label for="content" class="col-md-2 control-label"></label>
+
+                <div class="col-md-9">
+                <textarea id="content" class="form-control" name="content" rows="10" required
+                          autocomplete="off">{{ old('content') }}</textarea>
+                    @if($errors->has('content'))
+                        <span class="help-block">
+                        <strong>{{ $errors->first('content') }}</strong>
+                    </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3 pull-right">
+                    <button type="submit" class="btn btn-primary">
+                        提交回复
+                    </button>
+                </div>
+            </div>
+        </form>
+    @endif
 @endsection

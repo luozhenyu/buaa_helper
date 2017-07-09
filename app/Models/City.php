@@ -17,6 +17,17 @@ class City extends Model
         'code', 'name',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (City $city) {
+            foreach ($city->children as $child) {
+                $child->delete();
+            }
+        });
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -35,19 +46,6 @@ class City extends Model
     }
 
     /**
-     * city tree
-     * @return \Illuminate\Support\Collection
-     */
-    public function tree()
-    {
-        $tree = [];
-        for ($city = $this; $city; $city = $city->parent) {
-            $tree[] = $city;
-        }
-        return array_reverse($tree);
-    }
-
-    /**
      * @return string
      */
     public function format()
@@ -59,14 +57,16 @@ class City extends Model
         return implode(" ", $names);
     }
 
-    public static function boot()
+    /**
+     * city tree
+     * @return \Illuminate\Support\Collection
+     */
+    public function tree()
     {
-        parent::boot();
-
-        static::deleted(function (City $city) {
-            foreach ($city->children as $child) {
-                $child->delete();
-            }
-        });
+        $tree = [];
+        for ($city = $this; $city; $city = $city->parent) {
+            $tree[] = $city;
+        }
+        return array_reverse($tree);
     }
 }

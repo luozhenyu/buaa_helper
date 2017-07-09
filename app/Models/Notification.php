@@ -19,6 +19,25 @@ class Notification extends Model
         'created_at', 'updated_at', 'start_date', 'finish_date',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Notification $notification) {
+            $notification->notifiedUsers()->detach();
+            $notification->files()->detach();
+        });
+    }
+
+    /**
+     * 此通知的附件
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function files()
+    {
+        return $this->belongsToMany('App\Models\File');
+    }
+
     /**
      * 此通知的作者
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -38,16 +57,6 @@ class Notification extends Model
     }
 
     /**
-     * 所有收到通知的用户
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
-     */
-    public function notifiedUsers()
-    {
-        return $this->belongsToMany('App\Models\User')
-            ->withPivot('stared_at', 'read_at');
-    }
-
-    /**
      * 收藏此通知的用户
      * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
      */
@@ -55,6 +64,16 @@ class Notification extends Model
     {
         return $this->notifiedUsers()
             ->wherePivot('stared_at', '!=', null);
+    }
+
+    /**
+     * 所有收到通知的用户
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function notifiedUsers()
+    {
+        return $this->belongsToMany('App\Models\User')
+            ->withPivot('stared_at', 'read_at');
     }
 
     /**
@@ -75,24 +94,5 @@ class Notification extends Model
     {
         return $this->notifiedUsers()
             ->wherePivot('read_at', null);
-    }
-
-    /**
-     * 此通知的附件
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function files()
-    {
-        return $this->belongsToMany('App\Models\File');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleted(function (Notification $notification) {
-            $notification->notifiedUsers()->detach();
-            $notification->files()->detach();
-        });
     }
 }
