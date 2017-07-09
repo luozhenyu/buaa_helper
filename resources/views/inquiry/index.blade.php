@@ -123,8 +123,14 @@
                             <div class="bh-inquiry-block-icon">
                                 <img src="{{ $department->avatar->url }}" alt="{{ $department->name }}">
                             </div>
+
                             <div class="bh-inquiry-block-content">
                                 <h5>{{ $department->name }}</h5>
+                            </div>
+
+                            <div>
+                                <span style="color: blue;">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
+                                / {{ $department->inquiries->count() }}
                             </div>
                         </div>
                     </a>
@@ -154,5 +160,4 @@
             @endforeach
         </div>
     </div>
-
 @endsection

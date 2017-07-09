@@ -15,6 +15,8 @@ class InquiryReply extends Model
         'inquiry_id', 'user_id', 'content',
     ];
 
+    protected $touches = ['inquiry'];
+
     /**
      * 此回复的作者
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
