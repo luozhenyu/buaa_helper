@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\FileController;
 use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
@@ -18,11 +17,35 @@ class Department extends Model
         'number', 'name', 'description',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Department $department) {
+            foreach ($department->users as $user) {
+                $user->delete();
+            }
+
+            foreach ($department->inquiries as $inquiry) {
+                $inquiry->delete();
+            }
+        });
+    }
+
     /**
      * 部门的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function avatar()
+    {
+        return $this->customAvatar ? $this->customAvatar() : $this->defaultAvatar();
+    }
+
+    /**
+     * 部门的自定义头像
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function customAvatar()
     {
         return $this->belongsTo('App\Models\File', 'file_id', 'id');
     }
@@ -45,14 +68,12 @@ class Department extends Model
         return $this->hasMany('App\Models\User');
     }
 
-    public static function boot()
+    /**
+     * 此department拥有的问题
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inquiries()
     {
-        parent::boot();
-
-        static::deleted(function (Department $department) {
-            foreach ($department->users as $user) {
-                $user->delete();
-            }
-        });
+        return $this->hasMany('App\Models\Inquiry');
     }
 }

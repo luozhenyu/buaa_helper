@@ -12,8 +12,34 @@ class Inquiry extends Model
      * @var array
      */
     protected $fillable = [
-        'content', 'secret',
+        'title', 'content', 'secret', 'user_id', 'department_id'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Inquiry $inquiry) {
+            foreach ($inquiry->inquiryReply as $inquiryReply) {
+                $inquiryReply->delete();
+            }
+        });
+    }
+
+    public function getRepliedAttribute()
+    {
+        $lastestReply = $this->inquiryReplies()->orderBy('created_at', 'desc')->first();
+        return $lastestReply && $this->user->id !== $lastestReply->user->id;
+    }
+
+    /**
+     * 此问题的回复
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inquiryReplies()
+    {
+        return $this->hasMany('App\Models\InquiryReply');
+    }
 
     /**
      * 此问题的提问者
@@ -31,25 +57,5 @@ class Inquiry extends Model
     public function department()
     {
         return $this->belongsTo('App\Models\Department');
-    }
-
-    /**
-     * 此问题的回复
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function inquiryReply()
-    {
-        return $this->hasMany('App\Models\InquiryReply');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        static::deleted(function (Inquiry $inquiry) {
-            foreach ($inquiry->inquiryReply as $inquiryReply) {
-                $inquiryReply->delete();
-            }
-        });
     }
 }

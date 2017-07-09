@@ -15,20 +15,20 @@
 
     .bh-inquiry-title {
         text-align: center;
-        margin: 8px 0px 13px 0px;
+        margin: 8px 0 13px 0;
         font-size: 30px;
         font-weight: bold;
     }
 
     .bh-inquiry-subtitle {
         text-align: center;
-        margin: 4px 0px 8px 0px;
+        margin: 4px 0 8px 0;
         font-size: 18px;
         color: gray;
     }
 
     .bh-inquiry-list .panel-heading .panel-title {
-        padding: 1px 0px;
+        padding: 1px 0;
         font-size: 18px;
         font-weight: bold;
     }
@@ -39,8 +39,8 @@
     }
 
     .bh-inquiry-set {
-        padding: 0px;
-        margin: 0px;
+        padding: 0;
+        margin: 0;
     }
 
     .bh-inquiry-set .bh-inquiry-set-item {
@@ -97,58 +97,91 @@
     <div class="panel panel-info bh-inquiry-list">
         <div class="panel-heading">
             <h5 class="panel-title">
-                <img src="departmentLogo/6.png" alt="picture">
-                留言列表 - XXX机关/学院
+                <img src="{{ $department->avatar->url }}" alt="{{ $department->name }}">
+                留言列表 - {{ $department->name }}
             </h5>
         </div>
         <div class="panel-body">
             <ul class="bh-inquiry-set">
-                <li class="bh-inquiry-set-item slow-down">
-                    <div class="bh-inquiry-set-item-title">
-                        <span class="label label-success">
-							<span class="glyphicon glyphicon-ok"></span>已解决
-						</span>
-                        <!--
-                        <span class = "label label-danger">
-                            <span class = "glyphicon glyphicon-remove"></span>已关闭
-                        </span>
-                        <span class = "label label-warning">
-                            <span class = "glyphicon glyphicon-time"></span>待回答
-                        </span>
-                        <span class = "label label-warning">
-                            <span class = "glyphicon glyphicon-time"></span>待回答（追问）
-                        </span>
-                        <span class = "label label-info">
-                            <span class = "glyphicon glyphicon-comment"></span>待确认解决
-                        </span>
-                        -->
-                        <a href = "/inquiry/1/1">Questionor上不去了</a>
-                    </div>
-                    <div class="bh-inquiry-set-item-content">
-                        Questionor上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了
-                    </div>
-                    <div class="bh-inquiry-set-item-info">
-                        提问者: <a><b>HansBug</b></a>
-                        提问时间: <b>1970-01-01</b>
-                    </div>
-                </li>
-                <li class="bh-inquiry-set-item slow-down focus">
-                    <div class="bh-inquiry-set-item-title">
-                        <span class="label label-warning">
-							<span class="glyphicon glyphicon-time"></span>待回答
-						</span>
-                        <a>Questionor上不去了</a>
-                    </div>
-                    <div class="bh-inquiry-set-item-content">
-                        Questionor上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了上不去了
-                    </div>
-                    <div class="bh-inquiry-set-item-info">
-                        提问者: <a><b>HansBug</b></a>
-                        提问时间: <b>1970-01-01</b>
-                    </div>
-                </li>
+                @foreach($inquiries as $inquiry)
+                    <li class="bh-inquiry-set-item slow-down">
+                        <div class="bh-inquiry-set-item-title">
+                            @if($inquiry->replied)
+                                <span class="label label-success" style="font-size: 14px">已回答</span>
+                            @else
+                                <span class="label label-warning" style="font-size: 14px">待回答</span>
+                            @endif
+                            <a href="{{ url("/inquiry/{$department->number}/{$inquiry->id}") }}">{{ $inquiry->title }}</a>
+                        </div>
+                        <div class="bh-inquiry-set-item-content">
+                            {{ $inquiry->content }}
+                        </div>
+                        <div class="bh-inquiry-set-item-info">
+                            提问者: <a><b>{{ $inquiry->user->name }}</b></a>
+                            提问时间: <b>{{ $inquiry->created_at }}</b>
+                        </div>
+                    </li>
+                @endforeach
             </ul>
-            <h3 style="text-align: center;">分页预留位置</h3>
+
+            {{ $inquiries->links() }}
         </div>
     </div>
+
+    <form class="form-horizontal" role="form" method="POST"
+          action="{{ route('inquiry')."/{$department->number}" }}">
+        {{ csrf_field() }}
+        <h3 class="text-center">我要提问</h3>
+
+        <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
+            <label for="title" class="col-md-2 control-label">标题</label>
+
+            <div class="col-md-9">
+                <input id="title" type="text" class="form-control" name="title"
+                       value="{{ old('title') }}" required autocomplete="off">
+
+                @if ($errors->has('title'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('title') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group{{ $errors->has('content')?' has-error' :'' }}">
+            <label for="content" class="col-md-2 control-label">问题描述</label>
+
+            <div class="col-md-9">
+                <textarea id="content" class="form-control" name="content" rows="10" required
+                          autocomplete="off">{{ old('content') }}</textarea>
+                @if($errors->has('content'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('content') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group{{ $errors->has('secret')?' has-error' :'' }}">
+            <label for="secret" class="col-md-2 control-label">机密信息(选填)</label>
+
+            <div class="col-md-9">
+                <textarea id="secret" class="form-control" name="secret" rows="5" autocomplete="off"
+                          placeholder="（该信息将作加密处理，仅您自己和回复者可见）">{{ old('secret') }}</textarea>
+                @if($errors->has('secret'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('secret') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-3 pull-right">
+                <button type="submit" class="btn btn-primary">
+                    发布提问
+                </button>
+            </div>
+        </div>
+    </form>
 @endsection

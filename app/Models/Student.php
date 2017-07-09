@@ -16,6 +16,11 @@ class Student extends User implements HasPersonalAvatar
         'grade', 'class', 'political_status', 'native_place', 'financial_difficulty',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+    }
+
     public function getRoleAttribute()
     {
         return (object)[
@@ -25,7 +30,17 @@ class Student extends User implements HasPersonalAvatar
     }
 
     /**
-     * 此用户的头像
+     * 设置用户的头像
+     * @param File $file
+     * @return void
+     */
+    public function setAvatar(File $file)
+    {
+        $this->avatar()->associate($file);
+    }
+
+    /**
+     * 用户的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function avatar()
@@ -34,18 +49,14 @@ class Student extends User implements HasPersonalAvatar
     }
 
     /**
-     * 用户头像的链接
+     * 获得用户头像的链接
      * @return string
      */
     public function getAvatarUrlAttribute()
     {
         $domain = env('APP_URL');
         $domain .= (substr($domain, -1) === '/' ? '' : '/');
-        return ($avatar = $this->avatar) ? $avatar->url : $domain . 'img/favicon.png';
-    }
-
-    public static function boot()
-    {
-        parent::boot();
+        $avatar = $this->avatar;
+        return $avatar ? $avatar->url : $domain . 'img/favicon.png';
     }
 }

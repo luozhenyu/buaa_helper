@@ -6,6 +6,11 @@ use App\Models\ModelInterface\HasDepartmentAvatar;
 
 class Counsellor extends Admin implements HasDepartmentAvatar
 {
+    public static function boot()
+    {
+        parent::boot();
+    }
+
     public function getRoleAttribute()
     {
         return (object)[
@@ -15,38 +20,35 @@ class Counsellor extends Admin implements HasDepartmentAvatar
     }
 
     /**
-     * 此用户所属department的头像
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function departmentAvatar()
-    {
-        $department = $this->department;
-        return $department->avatar ?? $department->defaultAvatar;
-    }
-
-    /**
-     * 设置此用户所属department的头像
+     * 设置用户的头像
      * @param File $file
+     * @return void
      */
-    public function setDepartmentAvatar(File $file)
+    public function setAvatar(File $file)
     {
         $department = $this->department;
-        $department->avatar()->associate($file);
+        $department->customAvatar()->associate($file);
         $department->save();
     }
 
     /**
-     * 恢复此用户所属department的默认头像
+     * 获得用户头像的链接
+     * @return string
      */
-    public function restoreDefault()
+    public function getAvatarUrlAttribute()
     {
         $department = $this->department;
-        $department->avatar()->dissociate();
-        $department->save();
+        return $department->avatar->url;
     }
 
-    public static function boot()
+    /**
+     * 恢复默认头像
+     * @return mixed
+     */
+    public function restore()
     {
-        parent::boot();
+        $department = $this->department;
+        $department->customAvatar()->dissociate();
+        $department->save();
     }
 }

@@ -10,7 +10,19 @@ class Admin extends User
         $this->permission = array_merge($this->permission, [
             'view_owned_user', 'modify_owned_user',
             'create_notification', 'modify_owned_notification',
+            'view_owned_inquiry',
         ]);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function (Admin $user) {
+            foreach ($user->writtenNotifications as $notification) {
+                $notification->delete();
+            }
+        });
     }
 
     public function getRoleAttribute()
@@ -28,17 +40,5 @@ class Admin extends User
     public function writtenNotifications()
     {
         return $this->hasMany('App\Models\Notification', 'user_id', 'id');
-    }
-
-    public static function boot()
-    {
-        parent::boot();
-
-        //deleting被Entrust使用
-        static::deleted(function (Admin $user) {
-            foreach ($user->writtenNotifications as $notification) {
-                $notification->delete();
-            }
-        });
     }
 }

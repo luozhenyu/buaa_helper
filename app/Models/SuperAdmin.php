@@ -6,15 +6,6 @@ use App\Models\ModelInterface\HasPersonalAvatar;
 
 class SuperAdmin extends Admin implements HasPersonalAvatar
 {
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->permission = array_merge($this->permission, [
-            'create_user', 'delete_user', 'modify_all_user', 'view_all_user',
-            'delete_notification', 'modify_all_notification',
-        ]);
-    }
-
     /**
      * The attributes that are mass assignable.
      *
@@ -23,6 +14,21 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
     protected $fillable = [
         'number', 'name', 'email', 'phone', 'department_id', 'password', 'avatar'
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, [
+            'create_user', 'delete_user', 'modify_all_user', 'view_all_user',
+            'delete_notification', 'modify_all_notification',
+            'view_all_inquiry',
+        ]);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+    }
 
     public function getRoleAttribute()
     {
@@ -33,7 +39,17 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
     }
 
     /**
-     * 此用户的头像
+     * 设置用户的头像
+     * @param File $file
+     * @return void
+     */
+    public function setAvatar(File $file)
+    {
+        $this->avatar()->associate($file);
+    }
+
+    /**
+     * 用户的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function avatar()
@@ -42,18 +58,14 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
     }
 
     /**
-     * 用户头像的链接
+     * 获得用户头像的链接
      * @return string
      */
     public function getAvatarUrlAttribute()
     {
         $domain = env('APP_URL');
         $domain .= (substr($domain, -1) === '/' ? '' : '/');
-        return ($avatar = $this->avatar) ? $avatar->url : $domain . 'img/favicon.png';
-    }
-
-    public static function boot()
-    {
-        parent::boot();
+        $avatar = $this->avatar;
+        return $avatar ? $avatar->url : $domain . 'img/favicon.png';
     }
 }

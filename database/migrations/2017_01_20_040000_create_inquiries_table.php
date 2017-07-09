@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateInquiriesTable extends Migration
@@ -18,8 +17,9 @@ class CreateInquiriesTable extends Migration
             $table->increments('id');
             $table->integer('department_id')->unsigned();
             $table->integer('user_id')->unsigned();
+            $table->string('title', 300);
             $table->text('content');
-            $table->text('secret');
+            $table->text('secret')->nullable();
             $table->timestamps();
         });
     }

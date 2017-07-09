@@ -12,7 +12,7 @@ class InquiryReply extends Model
      * @var array
      */
     protected $fillable = [
-        'content',
+        'inquiry_id', 'user_id', 'content',
     ];
 
     /**
@@ -28,7 +28,7 @@ class InquiryReply extends Model
      * 此回复所属问题
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function question()
+    public function inquiry()
     {
         return $this->belongsTo('App\Models\Inquiry');
     }

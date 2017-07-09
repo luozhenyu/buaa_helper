@@ -3,23 +3,12 @@
 namespace App\Models;
 
 use Exception;
-use Faker\Provider\Uuid;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
-use Zizaco\Entrust\EntrustFacade;
-use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
 {
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->permission = array_merge($this->permission, ['a']);
-    }
-
-    use Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -29,6 +18,7 @@ class User extends Authenticatable
         'number', 'name', 'email', 'phone', 'department_id', 'password',
     ];
 
+    use Notifiable;
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -37,115 +27,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'email_verified', 'phone_verified',
     ];
-
     protected $permission = [];
 
-    /**
-     * 检查用户是否具有权限
-     * @param string|array $permissions
-     * @return bool
-     */
-    public function hasPermission($permissions)
+    public function __construct(array $attributes = [])
     {
-        foreach ((array)$permissions as $permission) {
-            if (in_array($permission, $this->permission, true)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function getRoleAttribute()
-    {
-        return (object)[
-            'name' => 'user',
-            'display_name' => '用户',
-        ];
-    }
-
-    /**
-     * 此用户拥有的设备
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function devices()
-    {
-        return $this->hasMany('App\Models\Device', 'user_id', 'id');
-    }
-
-    /**
-     * 此用户所属department
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function department()
-    {
-        return $this->belongsTo('App\Models\Department', 'department_id', 'id');
-    }
-
-    /**
-     * 此用户收到的通知
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function receivedNotifications()
-    {
-        return $this->belongsToMany('App\Models\Notification', 'notification_user', 'user_id', 'notification_id')
-            ->withPivot('read_at', 'stared_at', 'deleted_at');
-    }
-
-    /**
-     * 此用户收藏的通知
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function staredNotifications()
-    {
-        return $this->receivedNotifications()
-            ->wherePivot('stared_at', '!=', null);
-    }
-
-    /**
-     * 此用户已阅读的通知
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function readNotifications()
-    {
-        return $this->receivedNotifications()
-            ->wherePivot('read_at', '!=', null);
-    }
-
-    /**
-     * 此用户未阅读的通知
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function notReadNotifications()
-    {
-        return $this->receivedNotifications()
-            ->wherePivot('read_at', null);
-    }
-
-    /**
-     * 此用户上传的文件
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function files()
-    {
-        return $this->hasMany('App\Models\File', 'user_id', 'id');
-    }
-
-    /**
-     *  此用户提出的问题
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function inquiries()
-    {
-        return $this->hasMany('App\Models\Inquiry', 'user_id', 'id');
-    }
-
-    /**
-     *  此用户回复的问题
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function inquiryReplies()
-    {
-        return $this->hasMany('App\Models\InquiryReply', 'user_id', 'id');
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, ['a']);
     }
 
     /**
@@ -289,6 +176,7 @@ class User extends Authenticatable
 
         //deleting被Entrust使用
         static::deleted(function (User $user) {
+            $user->roles()->detach();
             $user->receivedNotifications()->detach();
 
             foreach ($user->devices as $device) {
@@ -307,6 +195,16 @@ class User extends Authenticatable
                 $inquiryReply->delete();
             }
         });
+    }
+
+    /**
+     * 此用户收到的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function receivedNotifications()
+    {
+        return $this->belongsToMany('App\Models\Notification', 'notification_user', 'user_id', 'notification_id')
+            ->withPivot('read_at', 'stared_at', 'deleted_at');
     }
 
     /**
@@ -337,5 +235,103 @@ class User extends Authenticatable
             default:
                 return User::find($id);
         }
+    }
+
+    /**
+     * 检查用户是否具有权限
+     * @param string|array $permissions
+     * @return bool
+     */
+    public function hasPermission($permissions)
+    {
+        foreach ((array)$permissions as $permission) {
+            if (in_array($permission, $this->permission, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'user',
+            'display_name' => '用户',
+        ];
+    }
+
+    /**
+     * 此用户拥有的设备
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function devices()
+    {
+        return $this->hasMany('App\Models\Device', 'user_id', 'id');
+    }
+
+    /**
+     * 此用户所属department
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function department()
+    {
+        return $this->belongsTo('App\Models\Department', 'department_id', 'id');
+    }
+
+    /**
+     * 此用户收藏的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function staredNotifications()
+    {
+        return $this->receivedNotifications()
+            ->wherePivot('stared_at', '!=', null);
+    }
+
+    /**
+     * 此用户已阅读的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function readNotifications()
+    {
+        return $this->receivedNotifications()
+            ->wherePivot('read_at', '!=', null);
+    }
+
+    /**
+     * 此用户未阅读的通知
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function notReadNotifications()
+    {
+        return $this->receivedNotifications()
+            ->wherePivot('read_at', null);
+    }
+
+    /**
+     * 此用户上传的文件
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function files()
+    {
+        return $this->hasMany('App\Models\File', 'user_id', 'id');
+    }
+
+    /**
+     *  此用户提出的问题
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inquiries()
+    {
+        return $this->hasMany('App\Models\Inquiry', 'user_id', 'id');
+    }
+
+    /**
+     *  此用户回复的问题
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inquiryReplies()
+    {
+        return $this->hasMany('App\Models\InquiryReply', 'user_id', 'id');
     }
 }
