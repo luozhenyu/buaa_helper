@@ -232,8 +232,7 @@
                 <h2 class="label-block">
                     @if($read_at)
                         <label class="label label-success">
-                            <span class="glyphicon glyphicon-ok"></span>
-                            已确认阅读
+                            <span class="glyphicon glyphicon-ok"></span>已确认阅读
                         </label>
                     @else
                         <div id="scrollBar" style="position: fixed;bottom: 40px;right: 80px;z-index: 99">
@@ -241,9 +240,8 @@
                                 <div class="progress-bar progress-bar-info" id="progressBar"
                                      style="width: 0;transition:none"></div>
                             </div>
-                            <label id="confirmRead" class="label label-danger slow_down">
-                                <span class="glyphicon glyphicon-question-sign"></span>
-                                是否仔细阅读
+                            <label id="confirmRead" class="label label-danger slow_down forbidden">
+                                <span class="glyphicon glyphicon-question-sign"></span>是否仔细阅读
                             </label>
                         </div>
 
@@ -257,6 +255,7 @@
                                     $(this).html(qSign + "是否仔细阅读");
                                 });
 
+
                                 $(window).scroll(function () {
                                     var total = $(document).height() - $(window).height();
                                     var vis = $(window).scrollTop();
@@ -265,7 +264,7 @@
                                     var left = total - vis;
                                     if (left < 100) {
                                         $("#confirmRead").html(qSign + "点击确认阅读").css("background-color", "#5cb85c")
-                                            .unbind()
+                                            .unbind().addClass("click").removeClass("forbidden")
                                             .click(function () {
                                                 $.ajax({
                                                     url: "{{ route('notification').'/'.$notification->id .'/read' }}",
@@ -280,6 +279,8 @@
                                             });
                                     }
                                 });
+
+                                $(window).scroll();
                             });
                         </script>
                     @endif
