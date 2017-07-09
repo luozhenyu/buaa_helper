@@ -16,6 +16,14 @@ class Student extends User implements HasPersonalAvatar
         'grade', 'class', 'political_status', 'native_place', 'financial_difficulty',
     ];
 
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'Student',
+            'display_name' => '学生',
+        ];
+    }
+
     /**
      * 此用户的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -39,10 +47,5 @@ class Student extends User implements HasPersonalAvatar
     public static function boot()
     {
         parent::boot();
-
-        static::created(function (Student $user) {
-            $role = Role::where('name', 'student')->firstOrFail();
-            $user->attachRole($role);
-        });
     }
 }

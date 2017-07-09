@@ -6,6 +6,22 @@ use App\Models\ModelInterface\HasDepartmentAvatar;
 
 class DepartmentAdmin extends Admin implements HasDepartmentAvatar
 {
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, [
+            'view_all_user',
+        ]);
+    }
+
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'DepartmentAdmin',
+            'display_name' => '部门管理员',
+        ];
+    }
+
     /**
      * 此用户所属department的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -40,10 +56,5 @@ class DepartmentAdmin extends Admin implements HasDepartmentAvatar
     public static function boot()
     {
         parent::boot();
-
-        static::created(function (DepartmentAdmin $user) {
-            $role = Role::where('name', 'departmentAdmin')->firstOrFail();
-            $user->attachRole($role);
-        });
     }
 }

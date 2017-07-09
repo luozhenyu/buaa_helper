@@ -12,8 +12,13 @@ use Zizaco\Entrust\Traits\EntrustUserTrait;
 
 class User extends Authenticatable
 {
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, ['a']);
+    }
+
     use Notifiable;
-    use EntrustUserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +37,31 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'email_verified', 'phone_verified',
     ];
+
+    protected $permission = [];
+
+    /**
+     * 检查用户是否具有权限
+     * @param string|array $permissions
+     * @return bool
+     */
+    public function hasPermission($permissions)
+    {
+        foreach ((array)$permissions as $permission) {
+            if (in_array($permission, $this->permission, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'user',
+            'display_name' => '用户',
+        ];
+    }
 
     /**
      * 此用户拥有的设备
@@ -247,7 +277,6 @@ class User extends Authenticatable
         return $query;
     }
 
-
     public static function boot()
     {
         parent::boot();
@@ -260,7 +289,6 @@ class User extends Authenticatable
 
         //deleting被Entrust使用
         static::deleted(function (User $user) {
-            $user->roles()->detach();
             $user->receivedNotifications()->detach();
 
             foreach ($user->devices as $device) {

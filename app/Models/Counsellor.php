@@ -6,6 +6,14 @@ use App\Models\ModelInterface\HasDepartmentAvatar;
 
 class Counsellor extends Admin implements HasDepartmentAvatar
 {
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'Counsellor',
+            'display_name' => '院系辅导员',
+        ];
+    }
+
     /**
      * 此用户所属department的头像
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -40,10 +48,5 @@ class Counsellor extends Admin implements HasDepartmentAvatar
     public static function boot()
     {
         parent::boot();
-
-        static::created(function (Counsellor $user) {
-            $role = Role::where('name', 'counsellor')->firstOrFail();
-            $user->attachRole($role);
-        });
     }
 }

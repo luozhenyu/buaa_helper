@@ -44,7 +44,7 @@ $.fn.user_select = function (options) {
                 $("<h5>").text(conflict_name).css("font-weight", "bold").css("color", "orangered")
             ).html();
         }
-    }
+    };
 
     var settings = $.extend(defaults, options);
     var data = settings.data;  // 数据集
@@ -153,7 +153,7 @@ $.fn.user_select = function (options) {
             var data = $(this).data("data");
             if (properties[data.key] === undefined) properties[data.key] = [];
             properties[data.key].push(data.value);
-        })
+        });
 
         return {departments: departments, properties: properties};
     }
@@ -308,7 +308,7 @@ $.fn.user_select = function (options) {
                     )
             ).append(
                 $("<div>").attr("id", collapseID).addClass("panel-collapse collapse").append(list_group)
-            )
+            );
         mainPanel.append(panel);
     }
     /*console.log("yyy");

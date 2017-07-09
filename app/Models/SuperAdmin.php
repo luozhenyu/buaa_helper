@@ -6,6 +6,15 @@ use App\Models\ModelInterface\HasPersonalAvatar;
 
 class SuperAdmin extends Admin implements HasPersonalAvatar
 {
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, [
+            'create_user', 'delete_user', 'modify_all_user', 'view_all_user',
+            'delete_notification', 'modify_all_notification',
+        ]);
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -14,6 +23,14 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
     protected $fillable = [
         'number', 'name', 'email', 'phone', 'department_id', 'password', 'avatar'
     ];
+
+    public function getRoleAttribute()
+    {
+        return (object)[
+            'name' => 'SuperAdmin',
+            'display_name' => '超级管理员',
+        ];
+    }
 
     /**
      * 此用户的头像
@@ -38,10 +55,5 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
     public static function boot()
     {
         parent::boot();
-
-        static::created(function (SuperAdmin $user) {
-            $role = Role::where('name', 'superAdmin')->firstOrFail();
-            $user->attachRole($role);
-        });
     }
 }

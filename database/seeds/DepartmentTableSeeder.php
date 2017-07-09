@@ -6,24 +6,6 @@ use Illuminate\Support\Facades\DB;
 
 class DepartmentTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        DB::beginTransaction();
-        foreach (static::data as $item) {
-            Department::create([
-                'number' => $item['number'],
-                'name' => $item['name'],
-                'description' => $item['description'],
-            ]);
-        }
-        DB::commit();
-    }
-
     const data = [
         [
             'number' => 1,
@@ -354,4 +336,22 @@ class DepartmentTableSeeder extends Seeder
             'description' => '勤工助学中心',
         ],
     ];
+
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DB::beginTransaction();
+        foreach (static::data as $item) {
+            Department::create([
+                'number' => $item['number'],
+                'name' => $item['name'],
+                'description' => $item['description'],
+            ]);
+        }
+        DB::commit();
+    }
 }

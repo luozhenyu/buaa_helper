@@ -123,7 +123,7 @@
         <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
             <label for="department" class="col-md-2 control-label">发布院系/部门</label>
             <div class="col-md-9">
-                @if(Entrust::hasRole('admin'))
+                @if(Auth::user() instanceof \App\Models\Admin)
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                             id="department" name="department" required>
                         @foreach(\App\Models\Department::get() as $department)
