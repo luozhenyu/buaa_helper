@@ -1,10 +1,29 @@
 @extends('layouts.app')
 
 @php($authUser = Auth::user())
+@php
+    /*
+        判定用户角色
+        $user : 待判定的用户
+        $inq : 参与判定的留言
+    */
+    function userRole($user, $inq){
+        $inquiryRole = 0; //0,旁观者 1,提问者 2,回答者
+        if ($user->hasPermission('view_all_inquiry')
+            || ($user->hasPermission('view_owned_inquiry') && ($user->department->id === $inq->department->id))) {
+            $inquiryRole = 2;
+        } else if ($user->id === $inq->user->id) { //提问者
+            $inquiryRole = 1;
+        }
+        return $inquiryRole;
+    }
+@endphp
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li class="active">留言管理</li>
+<li><a href="{{ url("/inquiry") }}">留言管理</a></li>
+<li><a href="{{ url("/inquiry/".$department->number) }}">{{ $department->name }}</a></li>
+<li class="active">查看问题 - {{ $inquiry->title }}</li>
 @endpush
 
 @push("css")
@@ -207,7 +226,9 @@
             if (!($(".bh-inquiry-left").css("width") === $(".bh-inquiry-right").css("width"))) {
                 // 识别为宽屏幕，根据滚动状况进行自动调整
                 var main_top = $(".bh-inquiry-main").offset().top - $(window).scrollTop();
+                var max_top = $(".bh-inquiry-main").outerHeight() - $(".bh-inquiry-info").outerHeight();
                 info_margin = 10 - main_top;
+                if (info_margin > max_top) info_margin = max_top;
                 if (info_margin < 0) info_margin = 0;
             }
             $(".bh-inquiry-info").css("margin-top", info_margin + "px");
@@ -278,20 +299,18 @@
 
                             <div class="bh-inquiry-detail-recode-secret-full">
                                 <b>机密信息：</b>
-                                <div class="bh-inquiry-detail-recode-secret">
-                                    <i class="bh-inquiry-detail-recode-secret-content">
-                                        {{ $authUser->hasPermission('view_all_inquiry')
+                                <div class="bh-inquiry-detail-recode-secret"><i
+                                            class="bh-inquiry-detail-recode-secret-content">{{ $authUser->hasPermission('view_all_inquiry')
                                         ||($authUser->hasPermission('view_owned_inquiry')
                                         && $authUser->department->id === $inquiry->department->id)?
-                                        $inquiry->secret :"******" }}
-                                    </i>
-                                </div>
+                                        $inquiry->secret : "******" }}</i></div>
                             </div>
                         </div>
                     </li>
 
                     @foreach($inquiryReplies as $inquiryReply)
-                        <li class="bh-inquiry-list-item bh-inquiry-list-item-black">
+                        <li class="bh-inquiry-list-item
+                            {{ (userRole($inquiryReply->user, $inquiry) === 2) ? "bh-inquiry-list-item-black" : "bh-inquiry-list-item-gray" }}">
                             <div class="bh-inquiry-head-icon">
                                 <img src="{{ \App\Models\User::downcasting($inquiryReply->user)->avatarUrl }}"
                                      alt="{{ $inquiryReply->user->name }}" class="img-circle">
@@ -299,7 +318,7 @@
                             <div class="bh-inquiry-detail-recode">
                                 <div class="bh-inquiry-detail-recode-title">
                                     <div class="pull-left bh-inquiry-detail-recode-identity">
-                                        {{ $inquiryReply->user->name }}回复
+                                        {{ $inquiryReply->user->name }}{{ (userRole($inquiryReply->user, $inquiry) === 2) ? "回复" : "追问" }}
                                     </div>
                                     <div class="pull-right bh-inquiry-detail-recode-time">
                                         {{ $inquiryReply->created_at }}
@@ -314,13 +333,14 @@
         </div>
     </div>
 
+
     @if($authUser->hasPermission('view_all_inquiry')
     ||($authUser->hasPermission('view_owned_inquiry') && $authUser->department->id === $inquiry->department->id)
     ||$authUser->id === $inquiry->user->id)
         <form class="form-horizontal" role="form" method="POST"
               action="{{ route('inquiry')."/{$department->number}/{$inquiry->id}" }}">
             {{ csrf_field() }}
-            <h3 class="text-center">我要回复</h3>
+            <h3 class="text-center">我要{{ (userRole($authUser, $inquiry) === 2) ? "回复" : "追问" }}</h3>
 
             <div class="form-group{{ $errors->has('content')?' has-error' :'' }}">
                 <label for="content" class="col-md-2 control-label"></label>
@@ -339,7 +359,7 @@
             <div class="form-group">
                 <div class="col-md-3 pull-right">
                     <button type="submit" class="btn btn-primary">
-                        提交回复
+                        提交{{ (userRole($authUser, $inquiry) === 2) ? "回复" : "追问" }}
                     </button>
                 </div>
             </div>

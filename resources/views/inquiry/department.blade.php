@@ -3,7 +3,7 @@
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
 <li><a href="{{ url("/inquiry") }}">留言管理</a></li>
-<li class="active">XXX学院机关</li>
+<li class="active">{{ $department->name }}</li>
 @endpush
 
 @push("css")
@@ -103,7 +103,9 @@
         </div>
         <div class="panel-body">
             <ul class="bh-inquiry-set">
+                @php($count = 0)
                 @foreach($inquiries as $inquiry)
+                    @php($count++)
                     <li class="bh-inquiry-set-item slow-down">
                         <div class="bh-inquiry-set-item-title">
                             @if($inquiry->replied)
@@ -122,6 +124,9 @@
                         </div>
                     </li>
                 @endforeach
+                @if($count === 0)
+                    <h3 style = "color: gray;text-align: center;">(暂无留言)</h3>
+                @endif
             </ul>
 
             {{ $inquiries->links() }}

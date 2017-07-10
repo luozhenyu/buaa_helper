@@ -104,6 +104,12 @@
         margin-right: 7px;
         font-size: 18px;
     }
+
+    .bh-inquiry-block-status .bh-inquiry-block-status-active {
+        color: blue;
+        margin-left: 8px;
+    }
+
 </style>
 @endpush
 
@@ -128,8 +134,8 @@
                                 <h5>{{ $department->name }}</h5>
                             </div>
 
-                            <div>
-                                <span style="color: blue;">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
+                            <div class = "bh-inquiry-block-status">
+                                <span class = "bh-inquiry-block-status-active">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
                                 / {{ $department->inquiries->count() }}
                             </div>
                         </div>
@@ -153,6 +159,10 @@
                             </div>
                             <div class="bh-inquiry-block-content">
                                 <h5>{{ $department->name }}</h5>
+                            </div>
+                            <div class = "bh-inquiry-block-status">
+                                <span class = "bh-inquiry-block-status-active">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
+                                / {{ $department->inquiries->count() }}
                             </div>
                         </div>
                     </a>
