@@ -101,7 +101,7 @@
 
     .bh-inquiry-plate .panel-body > .bh-inquiry-block .bh-inquiry-block-content > * {
         white-space: normal;
-        margin-right: 7px;
+        margin: 0px 7px 0px 0px;
         font-size: 18px;
     }
 
