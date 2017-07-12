@@ -49,7 +49,7 @@ class AccountManagerController extends Controller
 
         if (!$request->isJson()) {
             return response()->json([
-                'errmsg' => 'Your upload is not a valid JSON.',
+                'errmsg' => 'Your request is not a valid JSON.',
             ]);
         }
 
@@ -58,7 +58,8 @@ class AccountManagerController extends Controller
             if (Auth::user()->hasPermission('view_all_user')) {
                 $query = User::select($condition);
             } else {
-                $query = User::select($condition, Auth::user()->department->number);
+                $departmentNumber=Auth::user()->department->number;
+                $query = User::select($condition, $departmentNumber);
             }
             $query = $query->orderBy('name', 'desc');
         } catch (Exception $e) {

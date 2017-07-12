@@ -4,6 +4,7 @@ use App\Http\Controllers\FileController;
 use App\Models\Counsellor;
 use App\Models\Department;
 use App\Models\DepartmentAdmin;
+use App\Models\Student;
 use App\Models\SuperAdmin;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
@@ -29,16 +30,23 @@ class UserTableSeeder extends Seeder
         Auth::login($superAdmin);
         $this->setDepartmentAvatar();
 
-        $departmentAdmin = DepartmentAdmin::create([
+        DepartmentAdmin::create([
             'number' => 10001,
             'name' => '部门管理员',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);
 
-        $counsellor = Counsellor::create([
+        Counsellor::create([
             'number' => 10002,
             'name' => '学院辅导员',
+            'password' => bcrypt('123456'),
+            'department_id' => 21,
+        ]);
+
+        Student::create([
+            'number' => 15210001,
+            'name' => '学生',
             'password' => bcrypt('123456'),
             'department_id' => 21,
         ]);

@@ -52,7 +52,7 @@
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    error: function (event) {
+                    error: function () {
                         alert("您没有权限访问！");
                     },
                     success: function (data) {
@@ -101,7 +101,7 @@
                 <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
                 @permission('modify_owned_user')
                 <input id="avatarInput" type="hidden" name="avatar"
-                       value="{{ ($avatarFile = $user->avatarFile)? $avatarFile->hash :'' }}">
+                       value="{{ ($avatar = $user->avatar)? $avatar->hash :'' }}">
                 <span id="avatarSelect" class="btn btn-default btn-xs">
                     选择图片 {{ \App\Http\Controllers\FileController::uploadLimitHit() }}
                 </span>
@@ -145,21 +145,19 @@
                         <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
                     @endforeach
                 </select>
-                @endpermission
+                @else
+                    <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                            id="department" name="department" disabled>
+                        @php($department = Auth::user()->department)
+                        <option>{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                    </select>
+                    @endpermission
 
-                @permission('modify_owned_user')
-                <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                        id="department" name="department" disabled>
-                    @php($department = Auth::user()->department)
-                    <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
-                </select>
-                @endpermission
-
-                @if ($errors->has('department'))
-                    <span class="help-block">
+                    @if ($errors->has('department'))
+                        <span class="help-block">
                         <strong>{{ $errors->first('department') }}</strong>
                     </span>
-                @endif
+                    @endif
             </div>
         </div>
 
@@ -195,13 +193,15 @@
 
         @if($user instanceof \App\Models\Student)
             <div class="form-group{{ $errors->has('grade') ? ' has-error' : '' }}">
-                <label for="grade" class="col-md-4 control-label">{{ $grade->display_name }}</label>
+                <label for="grade" class="col-md-4 control-label">年级</label>
                 <div class="col-md-6">
                     <select class="selectpicker form-control{{ $errors->has('grade') ? ' has-error' : '' }}"
                             id="grade" name="grade" title="请选择年级">
-                        @foreach($grade->propertyValues as $value)
-                            <option value="{{ $value->name }}">{{ $value->display_name }}</option>
-                        @endforeach
+                        @if($grade = \App\Models\Property::where('name','grade')->first())
+                            @foreach($grade->propertyValues as $value)
+                                <option value="{{ $value->name }}">{{ $value->display_name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     @if ($errors->has('grade'))
                         <span class="help-block">
@@ -211,14 +211,17 @@
                 </div>
             </div>
 
+
             <div class="form-group{{ $errors->has('class') ? ' has-error' : '' }}">
-                <label for="class" class="col-md-4 control-label">{{ $class->display_name }}</label>
+                <label for="class" class="col-md-4 control-label">班级</label>
                 <div class="col-md-6">
                     <select class="selectpicker form-control{{ $errors->has('class') ? ' has-error' : '' }}"
                             id="class" name="class" title="请选择班级">
-                        @foreach($class->propertyValues as $value)
-                            <option value="{{ $value->name }}">{{ $value->display_name }}</option>
-                        @endforeach
+                        @if($class = \App\Models\Property::where('name','class')->first())
+                            @foreach($class->propertyValues as $value)
+                                <option value="{{ $value->name }}">{{ $value->display_name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     @if ($errors->has('class'))
                         <span class="help-block">
@@ -228,17 +231,16 @@
                 </div>
             </div>
 
-            {{-- 政治面貌 --}}
-            @php($political_status = \App\Models\Property::where('name','political_status')->firstOrFail())
             <div class="form-group{{ $errors->has('political_status') ? ' has-error' : '' }}">
-                <label for="political_status"
-                       class="col-md-4 control-label">{{ $political_status->display_name }}</label>
+                <label for="political_status" class="col-md-4 control-label">政治面貌</label>
                 <div class="col-md-6">
                     <select class="selectpicker form-control{{ $errors->has('political_status') ? ' has-error' : '' }}"
                             id="political_status" name="political_status" title="请选择政治面貌">
-                        @foreach($political_status->propertyValues as $value)
-                            <option value="{{ $value->name }}">{{ $value->display_name }}</option>
-                        @endforeach
+                        @if($political_status = \App\Models\Property::where('name','political_status')->first())
+                            @foreach($political_status->propertyValues as $value)
+                                <option value="{{ $value->name }}">{{ $value->display_name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     @if ($errors->has('political_status'))
                         <span class="help-block">
@@ -248,42 +250,35 @@
                 </div>
             </div>
 
-            {{-- 籍贯 --}}
-            @php($native_place = \App\Models\Property::where('name','native_place')->firstOrFail())
-            <div class="form-group{{ $errors->has('native_place.*') ? ' has-error' : '' }}">
-                <label for="native_place" class="col-md-4 control-label">{{ $native_place->display_name }}</label>
-                <div class="container" id="native_place_container">
-                    <div class="col-md-6{{ $errors->has('native_place') ? ' has-error' : '' }}">
-                        <select class="selectpicker" id="province" name="native_place[0]" title="请选择省份"
-                                data-width="32%" disabled autocomplete="off">
-                        </select>
-                        <select class="selectpicker" id="city" name="native_place[1]" title="请选择城市"
-                                data-width="32%" disabled autocomplete="off">
-                        </select>
-                        <select class="selectpicker" id="area" name="native_place[2]" title="请选择地区"
-                                data-width="32%" disabled autocomplete="off">
-                        </select>
-                    </div>
-
-                    @if ($errors->has('native_place.*'))
+            <div class="form-group{{ $errors->has('native_place') ? ' has-error' : '' }}">
+                <label for="native_place" class="col-md-4 control-label">籍贯</label>
+                <div class="col-md-6">
+                    <select class="selectpicker form-control{{ $errors->has('native_place') ? ' has-error' : '' }}"
+                            id="native_place" name="native_place" title="请选择籍贯">
+                        @if($native_place = \App\Models\Property::where('name','native_place')->first())
+                            @foreach($native_place->propertyValues as $value)
+                                <option value="{{ $value->name }}">{{ $value->display_name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    @if ($errors->has('native_place'))
                         <span class="help-block">
-                        <strong>{{ $errors->first('native_place.*') }}</strong>
+                        <strong>{{ $errors->first('native_place') }}</strong>
                     </span>
                     @endif
                 </div>
             </div>
 
-            {{-- 经济困难 --}}
-            @php($financial_difficulty = \App\Models\Property::where('name','financial_difficulty')->firstOrFail())
             <div class="form-group{{ $errors->has('financial_difficulty') ? ' has-error' : '' }}">
-                <label for="financial_difficulty"
-                       class="col-md-4 control-label">{{ $financial_difficulty->display_name }}</label>
+                <label for="financial_difficulty" class="col-md-4 control-label">经济情况</label>
                 <div class="col-md-6">
                     <select class="selectpicker form-control{{ $errors->has('financial_difficulty') ? ' has-error' : '' }}"
-                            id="financial_difficulty" name="financial_difficulty" title="是否经济困难">
-                        @foreach($financial_difficulty->propertyValues as $value)
-                            <option value="{{ $value->name }}">{{ $value->display_name }}</option>
-                        @endforeach
+                            id="financial_difficulty" name="financial_difficulty" title="请选择经济情况">
+                        @if($financial_difficulty = \App\Models\Property::where('name','financial_difficulty')->first())
+                            @foreach($financial_difficulty->propertyValues as $value)
+                                <option value="{{ $value->name }}">{{ $value->display_name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                     @if ($errors->has('financial_difficulty'))
                         <span class="help-block">
@@ -296,11 +291,10 @@
 
         <div class="form-group">
             <label for="role" class="col-md-4 control-label">
-                <span class="glyphicon glyphicon-warning-sign" style="color: orange"></span>
                 账号类型
             </label>
             <div class="col-md-6">
-                <select class="selectpicker form-control">
+                <select class="selectpicker form-control" disabled>
                     <option>{{ $user->role->display_name }}</option>
                 </select>
             </div>
