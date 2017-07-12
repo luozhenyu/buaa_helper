@@ -1,5 +1,23 @@
 @extends('layouts.app')
 
+@php($authUser = Auth::user())
+@php
+    const 旁观者 = 0;
+    const 提问者 = 1;
+    const 回答者 = 2;
+    function inquiryRole($user, $inquiry) {
+        if ($user->id === $inquiry->user->id) {
+            return 提问者;
+        } else if ($user->hasPermission('view_all_inquiry')
+            || ($user->hasPermission('view_owned_inquiry') && $user->department->id === $inquiry->department->id)
+        ) {
+            return 回答者;
+        } else {
+        return 旁观者;
+        }
+    }
+@endphp
+
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
 <li><a href="{{ url("/inquiry") }}">留言管理</a></li>
@@ -106,7 +124,9 @@
                 @php($count = 0)
                 @foreach($inquiries as $inquiry)
                     @php($count++)
-                    <li class="bh-inquiry-set-item slow-down">
+                    <li class="bh-inquiry-set-item slow-down
+                        {{ (((inquiryRole($authUser, $inquiry) === 回答者) && (!$inquiry->replied))
+                            || (inquiryRole($authUser, $inquiry) === 提问者)) ? "focus" : "" }}">
                         <div class="bh-inquiry-set-item-title">
                             @if($inquiry->replied)
                                 <span class="label label-success" style="font-size: 14px">已回答</span>
@@ -143,7 +163,7 @@
 
             <div class="col-md-9">
                 <input id="title" type="text" class="form-control" name="title"
-                       value="{{ old('title') }}" required autocomplete="off">
+                       value="{{ old('title') }}" required autocomplete="off" placeholder="简要概括您的问题">
 
                 @if ($errors->has('title'))
                     <span class="help-block">
@@ -158,7 +178,7 @@
 
             <div class="col-md-9">
                 <textarea id="content" class="form-control" name="content" rows="10" required
-                          autocomplete="off">{{ old('content') }}</textarea>
+                          autocomplete="off" placeholder="请详细描述您遇到的问题">{{ old('content') }}</textarea>
                 @if($errors->has('content'))
                     <span class="help-block">
                         <strong>{{ $errors->first('content') }}</strong>
@@ -172,7 +192,7 @@
 
             <div class="col-md-9">
                 <textarea id="secret" class="form-control" name="secret" rows="5" autocomplete="off"
-                          placeholder="（该信息将作加密处理，仅您自己和回复者可见）">{{ old('secret') }}</textarea>
+                          placeholder="该信息将作加密处理，仅您自己和回复者可见，选填">{{ old('secret') }}</textarea>
                 @if($errors->has('secret'))
                     <span class="help-block">
                         <strong>{{ $errors->first('secret') }}</strong>
