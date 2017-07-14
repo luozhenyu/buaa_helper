@@ -198,7 +198,7 @@
                             </a>
                         </li>
 
-                        @permission(['view_all_user','view_owned_user'])
+                        @permission(['view_owned_student', 'view_all_student', 'view_admin'])
                         <li>
                             <a href="{{ route('accountManager') }}">
                                 <span class="glyphicon glyphicon-folder-close"></span>
@@ -210,7 +210,7 @@
                         <li>
                             <a href="{{ url('/inquiry') }}">
                                 <span class="glyphicon glyphicon-comment"></span>
-                                留言管理
+                                留言中心
                             </a>
                         </li>
 
@@ -226,7 +226,6 @@
                                 @if($unread_count > 0)
                                     <span class="badge">{{ $unread_tip }}</span>
                                 @endif
-
                             </a>
                         </li>
 
@@ -234,12 +233,11 @@
                         <li>
                             <a href="{{ url('/logout') }}"
                                onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                                <span class = "glyphicon glyphicon-off"></span>
+                                <span class="glyphicon glyphicon-off"></span>
                                 登出
                             </a>
 
-                            <form id="logout-form" action="{{ url('/logout') }}" method="POST"
-                                  style="display: none;">
+                            <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
                                 {{ csrf_field() }}
                             </form>
                         </li>

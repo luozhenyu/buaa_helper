@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@php($authUser = Auth::user())
 
 @push('css')
 <style>
@@ -33,7 +34,7 @@
 @push('js')
 <script>
     $(function () {
-        $("#department").selectpicker("val", "{{ $user->department_id }}");
+        $("#department").selectpicker("val", "{{ $user->department->number }}");
 
         @if($user instanceof \App\Models\Student)
         $("#grade").selectpicker("val", "{{ $user->grade }}");
@@ -92,25 +93,13 @@
 
 @section('content')
     <form class="form-horizontal" role="form" method="POST" action="{{ route('accountManager').'/'.$user->id }}">
-        <input type="hidden" name="_method" value="PUT"/>
+        <input type="hidden" name="_method" value="PUT">
         {{ csrf_field() }}
 
-        <div class="form-group{{ $errors->has('avatar') ? ' has-error' : '' }}">
+        <div class="form-group">
             <label for="avatar" class="col-md-4 control-label">用户头像</label>
             <div class="col-md-6">
                 <img id="avatarImg" src="{{ $user->avatarUrl }}" class="img-thumbnail">
-                @permission('modify_owned_user')
-                <input id="avatarInput" type="hidden" name="avatar"
-                       value="{{ ($avatar = $user->avatar)? $avatar->hash :'' }}">
-                <span id="avatarSelect" class="btn btn-default btn-xs">
-                    选择图片 {{ \App\Http\Controllers\FileController::uploadLimitHit() }}
-                </span>
-                @if ($errors->has('avatar'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('avatar') }}</strong>
-                    </span>
-                @endif
-                @endpermission
             </div>
         </div>
 
@@ -124,9 +113,8 @@
         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
             <label for="name" class="col-md-4 control-label">姓名</label>
             <div class="col-md-6">
-                <input id="name" type="text" class="form-control" name="name"
-                       value="{{ $user->name }}" required
-                       autocomplete="off" {{ Auth::user()->hasPermission('modify_all_user')?'':'disabled' }}>
+                <input id="name" type="text" class="form-control" name="name" value="{{ $user->name }}"
+                       required autocomplete="off">
                 @if ($errors->has('name'))
                     <span class="help-block">
                         <strong>{{ $errors->first('name') }}</strong>
@@ -138,18 +126,18 @@
         <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
             <label for="department" class="col-md-4 control-label">院系或部门</label>
             <div class="col-md-6">
-                @permission('modify_all_user')
+                @permission(['modify_all_student', 'modify_admin'])
                 <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                         id="department" name="department">
-                    @foreach(\App\Models\Department::get() as $department)
-                        <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                    @foreach(\App\Models\Department::orderBy('number')->get() as $department)
+                        <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                     @endforeach
                 </select>
                 @else
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" name="department" disabled>
-                        @php($department = Auth::user()->department)
-                        <option>{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                            id="department" name="department">
+                        @php($department = $user->department)
+                        <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                     </select>
                     @endpermission
 
@@ -165,9 +153,7 @@
             <label for="email" class="col-md-4 control-label">邮箱</label>
 
             <div class="col-md-6">
-                <input id="email" type="email" class="form-control" name="email"
-                       value="{{ $user->email }}"
-                       autocomplete="off" {{ Auth::user()->hasPermission('modify_all_user')?'':'disabled' }}>
+                <input id="email" type="email" class="form-control" name="email" value="{{ $user->email }}" disabled>
 
                 @if ($errors->has('email'))
                     <span class="help-block">
@@ -179,10 +165,10 @@
 
         <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
             <label for="phone" class="col-md-4 control-label">手机号</label>
+
             <div class="col-md-6">
-                <input id="phone" type="text" class="form-control" name="phone"
-                       value="{{ $user->phone }}"
-                       autocomplete="off" {{ Auth::user()->hasPermission('modify_all_user')?'':'disabled' }}>
+                <input id="phone" type="text" class="form-control" name="phone" value="{{ $user->phone }}" disabled>
+
                 @if ($errors->has('phone'))
                     <span class="help-block">
                         <strong>{{ $errors->first('phone') }}</strong>

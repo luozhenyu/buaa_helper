@@ -19,149 +19,27 @@ class User extends Authenticatable
     ];
 
     use Notifiable;
+
     /**
-     * The attributes that should be hidden for arrays.
+     * 在数组中显示的属性
      *
      * @var array
      */
-    protected $hidden = [
-        'password', 'remember_token', 'email_verified', 'phone_verified',
-    ];
+    protected $visible = ['id', 'number', 'name', 'email', 'phone', 'department_number', 'role_display_name'];
+
+    /**
+     * 在数组中追加显示的属性
+     *
+     * @var array
+     */
+    protected $appends = ['department_number', 'role_display_name'];
+
     protected $permission = [];
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->permission = array_merge($this->permission, ['a']);
-    }
-
-    /**
-     * @param array $condition
-     * @param int|null $limit
-     * @return mixed
-     * @throws Exception
-     */
-    public static function select(array $condition, int $limit = null)
-    {
-        $query = new static;
-        if (!is_null($limit)) {
-            $query = $query->whereHas('department', function ($subQuery) use ($limit) {
-                $subQuery->where('number', $limit);
-            });
-        }
-
-        if (!key_exists('range', $condition)) {
-            throw new Exception('range键不存在');
-        }
-
-        $query = $query->whereHas(function ($subQuery) use ($condition) {
-            list($ALL, $ALL_COLLEGE, $ALL_OFFICE) = [-1, 0, 100];
-
-            foreach ($condition['range'] as $item) {
-                $department = $item['department'] ?? null;
-                if (is_null($department)) {
-                    throw new Exception("department键不存在");
-                }
-                $limit = [['properties.name', 'grade']];
-                if ($department === $ALL) {//所有人
-                    $limit[] = ['departments.number', '>', 0];
-                } else if ($department === $ALL_COLLEGE) {//所有院系
-                    $limit[] = ['departments.number', '<', 100];
-                } else if ($department === $ALL_OFFICE) {//所有部门
-                    $limit[] = ['departments.number', '>', 100];
-                } else {//指定院系或部门
-                    $limit[] = ['departments.number', $department];
-                }
-
-                $grade = $item['grade'] ?? null;
-                if ($grade) {
-                    $limit[] = ['property_values.name', $grade];
-                }
-                $subQuery = $subQuery->orWhere($limit);
-            }
-        });
-
-        return;
-
-        $query = static::join('departments', 'users.department_id', 'departments.id')
-            ->join('properties', 'property_user.property_id', 'properties.id')
-            ->join('property_values', 'property_user.property_value_id', 'property_values.id')
-            //role
-            ->join('role_user', 'users.id', 'role_user.user_id')
-            ->join('roles', 'roles.id', 'role_user.role_id');
-        if (!is_null($limit)) {
-            $query = $query->where('departments.number', $limit);
-        }
-
-        if (!key_exists('range', $condition)) {
-            throw new Exception("range键不存在");
-        }
-        $query = $query->where(function ($subQuery) use ($condition) {
-            list($ALL, $ALL_COLLEGE, $ALL_OFFICE) = [-1, 0, 100];
-
-            foreach ($condition['range'] as $item) {
-                $department = $item['department'] ?? null;
-                if (is_null($department)) {
-                    throw new Exception("department键不存在");
-                }
-                $limit = [['properties.name', 'grade']];
-                if ($department === $ALL) {//所有人
-                    $limit[] = ['departments.number', '>', 0];
-                } else if ($department === $ALL_COLLEGE) {//所有院系
-                    $limit[] = ['departments.number', '<', 100];
-                } else if ($department === $ALL_OFFICE) {//所有部门
-                    $limit[] = ['departments.number', '>', 100];
-                } else {//指定院系或部门
-                    $limit[] = ['departments.number', $department];
-                }
-
-                $grade = $item['grade'] ?? null;
-                if ($grade) {
-                    $limit[] = ['property_values.name', $grade];
-                }
-                $subQuery = $subQuery->orWhere($limit);
-            }
-        });
-
-        $properties = $condition['property'] ?? [];
-
-        foreach ($properties as $key => $value) {
-            $query = $query->whereExists(function ($query) use ($key, $value) {
-                $query->select(DB::raw(1))
-                    ->from('property_user')
-                    ->join('properties', 'property_user.property_id', 'properties.id')
-                    ->join('property_values', 'property_user.property_value_id', 'property_values.id')
-                    ->whereRaw('property_user.user_id = users.id')
-                    ->where(function ($subQuery) use ($key, $value) {
-                        foreach ((array)$value as $opt) {
-                            $subQuery = $subQuery->orWhere([
-                                ['properties.name', $key],
-                                ['property_values.name', $opt]
-                            ]);
-                        }
-                    });
-            });
-        }
-        $isAdmin = (int)EntrustFacade::hasRole('admin');
-        $url = url('/account_manager') . '/';
-        $query = $query->select(
-            'departments.number as department',
-            'departments.name as department_name',
-            'users.number as number',
-            'users.name as name',
-            'property_values.display_name as grade',
-            'roles.display_name as role',
-            DB::raw("if({$isAdmin},concat('{$url}',users.id),null) as url")
-        );
-
-        $orderBy = $condition['orderBy'] ?? null;
-        $sort = $condition['sort'] ?? "asc";
-
-        if ($orderBy) {
-            $query = $query->orderBy($orderBy, $sort);
-        }
-
-        return $query;
     }
 
     public static function boot()
@@ -176,7 +54,6 @@ class User extends Authenticatable
 
         //deleting被Entrust使用
         static::deleted(function (User $user) {
-            $user->roles()->detach();
             $user->receivedNotifications()->detach();
 
             foreach ($user->devices as $device) {
@@ -216,10 +93,18 @@ class User extends Authenticatable
     {
         $id = $user->id;
         $table = $user->getTable();
+        return static::findAndDowncasting($id, $table);
+    }
+
+    public static function findAndDowncasting($id, $table = null)
+    {
+        $table = $table ?? (new static)->getTable();
+
         $ret = DB::table($table)->join('pg_class', "{$table}.tableoid", 'pg_class.oid')
             ->where('id', $id)->select('pg_class.relname')->first();
 
-        switch ($ret->relname) {
+        $tableName = $ret ? $ret->relname : null;
+        switch ($tableName) {
             case 'super_admins':
                 return SuperAdmin::find($id);
 
@@ -233,8 +118,13 @@ class User extends Authenticatable
                 return Student::find($id);
 
             default:
-                return User::find($id);
+                return abort(404);
         }
+    }
+
+    public function getDepartmentNumberAttribute()
+    {
+        return $this->department->number;
     }
 
     /**
@@ -258,6 +148,11 @@ class User extends Authenticatable
             'name' => 'user',
             'display_name' => '用户',
         ];
+    }
+
+    public function getRoleDisplayNameAttribute()
+    {
+        return $this->role->display_name;
     }
 
     /**

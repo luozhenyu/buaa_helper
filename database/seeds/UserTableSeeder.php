@@ -44,12 +44,14 @@ class UserTableSeeder extends Seeder
             'department_id' => 21,
         ]);
 
-        Student::create([
-            'number' => 15210001,
-            'name' => '学生',
-            'password' => bcrypt('123456'),
-            'department_id' => 21,
-        ]);
+        for ($i = 1; $i <= 5; $i++) {
+            Student::create([
+                'number' => 15210000 + $i,
+                'name' => '学生' . $i,
+                'password' => bcrypt('123456'),
+                'department_id' => 21,
+            ]);
+        }
         DB::commit();
     }
 

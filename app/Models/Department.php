@@ -60,6 +60,23 @@ class Department extends Model
     }
 
     /**
+     * 此department的显示文字
+     * @return string
+     */
+    public function getDisplayNameAttribute()
+    {
+        if ($this->number > 100) {
+            return $this->name;
+        }
+
+        if ($this->number > 80) {
+            return $this->name . '-北航学院';
+        }
+
+        return $this->number . '-' . $this->name;
+    }
+
+    /**
      * 此department拥有的用户
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

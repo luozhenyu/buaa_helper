@@ -20,7 +20,7 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ url("/inquiry") }}">留言管理</a></li>
+<li><a href="{{ url("/inquiry") }}">留言中心</a></li>
 <li class="active">{{ $department->name }}</li>
 @endpush
 

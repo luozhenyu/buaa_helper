@@ -10,7 +10,7 @@ class DepartmentAdmin extends Admin implements HasDepartmentAvatar
     {
         parent::__construct($attributes);
         $this->permission = array_merge($this->permission, [
-            'view_all_user',
+            'view_all_student',
         ]);
     }
 
