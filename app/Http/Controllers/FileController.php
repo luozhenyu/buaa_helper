@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Closure;
 use App\Models\File;
 use App\Models\RealFile;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,86 +13,12 @@ use Intervention\Image\Facades\Image;
 
 class FileController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth', ['except' => 'download']);
-    }
-
     const UPLOAD_MAX_SIZE = 4 * 1024 * 1024;
     const FILE_MAX_SIZE = 100 * 1024 * 1024;
 
-    /**
-     * 大小限制提示
-     * @return string
-     */
-    public static function uploadLimitHit()
+    public function __construct()
     {
-        $limit = round(static::UPLOAD_MAX_SIZE / 1024 / 1024, 2);
-        return "[大小限制:{$limit}MB]";
-    }
-
-    /**
-     * 物理存储
-     * @param string $source
-     * @return \App\Models\RealFile|bool
-     */
-    protected static function createRealFile(string $source)
-    {
-        if (!file_exists($source)) {
-            return false;
-        }
-
-        if (($fileSize = filesize($source)) > static::FILE_MAX_SIZE) {
-            return false;
-        }
-
-        $sha1 = sha1_file($source);
-        if (!$realFile = RealFile::where('sha1', $sha1)->first()) {
-            $realFile = RealFile::create([
-                'sha1' => $sha1,
-                'mime' => mime_content_type($source),
-                'size' => $fileSize,
-            ]);
-
-            $dest = $realFile->absolutePath;
-
-            $dir = dirname($dest);
-
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
-            }
-
-            if (file_exists($dest)) {
-                unlink($dest);
-            }
-            copy($source, $dest);
-        }
-        return $realFile;
-    }
-
-    /**
-     * 导入本地文件
-     * @param string $source
-     * @param string|null $fileName
-     * @return File|bool
-     */
-    public static function import(string $source, string $fileName = null)
-    {
-        if (!$realFile = static::createRealFile($source)) {
-            return false;
-        }
-        $user = Auth::user();
-        $hash = sha1($user->id . $realFile->sha1 . $fileName);
-
-        if (!$file = $user->files()->where('hash', $hash)->first()) {
-            $file = $user->files()->create([
-                'hash' => $hash,
-                'fileName' => $fileName ?: basename($source),
-            ]);
-            $file->realFile()->associate($realFile);
-            $file->save();
-        }
-        return $file;
+        $this->middleware('auth', ['except' => 'download']);
     }
 
     /**
@@ -101,7 +27,7 @@ class FileController extends Controller
      * @param Closure|null $callback
      * @return \Illuminate\Http\JsonResponse
      */
-    public function upload(Request $request, Closure $callback = null)
+    public function upload(Request $request, $callback = null)
     {
         $uploadFile = $request->file('upload');
 
@@ -147,8 +73,82 @@ class FileController extends Controller
 
         $callback && $callback($file);
         return response()->json(
-            array_merge(['uploaded' => 1], $file->downloadInfo)
+            array_merge(['uploaded' => 1], $file->fileInfo)
         );
+    }
+
+    /**
+     * 大小限制提示
+     * @return string
+     */
+    public static function uploadLimitHit()
+    {
+        $limit = round(static::UPLOAD_MAX_SIZE / 1024 / 1024, 2);
+        return "[大小限制:{$limit}MB]";
+    }
+
+    /**
+     * 导入本地文件
+     * @param string $source
+     * @param string|null $fileName
+     * @return File|bool
+     */
+    public static function import(string $source, string $fileName = null)
+    {
+        if (!$realFile = static::createRealFile($source)) {
+            return false;
+        }
+        $user = Auth::user();
+        $hash = sha1($user->id . $realFile->sha1 . $fileName);
+
+        if (!$file = $user->files()->where('hash', $hash)->first()) {
+            $file = $user->files()->create([
+                'hash' => $hash,
+                'fileName' => $fileName ?: basename($source),
+            ]);
+            $file->realFile()->associate($realFile);
+            $file->save();
+        }
+        return $file;
+    }
+
+    /**
+     * 物理存储
+     * @param string $source
+     * @return \App\Models\RealFile|bool
+     */
+    protected static function createRealFile(string $source)
+    {
+        if (!file_exists($source)) {
+            return false;
+        }
+
+        if (($fileSize = filesize($source)) > static::FILE_MAX_SIZE) {
+            return false;
+        }
+
+        $sha1 = sha1_file($source);
+        if (!$realFile = RealFile::where('sha1', $sha1)->first()) {
+            $realFile = RealFile::create([
+                'sha1' => $sha1,
+                'mime' => mime_content_type($source),
+                'size' => $fileSize,
+            ]);
+
+            $dest = $realFile->absolutePath;
+
+            $dir = dirname($dest);
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            if (file_exists($dest)) {
+                unlink($dest);
+            }
+            copy($source, $dest);
+        }
+        return $realFile;
     }
 
     /**

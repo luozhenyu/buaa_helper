@@ -3,19 +3,26 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\Admin;
+use App\Models\Counsellor;
 use App\Models\Department;
-use App\Models\File;
+use App\Models\DepartmentAdmin;
 use App\Models\Property;
+use App\Models\Student;
+use App\Models\SuperAdmin;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class AccountManagerController extends Controller
 {
+    const userType = [Student::class, Counsellor::class, DepartmentAdmin::class, SuperAdmin::class];
+
     function __construct()
     {
         $this->middleware('auth', ['except' => 'getImportTemplate']);
@@ -30,105 +37,88 @@ class AccountManagerController extends Controller
     {
         $authUser = Auth::user();
 
-        if ($authUser->hasPermission('view_all_user')) {
-            $user = User::findOrFail($id);
-        } else if ($authUser->hasPermission('view_owned_user')) {
-            $user = $authUser->department->users()->findOrFail($id);
+        $user = User::findAndDowncasting($id);
+        if ($user instanceof Student) {
+            abort_unless($authUser->hasPermission('modify_all_student')
+                || ($authUser->hasPermission('modify_owned_student')
+                    && $authUser->department_id === $user->department_id), 403);
+        } else if ($user instanceof Admin) {
+            abort_unless($authUser->hasPermission('modify_admin'), 403);
         } else {
-            return abort(403);
+            return abort(404);
         }
-        abort_unless($authUser->hasPermission(['modify_all_user', 'modify_owned_user']), 403);
         return view('accountManager.modify', [
-            'user' => User::downcasting($user),
+            'user' => $user,
         ]);
     }
 
     public function ajaxIndex(Request $request)
     {
-        abort_unless(Auth::user()->hasPermission(['view_all_user', 'view_owned_user']), 403);
+        $authUser = Auth::user();
+        abort_unless($authUser->hasPermission(['view_admin', 'view_all_student', 'view_owned_student']), 403);
 
         if (!$request->isJson()) {
             return response()->json([
-                'errmsg' => 'Your request is not a valid JSON.',
+                'errmsg' => '您的请求不是有效的JSON.',
             ]);
         }
-
-        $condition = $request->toArray();
         try {
-            if (Auth::user()->hasPermission('view_all_user')) {
-                $query = User::select($condition);
-            } else {
-                $departmentNumber=Auth::user()->department->number;
-                $query = User::select($condition, $departmentNumber);
+            $condition = $request->toArray();
+
+            if (!key_exists('type', $condition)) {
+                throw new Exception('type键不存在');
             }
-            $query = $query->orderBy('name', 'desc');
+            if ($condition['type'] === 'admin') {
+                $query = Admin::select($condition, $authUser);
+            } else if ($condition['type'] === 'student') {
+                $query = Student::select($condition, $authUser);
+            } else {
+                throw new Exception('type只能为student或admin');
+            }
         } catch (Exception $e) {
             return response()->json([
                 'errmsg' => $e->getMessage(),
             ]);
         }
 
-        return $query->paginate(15);
+        return $query->orderBy('number', 'asc')->paginate(15);
     }
-
 
     public function create(Request $request)
     {
         abort_unless(Auth::user()->hasPermission('create_user'), 403);
-        return view('accountManager.create');
+        return view('accountManager.create', [
+            'userType' => static::userType,
+        ]);
     }
-
 
     public function store(Request $request)
     {
         abort_unless(Auth::user()->hasPermission('create_user'), 403);
 
-        $this->validate($request, [
-            'avatar' => 'nullable|avatar',
+        $userType = [];
+        foreach (static::userType as $type) {
+            $userType[] = (new $type)->role->name;
+        }
 
+        $this->validate($request, [
             'number' => 'required|digits_between:4,8|unique:users,number',
             'name' => 'required|max:20',
-            'department' => 'required|exists:departments,id',
-            'email' => 'nullable|email|max:40|unique:users,email',
-            'phone' => 'nullable|phone|unique:users,phone',
-
-            'grade' => 'nullable|exists:property_values,name,property_id,'
-                . Property::where('name', 'grade')->firstOrFail()->id,
-            'class' => 'nullable|exists:property_values,name,property_id,'
-                . Property::where('name', 'class')->firstOrFail()->id,
-            'political_status' => 'nullable|exists:property_values,name,property_id,'
-                . Property::where('name', 'political_status')->firstOrFail()->id,
-            'native_place.*' => 'nullable|exists:property_values,name,property_id,'
-                . Property::where('name', 'native_place')->firstOrFail()->id,
-            'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
-                . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
-
-            'role' => 'required|exists:roles,name',
+            'department' => 'required|exists:departments,number',
+            'role' => [
+                'required',
+                Rule::in($userType),
+            ],
         ]);
 
-        $avatar = File::where('hash', $request->input('avatar'))->first();
-        $user = User::create([
-            'avatar' => $avatar ? $avatar->id : null,
+        $role = 'App\\Models\\' . $request->input('role');
+        $department = Department::where('number', $request->input('department'))->firstOrFail();
+
+        $user = $role::create([
             'number' => $request->input('number'),
             'name' => $request->input('name'),
-            'department_id' => $request->input('department'),
-            'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
+            'department_id' => $department->id,
         ]);
-
-        $role = Role::where('name', $request->input('role'))->firstOrFail();
-        $user->attachRole($role);
-
-        $nativePlace = $request->input('native_place');
-        while (!empty($nativePlace) && !end($nativePlace)) {
-            array_pop($nativePlace);
-        }
-        //properties
-        $user->setProperty('grade', $request->input('grade'));
-        $user->setProperty('class', $request->input('class'));
-        $user->setProperty('political_status', $request->input('political_status'));
-        $user->setProperty('native_place', end($nativePlace));
-        $user->setProperty('financial_difficulty', $request->input('financial_difficulty'));
 
         return redirect('/account_manager/' . $user->id);
     }
@@ -137,84 +127,63 @@ class AccountManagerController extends Controller
     public function update(Request $request, $id)
     {
         $authUser = Auth::user();
-        if ($authUser->can('modify_all_user')) {
-            $user = User::findOrFail($id);
+
+        $user = User::findAndDowncasting($id);
+        if ($user instanceof Student) {
+            abort_unless($authUser->hasPermission('modify_all_student')
+                || ($authUser->hasPermission('modify_owned_student')
+                    && $authUser->department_id === $user->department_id), 403);
+
             $this->validate($request, [
-                'avatar' => 'nullable|avatar',
                 'name' => 'required|max:20',
-                'department' => 'required|exists:departments,id',
-                'email' => 'nullable|email|max:40|unique:users,email,' . $user->id,
-                'phone' => 'nullable|digits:11|unique:users,phone,' . $user->id,
-
+                'department' => 'required|exists:departments,number',
                 'grade' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'grade')->firstOrFail()->id,
                 'class' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'class')->firstOrFail()->id,
                 'political_status' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'political_status')->firstOrFail()->id,
-                'native_place.*' => 'nullable|exists:property_values,name,property_id,'
+                'native_place' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'native_place')->firstOrFail()->id,
                 'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
                     . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
-
-                'role' => 'required|exists:roles,name',
             ]);
+            $user->grade = $request->input('grade');
+            $user->class = $request->input('class');
+            $user->political_status = $request->input('political_status');
+            $user->native_place = $request->input('native_place');
+            $user->financial_difficulty = $request->input('financial_difficulty');
 
-            $user->department_id = $request->input('department');
+        } else if ($user instanceof Admin) {
+            abort_unless($authUser->hasPermission('modify_admin'), 403);
 
-            $role = Role::where('name', $request->input('role'))->firstOrFail();
-            $user->roles()->detach();
-            $user->attachRole($role);
-
-            if ($request->input('clear_password') === "on") {
-                $user->updatePassword(null);
-            }
-
-            $avatar = File::where('hash', $request->input('avatar'))->first();
-
-            $user->avatarFile()->associate($avatar);
-            $user->name = $request->input('name');
-            $user->email = $request->input('email');
-            $user->phone = $request->input('phone');
-            $user->save();
-
-        } else if ($authUser->can('modify_owned_user')) {
-            $user = User::where(['id' => $id, 'department' => $authUser->department_id])->firstOrFail($id);
             $this->validate($request, [
-                'grade' => 'nullable|exists:property_values,name,property_id,'
-                    . Property::where('name', 'grade')->firstOrFail()->id,
-                'class' => 'nullable|exists:property_values,name,property_id,'
-                    . Property::where('name', 'class')->firstOrFail()->id,
-                'political_status' => 'nullable|exists:property_values,name,property_id,'
-                    . Property::where('name', 'political_status')->firstOrFail()->id,
-                'native_place.*' => 'nullable|exists:property_values,name,property_id,'
-                    . Property::where('name', 'native_place')->firstOrFail()->id,
-                'financial_difficulty' => 'nullable|exists:property_values,name,property_id,'
-                    . Property::where('name', 'financial_difficulty')->firstOrFail()->id,
+                'name' => 'required|max:20',
+                'department' => 'required|exists:departments,number',
             ]);
         } else {
-            return abort(403);
+            return abort(404);
         }
 
-        $nativePlace = $request->input('native_place');
-        while (!empty($nativePlace) && !end($nativePlace)) {
-            array_pop($nativePlace);
+        if ($authUser->hasPermission(['modify_all_student', 'modify_admin'])) {
+            $department = Department::where('number', $request->input('department'))->firstOrFail();
+            $user->department()->associate($department);
         }
-        //properties
-        $user->setProperty('grade', $request->input('grade'));
-        $user->setProperty('class', $request->input('class'));
-        $user->setProperty('political_status', $request->input('political_status'));
-        $user->setProperty('native_place', end($nativePlace));
-        $user->setProperty('financial_difficulty', $request->input('financial_difficulty'));
 
-        return redirect('/account_manager/' . $user->id);
+        if ($authUser->hasPermission('delete_user') && $request->input('clear_password') === "on") {
+            $user->password = null;
+        }
+        $user->name = $request->input('name');
+        $user->save();
+
+        return redirect()->back();
     }
 
     public function destroy(Request $request, $id)
     {
         abort_unless(Auth::user()->hasPermission('delete_user'), 403);
 
-        $user = User::findOrFail($id);
+        $user = User::findAndDowncasting($id);
         $user->delete();
         return response('成功删除！');
     }

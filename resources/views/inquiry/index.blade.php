@@ -2,7 +2,7 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li class="active">留言管理</li>
+<li class="active">留言中心</li>
 @endpush
 
 @push("css")

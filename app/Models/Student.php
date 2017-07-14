@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\ModelInterface\HasPersonalAvatar;
+use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class Student extends User implements HasPersonalAvatar
 {
@@ -19,6 +21,59 @@ class Student extends User implements HasPersonalAvatar
     public static function boot()
     {
         parent::boot();
+    }
+
+    /**
+     * @param array $condition
+     * @param Authenticatable $authUser
+     * @return mixed
+     * @throws Exception
+     */
+    public static function select(array $condition, Authenticatable $authUser)
+    {
+        $query = new static;
+
+        if ($authUser->hasPermission('view_all_student')) {
+        } else if ($authUser->hasPermission('view_owned_student')) {
+            $limit = $authUser->department->number;
+            $query = $query->whereHas('department', function ($query) use ($limit) {
+                $query->where('number', $limit);
+            });
+        } else {
+            return $query->whereRaw('FALSE');
+        }
+
+        if (!key_exists('range', $condition)) {
+            throw new Exception('range键不存在');
+        }
+        $range = $condition['range'];
+
+        $query = $query->where(function ($query) use ($range) {
+            foreach ($range as $item) {
+                if (!key_exists('department', $item)) {
+                    throw new Exception('department键不存在');
+                }
+                $department = $item['department'] ?? false;
+                $grade = $item['grade'] ?? false;
+
+                $query = $query->orWhere(function ($query) use ($department, $grade) {
+                    $query->when($department, function ($query) use ($department) {
+                        return $query->whereHas('department', function ($query) use ($department) {
+                            $query->where('number', $department);
+                        });
+                    })->when($grade, function ($query) use ($grade) {
+                        return $query->where('grade', $grade);
+                    });
+                });
+            }
+        });
+
+
+        if (key_exists('property', $condition)) {
+            foreach ($condition['property'] as $key => $value)
+                $query = $query->where($key, $value);
+        }
+        return $query;
     }
 
     public function getRoleAttribute()
@@ -59,4 +114,5 @@ class Student extends User implements HasPersonalAvatar
         $avatar = $this->avatar;
         return $avatar ? $avatar->url : $domain . 'img/favicon.png';
     }
+
 }

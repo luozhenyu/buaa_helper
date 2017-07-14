@@ -116,9 +116,10 @@
 
 
 @push('jsLink')
-<script src = "/js/paginate.js"></script>
-<script src = "/js/user_select.js"></script>
+<script src="{{ url('/js/paginate.js') }}"></script>
+<script src="{{ url('/js/user_select.js') }}"></script>
 @endpush
+
 @push('js')
 <script>
     $(function () {
@@ -194,7 +195,7 @@
                 }
             });
 
-            query_json = {"range": range, "property": property};
+            var query_json = {type: "student", range: range, property: property};
 
             new_page(1);
             function new_page(page) {
@@ -234,7 +235,7 @@
                                                 $("<span>")
                                                     .attr("data-toggle", "tooltip").attr("title", dat.department_name)
                                                     .append(dat.department)
-                                        )
+                                            )
                                     ).append(
                                         $("<td>").addClass("bh-account-list-number").append(dat.number)
                                     ).append(
@@ -440,162 +441,14 @@
                             </form>
                         </div>
 
-                        <div class = "bh-account-selector">
+                        <div class="bh-account-selector">
 
                         </div>
                         <script>
-                            $(function(){
-                                $(".bh-account-selector").user_select({
-
-                                })
+                            $(function () {
+                                $(".bh-account-selector").user_select({})
                             })
                         </script>
-                        {{-- <!--
-                        <div class="selected_content">
-                            <h4 class="empty_label">(无任何选中对象)</h4>
-                        </div>
-                        <div style="padding-top: 6px;text-align: right;">
-                            <button id="btn_query" class="btn btn-primary">
-                                <span class="glyphicon glyphicon-filter"></span>筛选
-                            </button>
-                        </div>
-
-                        <div class="select_div">
-                            <div class="panel-group" id="accordion">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading click base range slow_down" value=""
-                                         name="全校人员">
-                                        <h5 class="panel-title">
-                                            <b>全校人员</b>
-                                        </h5>
-                                    </div>
-                                </div>
-
-                                <div class="panel panel-default">
-                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                         href="#collapse_1">
-                                        <h5 class="panel-title">
-                                            机关部处
-                                        </h5>
-                                    </div>
-                                    <div id="collapse_1" class="panel-collapse collapse">
-                                        <ul class="list-group">
-                                            <li class="list-group-item slow_down click base range" value="0"
-                                                name="全校各部门">
-                                                <b>全校各部门</b>
-                                            </li>
-                                            @foreach(\App\Models\Department::where('number', '>=', '100')->get() as $key => $value)
-                                                <li class="list-group-item slow_down click base range"
-                                                    value="0,{{ $value->number }}" name="{{ $value->name }}">
-                                                    {{ $value->name }}
-                                                </li>
-                                            @endforeach
-
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="panel panel-default">
-                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                         href="#collapse_2">
-                                        <h4 class="panel-title">
-                                            学生
-                                        </h4>
-                                    </div>
-                                    <div id="collapse_2" class="panel-collapse collapse"
-                                         style="">
-                                        <div class="panel-group" id="accordion_2">
-                                            @php
-                                                $num_2 = 0;
-                                            @endphp
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading click base range slow_down" value="1"
-                                                     name="全校学生">
-                                                    <h4 class="panel-title"><b>全校学生</b></h4>
-                                                </div>
-                                            </div>
-                                            @foreach(\App\Models\Property::where('name','grade')->firstOrFail()->propertyValues as $key => $value)
-                                                <div class="panel panel-default">
-                                                    <div class="panel-heading click" data-toggle="collapse"
-                                                         data-parent="#accordion_2"
-                                                         href="#collapse_2_{{ $num_2 }}">
-                                                        <h4 class="panel-title">{{ $value->display_name }}</h4>
-                                                    </div>
-                                                    <div id="collapse_2_{{ $num_2++ }}"
-                                                         class="panel-collapse collapse">
-                                                        <ul class="list-group">
-                                                            <li class="list-group-item slow_down base range"
-                                                                value="1,{{ $value->name }}"
-                                                                name="{{ $value->display_name }} - 全体学生">
-                                                                <b>全体学生</b>
-                                                            </li>
-                                                            @foreach(\App\Models\Department::where('number', '<', '100')->get() as $key_1 => $value_1)
-                                                                <li class="list-group-item slow_down click base range"
-                                                                    value="1,{{ $value->name }},{{$value_1->number}}"
-                                                                    name="{{ $value->display_name." - ".$value_1->number."系" }}">
-                                                                    ({{  $value_1->number }}) {{ $value_1->name }}
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                         href="#collapse_3">
-                                        <h5 class="panel-title">
-                                            政治面貌
-                                        </h5>
-                                    </div>
-                                    <div id="collapse_3" class="panel-collapse collapse">
-                                        <ul class="list-group">
-                                            <li class="list-group-item slow_down click base limit" value="0"
-                                                name="政治面貌 - 全部">
-                                                <b>全部</b>
-                                            </li>
-                                            @foreach(\App\Models\Property::where('name','political_status')->firstOrFail()->propertyValues as $value)
-                                                <li class="list-group-item slow_down click base limit"
-                                                    value="0,{{ $value->name }}"
-                                                    name="政治面貌 - {{ $value->display_name }}">
-                                                    {{ $value->display_name }}
-                                                </li>
-                                            @endforeach
-
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div class="panel panel-info">
-                                    <div class="panel-heading click" data-toggle="collapse" data-parent="#accordion"
-                                         href="#collapse_4">
-                                        <h5 class="panel-title">
-                                            经济困难
-                                        </h5>
-                                    </div>
-                                    <div id="collapse_4" class="panel-collapse collapse">
-                                        <ul class="list-group">
-                                            <li class="list-group-item slow_down click base limit" value="1"
-                                                name="经济困难 - 全部">
-                                                <b>全部</b>
-                                            </li>
-                                            @foreach(\App\Models\Property::where('name','financial_difficulty')->firstOrFail()->propertyValues as $value)
-                                                <li class="list-group-item slow_down click base limit"
-                                                    value="1,{{ $value->name }}"
-                                                    name="经济困难 - {{ $value->display_name }}">
-                                                    {{ $value->display_name }}
-                                                </li>
-                                            @endforeach
-
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        --> --}}
                     </div>
                 </div>
             </td>

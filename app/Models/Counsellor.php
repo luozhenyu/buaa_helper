@@ -6,6 +6,14 @@ use App\Models\ModelInterface\HasDepartmentAvatar;
 
 class Counsellor extends Admin implements HasDepartmentAvatar
 {
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->permission = array_merge($this->permission, [
+            'modify_owned_student',
+        ]);
+    }
+
     public static function boot()
     {
         parent::boot();

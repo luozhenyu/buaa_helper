@@ -240,56 +240,56 @@ class DepartmentTableSeeder extends Seeder
 
         [
             'number' => 80,
-            'name' => '理科实验班（高工）-北航学院',
+            'name' => '理科实验班（高工）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 81,
-            'name' => '理科实验班（中法）-北航学院',
+            'name' => '理科实验班（中法）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 82,
-            'name' => '工科实验班（通用工程）-北航学院',
+            'name' => '工科实验班（通用工程）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 83,
-            'name' => '工科实验班（医工交叉）-北航学院',
+            'name' => '工科实验班（医工交叉）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 84,
-            'name' => '工科实验班（航空航天类）-北航学院',
+            'name' => '工科实验班（航空航天类）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 85,
-            'name' => '工科实验班（信息类）-北航学院',
+            'name' => '工科实验班（信息类）',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 86,
-            'name' => '理科实验班-北航学院',
+            'name' => '理科实验班',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],
 
         [
             'number' => 87,
-            'name' => '社会科学实验班-北航学院',
+            'name' => '社会科学实验班',
             'avatar' => 'departmentLogo/buaa.png',
             'description' => '北航学院',
         ],

@@ -34,8 +34,7 @@ $.fn.user_select = function (options) {
             return false;
         },
         property_relation_check: function (parent, child) {  //属性从属关系，一般情况下缺省即可
-            if ((parent.key === child.key) && (parent.value === child.value)) return true;
-            return false;
+            return (parent.key === child.key) && (parent.value === child.value);
         },
         conflict_template: function (conflict_name, conflict_data) {  //冲突提示模板，一般情况下缺省即可
             return $("<div>").append(
@@ -119,7 +118,6 @@ $.fn.user_select = function (options) {
                     });
 
             default:  //层级
-
                 var panelHead = $("<div>").addClass("panel-heading").addClass("click").append(
                     $("<h5>").addClass("panel-title").text(displayName)
                 ).attr("data-toggle", "collapse").attr("data-parent", "#" + parentID).attr("data-target", "#" + collapseID);
