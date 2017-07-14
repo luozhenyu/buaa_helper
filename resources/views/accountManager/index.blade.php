@@ -86,22 +86,6 @@
         font-weight: bold;
     }
 
-    .selected_element.range {
-        color: black;
-    }
-
-    .selected_element.limit {
-        color: darkblue;
-    }
-
-    .selected_element:hover {
-        background-color: white;
-    }
-
-    .selected_element .glyphicon {
-        color: red;
-    }
-
     .empty_label {
         margin: 2px;
         text-align: center;
@@ -110,6 +94,22 @@
 
     .tooltip {
         min-width: 180px;
+    }
+
+    #table_content td {
+        text-align: center;
+    }
+    table.bh-account-hide-left td#td_search_tools {
+        display: none;
+    }
+    table.bh-account-show-left .bh-account-list-phone,
+    table.bh-account-show-left .bh-account-list-email,
+    table.bh-account-show-left .bh-account-head-phone,
+    table.bh-account-show-left .bh-account-head-email {
+        display: none;
+    }
+    @media (max-width: 600px) {
+
     }
 </style>
 @endpush
@@ -124,7 +124,6 @@
 <script>
     $(function () {
         $("[data-toggle='tooltip']").tooltip();
-
         $("#btn_upload").click(function () {
             var formData = new FormData();
             formData.append("file", $("#file")[0].files[0]);
@@ -196,19 +195,17 @@
 
                             $("#table_content").append(
                                 $("<tr></tr>").append(
-                                    $("<td>")
-                                        .addClass("bh-account-list-department")
-                                        .append(
-                                            $("<span>")
-                                                .attr("data-toggle", "tooltip").attr("title", dat.department_name)
-                                                .append(dat.department)
-                                        )
+                                    $("<td>").addClass("bh-account-list-department").append(dat.department_name)
                                 ).append(
                                     $("<td>").addClass("bh-account-list-number").append(dat.number)
                                 ).append(
                                     $("<td>").addClass("bh-account-list-name").append(dat.name)
                                 ).append(
-                                    $("<td>").addClass("bh-account-list-role").append(dat.role)
+                                    $("<td>").addClass("bh-account-list-role").append(dat.role_display_name)
+                                ).append(
+                                    $("<td>").addClass("bh-account-list-phone").append(dat.phone)
+                                ).append(
+                                    $("<td>").addClass("bh-account-list-email").append(dat.email)
                                 ).append(
                                     btn_modify
                                 )
@@ -245,46 +242,16 @@
         });
         new_page(1, selected_data);
     });
-    function window_small_check() {
-        return $(window).width() < 600;
-    }
-    function state_adjust() {
-        var small = window_small_check();
-        if (small)
-            $("#td_search_tools").css("width", "98%");
-        else
-            $("#td_search_tools").css("width", "35%");
-        if ($("#show_hide .glyphicon").hasClass("glyphicon-chevron-left")) {
-            if (small)
-                $("#user_list").css("display", "none");
-            else
-                $("#user_list").css("display", "table-cell");
-        } else {
-            $("#user_list").css("display", "table-cell");
-        }
-    }
-
     $(function () {
-        state_adjust();
-
-        $(window).resize(function () {
-            state_adjust();
-        });
         $("#show_hide").click(function () {
-            var btn = $(this).find(".glyphicon");
-            var speed = 200, small = window_small_check();
-            if (btn.hasClass("glyphicon-chevron-left")) {
-                $("#td_search_tools").hide(speed);
-                btn.attr("class", "glyphicon glyphicon-chevron-right");
-                state_adjust();
+            if ($("#show_hide .glyphicon").hasClass("glyphicon-chevron-left")) {
+                $("#show_hide .glyphicon").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right");
+                $("table#main").removeClass("bh-account-show-left").addClass("bh-account-hide-left");
             } else {
-                $("#td_search_tools").show(speed);
-                btn.attr("class", "glyphicon glyphicon-chevron-left");
-                state_adjust();
+                $("#show_hide .glyphicon").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left");
+                $("table#main").removeClass("bh-account-hide-left").addClass("bh-account-show-left");
             }
         });
-
-
     });
 
 </script>
@@ -296,8 +263,7 @@
 @endpush
 
 @section('content')
-
-    <table id="main" border="0">
+    <table id="main" border="0" class = "bh-account-panel bh-account-show-left">
         <tr>
             <td id="td_search_tools">
                 <div id="search_tools" style="position: relative;min-height: 580px;">
@@ -392,23 +358,13 @@
 
                     <thead>
                     <tr>
-                        <th>
-                            院系 / 部门
-                        </th>
-                        <th>
-                            学号 / 工号
-                        </th>
-                        <th>
-                            姓名
-                        </th>
-                        {{--
-                        @foreach($orders as $key => $value)
-                            <th>
-                                <a href="{{ route('accountManager').'?wd='.$wd.'&sort='.$key.'&by='.$value['by'] }}">{{ $value['name'] }}</a>
-                            </th>
-                        @endforeach
-                        --}}
+                        <th>院系 / 部门</th>
+                        <th>学号 / 工号</th>
+                        <th>姓名</th>
+
                         <th>账号类型</th>
+                        <th class = "bh-account-head-phone">手机号码</th>
+                        <th class = "bh-account-head-email">邮箱地址</th>
                         <th></th>
                     </tr>
                     </thead>
