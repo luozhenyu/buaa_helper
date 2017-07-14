@@ -53,7 +53,6 @@ class MultitypeUserProvider extends EloquentUserProvider
      */
     public function retrieveByToken($identifier, $token)
     {
-        return null;
         return $this->downcasting(parent::retrieveByToken($identifier, $token));
     }
 
