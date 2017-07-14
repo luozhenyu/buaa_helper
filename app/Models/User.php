@@ -25,14 +25,14 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $visible = ['id', 'number', 'name', 'email', 'phone', 'department_number', 'role_display_name'];
+    protected $visible = ['id', 'number', 'name', 'email', 'phone', 'department_name', 'role_display_name'];
 
     /**
      * 在数组中追加显示的属性
      *
      * @var array
      */
-    protected $appends = ['department_number', 'role_display_name'];
+    protected $appends = ['department_name', 'role_display_name'];
 
     protected $permission = [];
 
@@ -122,9 +122,9 @@ class User extends Authenticatable
         }
     }
 
-    public function getDepartmentNumberAttribute()
+    public function getDepartmentNameAttribute()
     {
-        return $this->department->number;
+        return $this->department->display_name;
     }
 
     /**
