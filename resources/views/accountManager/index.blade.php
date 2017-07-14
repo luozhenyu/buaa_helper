@@ -163,120 +163,93 @@
             });
         });
 
-
-        var query = function () {
-            var range = [];
-            $(".selected_element.range").each(function () {
-                var arrs = $(this).attr("value").split(",");
-                if ((arrs.length == 1) && (arrs[0] == '')) range.push({"department": -1});
-                else if ((arrs.length == 1) && (arrs[0] == '0')) range.push({"department": 100});
-                else if ((arrs.length == 1) && (arrs[0] == '1')) range.push({"department": 0});
-                else if (arrs[0] == '0') range.push({"department": parseInt(arrs[1])});
-                else if (arrs[0] == '1') {
-                    if (arrs.length == 2)
-                        range.push({"department": 0, "grade": parseInt(arrs[1])});
-                    else
-                        range.push({"department": parseInt(arrs[2]), "grade": parseInt(arrs[1])});
-                }
-            });
-            if (range.length == 0) range = [{"department": -1}];
-
-            var property = {};
-            $(".selected_element.limit").each(function () {
-                var arrs = $(this).attr("value").split(",");
-                if (arrs.length >= 2) {
-                    if (arrs[0] == '0') {
-                        property["political_status"] = property["political_status"] || [];
-                        property["political_status"].push(parseInt(arrs[1]));
-                    } else if (arrs[0] == '1') {
-                        property["financial_difficulty"] = property["financial_difficulty"] || [];
-                        property["financial_difficulty"].push(parseInt(arrs[1]));
-                    }
-                }
-            });
-
-            var query_json = {type: "student", range: range, property: property};
-
-            new_page(1);
-            function new_page(page) {
-                $.ajax({
-                    url: "/account_manager/ajax?page=" + page,
-                    type: 'POST',
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(query_json),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (json) {
-                        $("#table_content").empty();
-                        $("#information")
-                            .empty().append("共搜到 ")
-                            .append(
-                                $("<b>").append(json.total)
-                            )
-                            .append(" 条记录");
-                        if (json.data.length > 0) {
-                            for (var i = 0; i < json.data.length; i++) {
-                                var dat = json.data[i];
-                                var btn_modify = $("<td></td>");
-                                if (!(dat.url === null)) {
-                                    btn_modify.append(
-                                        $("<button></button>").append("修改")
-                                            .addClass("btn").addClass("btn-info").addClass("btn-xs")
-                                            .attr("type", "button").attr("onclick", "window.open('" + dat.url + "')")
-                                    )
-                                }
-
-                                $("#table_content").append(
-                                    $("<tr></tr>").append(
-                                        $("<td>")
-                                            .addClass("bh-account-list-department")
-                                            .append(
-                                                $("<span>")
-                                                    .attr("data-toggle", "tooltip").attr("title", dat.department_name)
-                                                    .append(dat.department)
-                                            )
-                                    ).append(
-                                        $("<td>").addClass("bh-account-list-number").append(dat.number)
-                                    ).append(
-                                        $("<td>").addClass("bh-account-list-name").append(dat.name)
-                                    ).append(
-                                        $("<td>").addClass("bh-account-list-role").append(dat.role)
-                                    ).append(
-                                        btn_modify
-                                    )
+        function new_page(page, data) {
+            $.ajax({
+                url: "/account_manager/ajax?page=" + page,
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(data),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (json) {
+                    console.log(json);
+                    //return;
+                    $("#table_content").empty();
+                    $("#information")
+                        .empty().append("共搜到 ")
+                        .append(
+                            $("<b>").append(json.total)
+                        )
+                        .append(" 条记录");
+                    if (json.data.length > 0) {
+                        for (var i = 0; i < json.data.length; i++) {
+                            var dat = json.data[i];
+                            var btn_modify = $("<td></td>");
+                            if (!(dat.url === null)) {
+                                btn_modify.append(
+                                    $("<button></button>").append("修改")
+                                        .addClass("btn").addClass("btn-info").addClass("btn-xs")
+                                        .attr("type", "button").attr("onclick", "window.open('" + dat.url + "')")
                                 )
                             }
-                            $("#nobody").addClass("hidden");
-                            $("[data-toggle='tooltip']").tooltip();
 
-                            $("#page").paginate({
-                                currentPage: json.current_page,
-                                lastPage: json.last_page,
-                                callback: function (page) {
-                                    new_page(page);
-                                }
-                            });
-                        } else {
-                            $("#page").empty();
-                            $("#nobody").removeClass("hidden");
+                            $("#table_content").append(
+                                $("<tr></tr>").append(
+                                    $("<td>")
+                                        .addClass("bh-account-list-department")
+                                        .append(
+                                            $("<span>")
+                                                .attr("data-toggle", "tooltip").attr("title", dat.department_name)
+                                                .append(dat.department)
+                                        )
+                                ).append(
+                                    $("<td>").addClass("bh-account-list-number").append(dat.number)
+                                ).append(
+                                    $("<td>").addClass("bh-account-list-name").append(dat.name)
+                                ).append(
+                                    $("<td>").addClass("bh-account-list-role").append(dat.role)
+                                ).append(
+                                    btn_modify
+                                )
+                            )
                         }
-                    }
-                });
-            }
-        };
+                        $("#nobody").addClass("hidden");
+                        $("[data-toggle='tooltip']").tooltip();
 
-        $("#btn_query").click(function () {
-            query();
+                        $("#page").paginate({
+                            currentPage: json.current_page,
+                            lastPage: json.last_page,
+                            callback: function (page) {
+                                new_page(page);
+                            }
+                        });
+                    } else {
+                        $("#page").empty();
+                        $("#nobody").removeClass("hidden");
+                    }
+                }
+            });
+        }
+
+
+        var selected_data = {type: "student", range: [], property: []};
+        //user_select 生成
+        $(".bh-account-selector").user_select({
+            data: {!! json_encode($selectData) !!},
+            callback_filter: function(data){  //单击筛选
+                selected_data.range = data.departments;
+                selected_data.property = data.properties;
+                new_page(1, selected_data);
+            }
         });
-        query();
+        new_page(1, selected_data);
     });
     function window_small_check() {
         return $(window).width() < 600;
     }
     function state_adjust() {
         var small = window_small_check();
-        //alert(small);
         if (small)
             $("#td_search_tools").css("width", "98%");
         else
@@ -311,106 +284,9 @@
             }
         });
 
-        $(".base.limit").click(function () {
-            var value = $(this).attr("value");
-            var name = $(this).attr("name");
-            var arr = value.split(",");
-            var ignore = 0;
 
-            $(".selected_element.limit").each(function () {
-                var arr_2 = $(this).attr("value").split(",");
-                if ($(this).attr("value") == value)
-                    ignore = 1;
-                else if ((arr.length == 1) && (arr_2[0] == arr[0])) $(this).remove();
-            });
-            if (ignore) {
-                if (ignore == 1) {
-                    $(this).tooltip({
-                        trigger: "manual",
-                        placement: "right",
-                        title: "<h5>该限制已被选择</h5>" +
-                        "<h5><b style = 'color: orangered'>" + name + "</b></h5>",
-                        html: true
-                    });
-                    $(this).tooltip("show");
-                }
-                return;
-            }
-            if (arr.length > 1) {
-                $(".selected_content").append("<div class = \"selected_element limit\" " +
-                    "name = \"" + name + "\" value = \"" + value + "\">" + name +
-                    "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
-                    "onclick = \"remove_selection(this.parentNode);\"></span>" +
-                    "</div>");
-            } else {
-
-            }
-            selection_check();
-        });
-
-        $(".base.range").click(function () {
-            var name = $(this).attr("name");
-            var value = $(this).attr("value");
-            var flag = true, belongs_to = "";
-
-            $(".selected_element.range").each(function () {
-                if (is_parent($(this).attr("value"), value)) {
-                    flag = false;
-                    belongs_to = $(this).attr("name");
-                }
-            });
-
-            if (flag) {
-                $(".selected_element.range").each(function () {
-                    if (is_parent(value, $(this).attr("value"))) $(this).remove();
-                });
-                $(".selected_content").append("<div class = \"selected_element range\" " +
-                    "name = \"" + name + "\" value = \"" + value + "\">" + name +
-                    "<span class = \"glyphicon glyphicon-remove click remove_selected_element\" " +
-                    "onclick = \"remove_selection(this.parentNode);\"></span>" +
-                    "</div>");
-            } else {
-                $(this).tooltip({
-                    trigger: "manual",
-                    placement: "right",
-                    title: "<h5>该用户群组已经被选择</h5>" +
-                    "<h5>隶属于：<b style = 'color: orangered'>" + belongs_to + "</b></h5>",
-                    html: true
-                });
-                $(this).tooltip("show");
-            }
-            selection_check();
-        });
-        $(".base").mouseleave(function () {
-            var hd = $(this);
-            setTimeout(function () {
-                hd.tooltip("hide");
-                hd.tooltip("destroy");
-            }, 150);
-        })
     });
 
-    function remove_selection(box) {
-        box.remove();
-        selection_check();
-    }
-    function selection_check() {
-        if ($(".selected_element").length > 0) {
-            if (!$(".empty_label").hasClass("hidden")) $(".empty_label").addClass("hidden");
-        } else {
-            $(".empty_label").removeClass("hidden");
-        }
-    }
-    function is_parent(value1, value2) {
-        var a1 = value1.split(",");
-        var a2 = value2.split(",");
-        if (a2.length < a1.length) return false;
-        if ((a1.length == 1) && (a1[0] == "")) return true;
-        if ((a2.length == 1) && (a2[0] == "")) return false;
-
-        for (i = 0; i < a1.length; i++) if (a1[i] != a2[i]) return false;
-        return true;
-    }
 </script>
 @endpush
 
@@ -440,15 +316,8 @@
                                 </div>
                             </form>
                         </div>
-
                         <div class="bh-account-selector">
-
                         </div>
-                        <script>
-                            $(function () {
-                                $(".bh-account-selector").user_select({})
-                            })
-                        </script>
                     </div>
                 </div>
             </td>

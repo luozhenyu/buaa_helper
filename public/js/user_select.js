@@ -12,21 +12,11 @@ $.fn.user_select = function (options) {
             return null;
         },
         department_relation_check: function (parent, child) {  //部门从属关系判定，一般情况下缺省即可
-            //全体成员
-            if (parent.department === -1) return true;
-            if (child.department === -1) return false;
+            //顶级结点
+            if ((!parent.department) && (!parent.grade)) return true;
 
-            //全部部门
-            if ((parent.department === 100) && (child.department >= 100)) return true;
-            if ((child.department === 100) && (parent.department >= 100)) return false;
-
-            //全体学生
-            if ((parent.department === 0) && (parent.grade === undefined) && (child.department < 100)) return true;
-            if ((child.department === 0) && (child.grade === undefined) && (parent.department < 100)) return false;
-
-            //整个年级
-            if (parent.grade && (parent.grade === child.grade) && (parent.department === 0)) return true;
-            if (parent.grade && (parent.grade === child.grade) && (child.department === 0)) return false;
+            //从属关系
+            if ((!parent.department) && (parent.grade === child.grade)) return true;
 
             //相同元素
             if ((parent.department === child.department) && (parent.grade === child.grade)) return true;

@@ -30,7 +30,56 @@ class AccountManagerController extends Controller
 
     public function index(Request $request)
     {
-        return view('accountManager.index');
+        $college[] = ['name' => null, 'display_name' => '本年级学生'];
+
+        foreach (Department::where('number', '<', 100)->get() as $department) {
+            $college [] = [
+                'name' => $department->number,
+                'display_name' => $department->display_name,
+            ];
+        }
+
+        //grade
+        $grade = Property::where('name', 'grade')->firstOrFail();
+
+        $students[] = ['name' => ',', 'display_name' => '全校学生'];
+        $students = array_merge($students, $grade->propertyValues->map(function ($item, $key) use ($college) {
+            $gradeNumber = $item->name;
+            return [
+                'display_name' => $item->display_name,
+                'children' => collect($college)->map(function ($item, $key) use ($gradeNumber) {
+                    return [
+                        'name' => "{$item['name']},{$gradeNumber}",
+                        'display_name' => $item['display_name'],
+                    ];
+                })->toArray(),
+            ];
+        })->toArray());
+
+
+        //properties
+        $propertyNames = ['political_status', 'financial_difficulty'];
+        $properties = [];
+        foreach ($propertyNames as $propertyName) {
+            $property = Property::where('name', $propertyName)->firstOrFail();
+            $propertyValues = $property->propertyValues->map(function ($item, $key) {
+                return [
+                    'name' => $item->name,
+                    'display_name' => $item->display_name,
+                ];
+            })->toArray();
+            $properties[] = [
+                'name' => $property->name,
+                'display_name' => $property->display_name,
+                'children' => $propertyValues,
+            ];
+        }
+
+        $selectData = [
+            'department' => $students,
+            'property' => $properties,
+        ];
+        return view('accountManager.index', ['selectData' => $selectData]);
     }
 
     public function show(Request $request, $id)

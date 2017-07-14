@@ -56,11 +56,11 @@
     }
 
     .bh-inquiry-set .bh-inquiry-set-item:hover {
-        background-color: #f7f7f7;
+        background-color: #F4F4F4;
     }
 
     .bh-inquiry-set .bh-inquiry-set-item.focus:hover {
-        background-color: #fbf1cb;
+        background-color: #FFF5D3;
     }
 
     .bh-inquiry-set .bh-inquiry-set-item:first-child {
@@ -142,7 +142,7 @@
 
             <div class="col-md-9">
                 <input id="title" type="text" class="form-control" name="title"
-                       value="{{ old('title') }}" required autocomplete="off" placeholder="简要概括您的问题">
+                       value="{{ old('title') }}" required autocomplete="off" placeholder="一句话简要概括您遇到的问题">
 
                 @if ($errors->has('title'))
                     <span class="help-block">
@@ -171,7 +171,7 @@
 
             <div class="col-md-9">
                 <textarea id="secret" class="form-control" name="secret" rows="5" autocomplete="off"
-                          placeholder="该信息将作加密处理，仅您自己和回复者可见，选填">{{ old('secret') }}</textarea>
+                          placeholder="该信息将作加密处理，仅回复者可见，选填">{{ old('secret') }}</textarea>
                 @if($errors->has('secret'))
                     <span class="help-block">
                         <strong>{{ $errors->first('secret') }}</strong>
