@@ -19,6 +19,7 @@ class CreateInquiryRepliesTable extends Migration
             $table->integer('inquiry_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->text('content');
+            $table->text('secret')->nullable();
             $table->timestamps();
         });
     }

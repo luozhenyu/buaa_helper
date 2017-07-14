@@ -1,22 +1,5 @@
 @extends('layouts.app')
 
-@php($authUser = Auth::user())
-@php
-    const 旁观者 = 0;
-    const 提问者 = 1;
-    const 回答者 = 2;
-
-    if ($authUser->id === $inquiry->user->id) {
-        $inquiryRole = 提问者;
-    } else if ($authUser->hasPermission('view_all_inquiry')
-        || ($authUser->hasPermission('view_owned_inquiry') && $authUser->department->id === $inquiry->department->id)
-    ) {
-        $inquiryRole = 回答者;
-    } else {
-        $inquiryRole = 旁观者;
-    }
-@endphp
-
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
 <li><a href="{{ url("/inquiry") }}">留言中心</a></li>
@@ -261,9 +244,9 @@
                 </h5>
                 <h5>状态：
                     @if($inquiry->replied)
-                        <span class="label label-success" style="font-size: 14px">已回答</span>
+                        <span class="label label-success" style="font-size: 14px">已回复</span>
                     @else
-                        <span class="label label-warning" style="font-size: 14px">待回答</span>
+                        <span class="label label-warning" style="font-size: 14px">待回复</span>
                     @endif
                 </h5>
             </div>
@@ -295,18 +278,18 @@
                             </div>
                             <div class="bh-inquiry-detail-recode-content">{{ $inquiry->content }}</div>
 
-                            <div class="bh-inquiry-detail-recode-secret-full">
-                                <b>机密信息：</b>
-                                <div class="bh-inquiry-detail-recode-secret"><i
-                                            class="bh-inquiry-detail-recode-secret-content">{{ $inquiryRole === 回答者?
-                                        $inquiry->secret : "******" }}</i></div>
-                            </div>
+                            @if($inquiry->hasSecret())
+                                <div class="bh-inquiry-detail-recode-secret-full">
+                                    <b>机密信息：</b>
+                                    <div class="bh-inquiry-detail-recode-secret">{{ $inquiry->display_secret }}</div>
+                                </div>
+                            @endif
                         </div>
                     </li>
 
                     @foreach($inquiryReplies as $inquiryReply)
                         <li class="bh-inquiry-list-item
-                            {{ $inquiryRole === 回答者 ? "bh-inquiry-list-item-black" : "bh-inquiry-list-item-gray" }}">
+                            {{ $inquiryReply->回复? "bh-inquiry-list-item-black" : "bh-inquiry-list-item-gray" }}">
                             <div class="bh-inquiry-head-icon">
                                 <img src="{{ \App\Models\User::downcasting($inquiryReply->user)->avatarUrl }}"
                                      alt="{{ $inquiryReply->user->name }}" class="img-circle">
@@ -314,13 +297,19 @@
                             <div class="bh-inquiry-detail-recode">
                                 <div class="bh-inquiry-detail-recode-title">
                                     <div class="pull-left bh-inquiry-detail-recode-identity">
-                                        {{ $inquiryReply->user->name }}{{ $inquiryRole === 回答者 ? "回复" : "追问" }}
+                                        {{ $inquiryReply->user->name }}{{ $inquiryReply->reply_type_name }}
                                     </div>
                                     <div class="pull-right bh-inquiry-detail-recode-time">
                                         {{ $inquiryReply->created_at }}
                                     </div>
                                 </div>
                                 <div class="bh-inquiry-detail-recode-content">{{ $inquiryReply->content }}</div>
+                                @if($inquiryReply->hasSecret())
+                                    <div class="bh-inquiry-detail-recode-secret-full">
+                                        <b>机密信息：</b>
+                                        <div class="bh-inquiry-detail-recode-secret">{{ $inquiryReply->display_secret }}</div>
+                                    </div>
+                                @endif
                             </div>
                         </li>
                     @endforeach
@@ -329,15 +318,14 @@
         </div>
     </div>
 
-
-    @if($inquiryRole === 提问者 || $inquiryRole === 回答者)
+    @if($inquiry->CanDiplaySecret())
         <form class="form-horizontal" role="form" method="POST"
               action="{{ route('inquiry')."/{$department->number}/{$inquiry->id}" }}">
             {{ csrf_field() }}
-            <h3 class="text-center">我要{{ $inquiryRole === 回答者? "回复" :"追问" }}</h3>
+            <h3 class="text-center">我要{{ $inquiry->回答者? "回复" :"追问" }}</h3>
 
             <div class="form-group{{ $errors->has('content')?' has-error' :'' }}">
-                <label for="content" class="col-md-2 control-label"></label>
+                <label for="content" class="col-md-2 control-label">内容</label>
 
                 <div class="col-md-9">
                 <textarea id="content" class="form-control" name="content" rows="10" required
@@ -350,10 +338,24 @@
                 </div>
             </div>
 
+            <div class="form-group{{ $errors->has('secret')?' has-error' :'' }}">
+                <label for="secret" class="col-md-2 control-label">机密信息(选填)</label>
+
+                <div class="col-md-9">
+                <textarea id="secret" class="form-control" name="secret" rows="5" autocomplete="off"
+                          placeholder="该信息将作加密处理，仅您自己和回复者可见，选填">{{ old('secret') }}</textarea>
+                    @if($errors->has('secret'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first('secret') }}</strong>
+                        </span>
+                    @endif
+                </div>
+            </div>
+
             <div class="form-group">
                 <div class="col-md-3 pull-right">
                     <button type="submit" class="btn btn-primary">
-                        提交{{ $inquiryRole === 回答者? "回复" :"追问" }}
+                        提交{{ $inquiry->回答者? "回复" :"追问" }}
                     </button>
                 </div>
             </div>

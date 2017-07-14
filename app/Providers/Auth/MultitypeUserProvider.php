@@ -33,6 +33,18 @@ class MultitypeUserProvider extends EloquentUserProvider
     }
 
     /**
+     * @param \Illuminate\Contracts\Auth\Authenticatable|null $model
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    protected function downcasting(Authenticatable $model)
+    {
+        if (!($model instanceof User)) {
+            return null;
+        }
+        return User::downcasting($model);
+    }
+
+    /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
      * @param  mixed $identifier
@@ -53,17 +65,5 @@ class MultitypeUserProvider extends EloquentUserProvider
     public function retrieveByCredentials(array $credentials)
     {
         return $this->downcasting(parent::retrieveByCredentials($credentials));
-    }
-
-    /**
-     * @param \Illuminate\Contracts\Auth\Authenticatable|null $model
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
-     */
-    protected function downcasting(Authenticatable $model)
-    {
-        if (is_null($model) || !$model instanceof User) {
-            return $model;
-        }
-        return User::downcasting($model);
     }
 }

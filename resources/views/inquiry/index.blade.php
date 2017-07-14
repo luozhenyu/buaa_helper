@@ -134,7 +134,7 @@
                                 <h5>{{ $department->name }}</h5>
                             </div>
 
-                            <div class = "bh-inquiry-block-status">
+                            <div class = "bh-inquiry-block-status">提问数
                                 <span class = "bh-inquiry-block-status-active">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
                                 / {{ $department->inquiries->count() }}
                             </div>
@@ -160,7 +160,7 @@
                             <div class="bh-inquiry-block-content">
                                 <h5>{{ $department->name }}</h5>
                             </div>
-                            <div class = "bh-inquiry-block-status">
+                            <div class = "bh-inquiry-block-status">提问数
                                 <span class = "bh-inquiry-block-status-active">{{ $department->inquiries()->where('updated_at','>=',\Carbon\Carbon::today())->count() }}</span>
                                 / {{ $department->inquiries->count() }}
                             </div>

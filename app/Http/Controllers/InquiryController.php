@@ -75,17 +75,16 @@ class InquiryController extends Controller
             'id' => $inquiry_id,
         ])->firstOrFail();
 
-        $authUser = Auth::user();
-        abort_unless($authUser->hasPermission('view_all_inquiry')
-            || ($authUser->hasPermission('view_owned_inquiry') && $authUser->department->id === $inquiry->department->id)
-            || $authUser->id === $inquiry->user->id, 403);
+        abort_unless($inquiry->CanDiplaySecret(), 403);
 
         $this->validate($request, [
             'content' => 'required|min:2|max:65535',
+            'secret' => 'nullable|max:65535',
         ]);
 
-        $inquiryReply = $inquiry->inquiryReplies()->create([
+        $inquiry->inquiryReplies()->create([
             'content' => $request->input('content'),
+            'secret' => $request->input('secret'),
             'user_id' => Auth::user()->id,
         ]);
         return redirect()->back();

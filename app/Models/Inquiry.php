@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Inquiry extends Model
 {
+    const 旁观者 = 0;
+    const 提问者 = 1;
+    const 回答者 = 2;
     /**
      * The attributes that are mass assignable.
      *
@@ -57,5 +61,51 @@ class Inquiry extends Model
     public function department()
     {
         return $this->belongsTo('App\Models\Department');
+    }
+
+    public function getAuthUserAttribute()
+    {
+        $authUser = Auth::user();
+        if ($authUser->id === $this->user->id) {
+            return static::提问者;
+        }
+
+        if ($authUser->hasPermission('view_all_inquiry')
+            || ($authUser->hasPermission('view_owned_inquiry') && $authUser->department->id === $this->department->id)
+        ) {
+            return static::回答者;
+        }
+
+        return static::旁观者;
+    }
+
+    public function get提问者Attribute()
+    {
+        return $this->auth_user == static::提问者;
+    }
+
+    public function get回答者Attribute()
+    {
+        return $this->auth_user == static::回答者;
+    }
+
+    public function get旁观者Attribute()
+    {
+        return $this->auth_user == static::旁观者;
+    }
+
+    public function hasSecret()
+    {
+        return strlen($this->secret) > 0;
+    }
+
+    public function getDisplaySecretAttribute()
+    {
+        return $this->CanDiplaySecret() ? $this->secret : "******";
+    }
+
+    public function CanDiplaySecret()
+    {
+        return $this->提问者 || $this->回答者;
     }
 }
