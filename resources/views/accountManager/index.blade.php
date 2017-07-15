@@ -221,7 +221,7 @@
                             currentPage: json.current_page,
                             lastPage: json.last_page,
                             callback: function (page) {
-                                new_page(page);
+                                new_page(page, selected_data);
                             }
                         });
                     } else {
