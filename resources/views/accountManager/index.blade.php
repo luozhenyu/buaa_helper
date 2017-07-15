@@ -99,15 +99,18 @@
     #table_content td {
         text-align: center;
     }
+
     table.bh-account-hide-left td#td_search_tools {
         display: none;
     }
+
     table.bh-account-show-left .bh-account-list-phone,
     table.bh-account-show-left .bh-account-list-email,
     table.bh-account-show-left .bh-account-head-phone,
     table.bh-account-show-left .bh-account-head-email {
         display: none;
     }
+
     @media (max-width: 600px) {
 
     }
@@ -234,7 +237,7 @@
         //user_select 生成
         $(".bh-account-selector").user_select({
             data: {!! json_encode($selectData) !!},
-            callback_filter: function(data){  //单击筛选
+            callback_filter: function (data) {  //单击筛选
                 selected_data.range = data.departments;
                 selected_data.property = data.properties;
                 new_page(1, selected_data);
@@ -263,7 +266,7 @@
 @endpush
 
 @section('content')
-    <table id="main" border="0" class = "bh-account-panel bh-account-show-left">
+    <table id="main" border="0" class="bh-account-panel bh-account-show-left">
         <tr>
             <td id="td_search_tools">
                 <div id="search_tools" style="position: relative;min-height: 580px;">
@@ -363,8 +366,8 @@
                         <th>姓名</th>
 
                         <th>账号类型</th>
-                        <th class = "bh-account-head-phone">手机号码</th>
-                        <th class = "bh-account-head-email">邮箱地址</th>
+                        <th class="bh-account-head-phone">手机号码</th>
+                        <th class="bh-account-head-email">邮箱地址</th>
                         <th></th>
                     </tr>
                     </thead>

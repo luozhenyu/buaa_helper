@@ -1,18 +1,11 @@
 @extends('layouts.app')
-@php($authUser = Auth::user())
+
+@push('cssLink')
+<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+@endpush
 
 @push('css')
 <style>
-    @media (max-width: 991px) {
-        #native_place_container > .col-xs-4.col-md-2:nth-of-type(1) {
-            padding-left: 0;
-        }
-    }
-
-    #native_place_container > .col-xs-4.col-md-2 {
-        padding-right: 0;
-    }
-
     #avatarImg {
         width: 150px;
         height: 150px;
@@ -20,15 +13,9 @@
 </style>
 @endpush
 
-@push('cssLink')
-<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
-@endpush
-
 @push('jsLink')
 <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
-
-<script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
@@ -62,23 +49,6 @@
                     }
                 });
             }
-        });
-        @endpermission
-
-        @permission('modify_owned_user')
-        $("#avatarSelect").click(function () {
-            $(this).upload({
-                type: "avatar",
-                url: "/file/upload",
-                success: function (json) {
-                    if (json.uploaded) {
-                        $("#avatarImg").attr("src", json['url']);
-                        $("#avatarInput").val(json['hash']);
-                    } else {
-                        alert(json.message);
-                    }
-                }
-            });
         });
         @endpermission
     });

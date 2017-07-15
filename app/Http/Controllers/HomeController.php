@@ -26,7 +26,7 @@ class HomeController extends Controller
 
     public function viewAccount()
     {
-        return view('account');
+        return view('account', ['user' => Auth::user()]);
     }
 
     public function updateProfile(Request $request)
@@ -54,12 +54,13 @@ class HomeController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
         $auth_user = Auth::user();
+
         if (Hash::check($request->input('old_password'), $auth_user->password)) {
             $auth_user->password = bcrypt($request->input('password'));
             $auth_user->save();
-
             return redirect('/account');
         }
+
         return redirect()->back()->withErrors([
             'old_password' => Lang::get('auth.failed'),
         ]);

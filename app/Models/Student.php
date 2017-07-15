@@ -50,9 +50,6 @@ class Student extends User implements HasPersonalAvatar
 
         $query = $query->where(function ($query) use ($range) {
             foreach ($range as $item) {
-                if (!key_exists('department', $item)) {
-                    throw new Exception('department键不存在');
-                }
                 $department = $item['department'] ?? false;
                 $grade = $item['grade'] ?? false;
 

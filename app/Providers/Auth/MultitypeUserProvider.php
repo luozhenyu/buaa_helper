@@ -36,7 +36,7 @@ class MultitypeUserProvider extends EloquentUserProvider
      * @param \Illuminate\Contracts\Auth\Authenticatable|null $model
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function downcasting(Authenticatable $model)
+    protected function downcasting(Authenticatable $model = null)
     {
         if (!($model instanceof User)) {
             return null;

@@ -44,7 +44,7 @@ class UserTableSeeder extends Seeder
             'department_id' => 21,
         ]);
 
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             Student::create([
                 'number' => 15210000 + $i,
                 'name' => '学生' . $i,
