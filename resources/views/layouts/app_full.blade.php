@@ -208,13 +208,6 @@
                         @endpermission
 
                         <li>
-                            <a href="{{ url('/inquiry') }}">
-                                <span class="glyphicon glyphicon-comment"></span>
-                                留言中心
-                            </a>
-                        </li>
-
-                        <li>
                             <a href="{{ url('/notification') }}">
                                 <span class="glyphicon glyphicon-bullhorn"></span>
                                 通知中心
@@ -229,6 +222,12 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{{ url('/inquiry') }}">
+                                <span class="glyphicon glyphicon-comment"></span>
+                                留言中心
+                            </a>
+                        </li>
 
                         <li>
                             <a href="{{ url('/logout') }}"

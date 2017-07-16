@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Notification;
+use App\Models\SuperAdmin;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,26 +12,24 @@ use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet;
-use Zizaco\Entrust\EntrustFacade;
 
 class NotificationController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     private $orders = [
+        'department_id' => [
+            'name' => '部门',
+            'by' => 'asc',
+        ],
+        'important' => [
+            'name' => '类别',
+            'by' => 'asc',
+        ],
+        'read' => [
+            'name' => '阅读情况',
+            'by' => 'asc',
+        ],
         'title' => [
             'name' => '标题',
-            'by' => 'asc',
-        ],
-        'department_id' => [
-            'name' => '发布部门',
-            'by' => 'asc',
-        ],
-        'excerpt' => [
-            'name' => '摘要',
             'by' => 'asc',
         ],
         'updated_at' => [
@@ -38,6 +37,11 @@ class NotificationController extends Controller
             'by' => 'desc',
         ],
     ];
+
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
 
     public function index(Request $request)
     {
@@ -96,10 +100,11 @@ class NotificationController extends Controller
 
     public function manage(Request $request)
     {
-        if (EntrustFacade::can('modify_all_notification')) {
-            $query = new Notification;
-        } else if (EntrustFacade::can('modify_owned_notification')) {
-            $query = Auth::user()->writtenNotifications();
+        $authUser = Auth::user();
+        if ($authUser->hasPermission('modify_all_notification')) {
+            $query = new Notification();
+        } else if ($authUser->hasPermission('modify_owned_notification')) {
+            $query = $authUser->writtenNotifications();
         } else {
             return abort(403);
         }
@@ -141,17 +146,17 @@ class NotificationController extends Controller
     }
 
 
-    public function create()
+    public function create(Request $request)
     {
-        abort_unless(EntrustFacade::can('create_notification'), 403);
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
         return view('notification.create');
     }
 
     public function store(Request $request)
     {
         $user = Auth::user();
-        abort_unless(EntrustFacade::can('create_notification'), 403);
-        if ($user->hasRole('admin')) {
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+        if ($user instanceof SuperAdmin) {
             $this->validate($request, [
                 'title' => 'required|max:40',
                 'department' => 'required|exists:departments,id',
@@ -188,7 +193,7 @@ class NotificationController extends Controller
 
         $notification = $user->writtenNotifications()->create([
             'title' => $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
-            'department_id' => $user->hasRole('admin') ? $request->input('department') : $user->department_id,
+            'department_id' => $user instanceof SuperAdmin ? $request->input('department') : $user->department_id,
             'start_date' => $start_date,
             'finish_date' => $finish_date,
             'important' => $request->input('important') === "1",

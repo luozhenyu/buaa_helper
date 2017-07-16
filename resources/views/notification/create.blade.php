@@ -29,9 +29,9 @@
 @push('js')
 <script>
     $(function () {
-        window.onbeforeunload = function () {
-            return "您确认要退出此页面?";
-        };
+//        window.onbeforeunload = function () {
+//            return "您确认要退出此页面?";
+//        };
         flatpickr("#timeRange", {
             locale: "zh",
             enableTime: true,
@@ -126,21 +126,38 @@
                 @if(Auth::user() instanceof \App\Models\Admin)
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                             id="department" name="department" required>
-                        @foreach(\App\Models\Department::get() as $department)
-                            <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                        @foreach(\App\Models\Department::orderBy('number')->get() as $department)
+                            <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                         @endforeach
                     </select>
                 @else
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                             id="department" disabled>
                         @php($department = Auth::user()->department)
-                        <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
+                        <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                     </select>
                 @endif
 
                 @if ($errors->has('department'))
                     <span class="help-block">
                         <strong>{{ $errors->first('department') }}</strong>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group{{ $errors->has('important') ? ' has-error' : '' }}">
+            <label for="important" class="col-md-2 control-label">通知类型</label>
+            <div class="col-md-9">
+                <select class="selectpicker form-control{{ $errors->has('important') ? ' has-error' : '' }}"
+                        id="important" name="important" required autocomplete="off">
+                    <option value="0">普通通知</option>
+                    <option value="1">必读通知（要求阅读后确认）</option>
+                </select>
+
+                @if ($errors->has('important'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first('important') }}</strong>
                     </span>
                 @endif
             </div>
@@ -157,23 +174,6 @@
                 @if($errors->has('start_date') || $errors->has('finish_date'))
                     <span class="help-block">
                         <strong>{{ $errors->first('start_date') . $errors->first('finish_date') }}</strong>
-                    </span>
-                @endif
-            </div>
-        </div>
-
-        <div class="form-group{{ $errors->has('important') ? ' has-error' : '' }}">
-            <label for="important" class="col-md-2 control-label">通知类型</label>
-            <div class="col-md-9">
-                <select class="selectpicker form-control{{ $errors->has('important') ? ' has-error' : '' }}"
-                        id="important" name="important" required autocomplete="off">
-                    <option value="0">普通通知</option>
-                    <option value="1">重要通知（要求阅读后确认）</option>
-                </select>
-
-                @if ($errors->has('important'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('important') }}</strong>
                     </span>
                 @endif
             </div>

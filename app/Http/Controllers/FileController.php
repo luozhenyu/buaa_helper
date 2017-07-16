@@ -71,7 +71,9 @@ class FileController extends Controller
 
         $file = static::import($uploadFile->getRealPath(), $fileName);
 
-        $callback && $callback($file);
+        if (!is_null($callback)) {
+            $callback($file);
+        }
         return response()->json(
             array_merge(['uploaded' => 1], $file->fileInfo)
         );

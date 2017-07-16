@@ -43,11 +43,15 @@ $this->get('/city/{code}/children', 'CityController@children');
 $this->get('/notification', 'NotificationController@index')->name('notification');
 $this->get('/notification/manage', 'NotificationController@manage');
 $this->get('/notification/stared', 'NotificationController@stared');
+$this->get('/notification/draft', 'NotificationController@draft');
+
 
 $this->get('/notification/create', 'NotificationController@create');
 $this->post('/notification', 'NotificationController@store');
 
 $this->get('/notification/{id}', 'NotificationController@show');
+$this->get('/notification/{id}/preview', 'NotificationController@preview');
+$this->post('/notification/{id}/publish', 'NotificationController@publish');
 $this->delete('/notification/{id}', 'NotificationController@delete');
 $this->get('/notification/{id}/modify', 'NotificationController@modify');
 $this->put('/notification/{id}', 'NotificationController@update');

@@ -71,7 +71,7 @@ class Pusher
                     ->send();
             }
         } catch (JPushException $e) {
-            if ($callback) {
+            if (!is_null($callback)) {
                 $callback($e);
             }
         }
