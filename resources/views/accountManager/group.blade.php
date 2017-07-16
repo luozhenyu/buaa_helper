@@ -14,23 +14,33 @@
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 </head>
 <body>
-<div class="col-xs-4 list-group">
+<div class="col-xs-4 list-group bh-group">
     <li class="list-group-item active">
         <h4 class="list-group-item-heading">
             我的分组（{{ $groups->count() }}/10）
         </h4>
     </li>
     @foreach($groups as $group)
-        <a class="list-group-item">
+        <a class="list-group-item" href = "http://www.baidu.com" target="_blank">
             {{ $group->name }}
             <span class="badge">{{ $group->users->count() }}</span>
         </a>
     @endforeach
 </div>
 <div class="col-md-8">
-    <button class="btn btn-default">添加分组</button>
-    <button class="btn btn-default">删除分组</button>
-    <button class="btn btn-default">添加成员</button>
+    <button class="btn btn-primary">
+        <span class = "glyphicon glyphicon-user"></span>
+        添加成员
+    </button>
+    <button class="btn btn-info">
+        <span class = "glyphicon glyphicon-plus"></span>
+        添加分组
+    </button>
+    <button class="btn btn-danger">
+        <span class = "glyphicon glyphicon-remove"></span>
+        删除分组
+    </button>
+
 </div>
 </body>
 </html>
