@@ -86,6 +86,33 @@ class Department extends Model
     }
 
     /**
+     * 此department拥有的students
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function students()
+    {
+        return $this->hasMany('App\Models\Student');
+    }
+
+    /**
+     * 此department拥有的departmentAdmins
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function departmentAdmins()
+    {
+        return $this->hasMany('App\Models\DepartmentAdmin');
+    }
+
+    /**
+     * 此department拥有的counsellor
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function counsellors()
+    {
+        return $this->hasMany('App\Models\Counsellor');
+    }
+
+    /**
      * 此department拥有的问题
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

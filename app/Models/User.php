@@ -5,6 +5,7 @@ namespace App\Models;
 use Exception;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
@@ -25,14 +26,14 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $visible = ['id', 'number', 'name', 'email', 'phone', 'department_name', 'role_display_name'];
+    protected $visible = ['number', 'name', 'email', 'phone', 'department_name', 'role_display_name', 'url'];
 
     /**
      * 在数组中追加显示的属性
      *
      * @var array
      */
-    protected $appends = ['department_name', 'role_display_name'];
+    protected $appends = ['department_name', 'role_display_name', 'url'];
 
     protected $permission = [];
 
@@ -81,6 +82,7 @@ class User extends Authenticatable
     public function receivedNotifications()
     {
         return $this->belongsToMany('App\Models\Notification', 'notification_user', 'user_id', 'notification_id')
+            ->where('published_at', '!=', null)
             ->withPivot('read_at', 'stared_at', 'deleted_at');
     }
 
@@ -127,6 +129,28 @@ class User extends Authenticatable
         return $this->department->display_name;
     }
 
+    public function getUrlAttribute()
+    {
+        $url = route('accountManager') . '/' . $this->id;
+
+        $authUser = Auth::user();
+        $user = $this;
+
+        if ($user instanceof Student) {
+            if ($authUser->hasPermission('modify_all_student')
+                || ($authUser->hasPermission('modify_owned_student')
+                    && $authUser->department_id === $user->department_id)
+            ) {
+                return $url;
+            }
+        } else if ($user instanceof Admin) {
+            if ($authUser->hasPermission('modify_admin')) {
+                return $url;
+            }
+        }
+        return null;
+    }
+
     /**
      * 检查用户是否具有权限
      * @param string|array $permissions
@@ -153,6 +177,17 @@ class User extends Authenticatable
     public function getRoleDisplayNameAttribute()
     {
         return $this->role->display_name;
+    }
+
+    public function needCompleteInformation()
+    {
+        $attrs = ['email', 'phone'];
+        foreach ($attrs as $attr) {
+            if (empty($this->$attr)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

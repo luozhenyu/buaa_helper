@@ -71,35 +71,6 @@
 @push('js')
 <script>
     $(function () {
-        function setStarState(self, stared) {
-            if (stared) {
-                self.innerHTML = '<span class="glyphicon glyphicon-star">已收藏</span>';
-            } else {
-                self.innerHTML = '<span class="glyphicon glyphicon-star-empty">收藏</span>';
-            }
-            self.dataset.stared = stared;
-        }
-
-        var star = document.getElementById("star");
-        star.onclick = function () {
-            var stared = star.dataset.stared !== "true";
-            var url = "{{ route('notification') . '/' . $notification->id }}";
-            url += stared ? "/star" : "/unstar";
-
-            $.ajax({
-                url: url,
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    star.dataset.stared = stared;
-                    setStarState(star, stared);
-                }
-            });
-        };
-        setStarState(star,{{ $stared_at? 'true': 'false' }});
-
         var files = {!! $files->toJson() !!};
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
@@ -108,22 +79,14 @@
         } else {
             $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
         }
-
-        $(window).scroll(function () {
-            var bottom = $(".panel-success").offset().top + no_px($(".panel-success").css("height"));
-            console.log($(document).scrollTop() + $(window).height()
-                , $(document).height(), bottom);
-        })
     });
-    function no_px(st) {
-        return parseInt(st.substr(0, st.length - 2));
-    }
 </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url('/') }}">主页</a></li>
+<li><a href="{{ url("/") }}">主页</a></li>
 <li><a href="{{ route('notification') }}">通知中心</a></li>
+<li><a href="{{ route('notification').'/draft' }}">草稿箱</a></li>
 <li class="active">通知 - {{ $notification->title }}</li>
 @endpush
 
@@ -142,13 +105,7 @@
             </div>
 
             <div class="label-block">
-                <label class="label label-success">更新时间</label> {{ $notification->updated_at->format('Y年m月d日 H:i:s') }}
-            </div>
-
-            <div class="label-block">
-                <span id="star" class="btn btn-primary btn-xs" style="font-size: 14px;">
-                    <span class="glyphicon glyphicon-star-empty">收藏</span>
-                </span>
+                <label class="label label-success">发布时间</label> {{ \Carbon\Carbon::now()->format('Y年m月d日 H:i:s') }}
             </div>
         </div>
 
@@ -203,11 +160,6 @@
                     $color = "rgb(".round($c[0]).", ".round($c[1]).", ".round($c[2]).")";
 
                     $tooltip_content = "<h5>距离截止:<font style = 'font-weight: bold;color:$color;'>$time_remain_string</font></h5>";
-
-                    if (($notification->finish_date->diffInDays() < 1) && (!$read_at) && $notification->important) {
-                        $tooltip_content = $tooltip_content
-                            ."<h5>24小时内截止，<i style = 'font-weight:900;color: red;'>请抓紧时间</i></h5>";
-                    }
                 @endphp
                 <div id="progress_div" data-toggle="tooltip" data-html="true"
                      title="{{ $tooltip_content }}">
@@ -226,69 +178,6 @@
         <div class="well well-lg">{!! $notification->content !!}</div>
     </article>
 
-    @if($notification->important)
-        <div class="col-md-12">
-            <div class="text-right">
-                <h2 class="label-block">
-                    @if($read_at)
-                        <label class="label label-success">
-                            <span class="glyphicon glyphicon-ok"></span>已确认阅读
-                        </label>
-                    @else
-                        <div id="scrollBar" style="position: fixed;bottom: 40px;right: 80px;z-index: 99">
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar progress-bar-info" id="progressBar"
-                                     style="width: 0;transition:none"></div>
-                            </div>
-                            <label id="confirmRead" class="label label-danger slow_down forbidden">
-                                <span class="glyphicon glyphicon-question-sign"></span>是否仔细阅读
-                            </label>
-                        </div>
-
-                        <script>
-                            $(function () {
-                                var maxProgress = 0;
-                                var qSign = '<span class="glyphicon glyphicon-question-sign"></span>';
-                                $("#confirmRead").mouseenter(function () {
-                                    $(this).html(qSign + "请先完成阅读");
-                                }).mouseleave(function () {
-                                    $(this).html(qSign + "是否仔细阅读");
-                                });
-
-
-                                $(window).scroll(function () {
-                                    var total = $(document).height() - $(window).height();
-                                    var vis = $(window).scrollTop();
-                                    $("#progressBar").css("width", (maxProgress = Math.max(maxProgress, 100 * vis / total)) + "%");
-
-                                    var left = total - vis;
-                                    if (left < 100) {
-                                        $("#confirmRead").html(qSign + "点击确认阅读").css("background-color", "#5cb85c")
-                                            .unbind().addClass("click").removeClass("forbidden")
-                                            .click(function () {
-                                                $.ajax({
-                                                    url: "{{ route('notification').'/'.$notification->id .'/read' }}",
-                                                    type: "POST",
-                                                    headers: {
-                                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                                    },
-                                                    success: function (data) {
-                                                        window.location.reload();
-                                                    }
-                                                });
-                                            });
-                                    }
-                                });
-
-                                $(window).scroll();
-                            });
-                        </script>
-                    @endif
-                </h2>
-            </div>
-        </div>
-    @endif
-
     <div class="col-md-10 col-md-offset-1">
         <div class="panel panel-success">
             <div class="panel-heading">
@@ -298,4 +187,18 @@
             </div>
         </div>
     </div>
+
+    <form method="POST" action="{{ route('notification')."/{$notification->id}/publish" }}"
+          onsubmit="return confirm('此通知将发给 {{ $notification->notifiedUsers->count() }} 人，发布后将无法更改任何信息，是否确认发布此通知？')">
+        {{ csrf_field() }}
+        <div class="col-md-4 pull-right">
+            <a href="{{ route('notification')."/{$notification->id}/modify" }}" class="btn btn-default">
+                返回修改
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                确认无误并发布
+            </button>
+        </div>
+    </form>
 @endsection

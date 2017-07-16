@@ -20,7 +20,7 @@ class SuperAdmin extends Admin implements HasPersonalAvatar
         parent::__construct($attributes);
         $this->permission = array_merge($this->permission, [
             'create_user', 'delete_user', 'view_all_student', 'modify_all_student', 'view_admin', 'modify_admin',
-            'delete_notification', 'modify_all_notification',
+            'delete_notification',
             'view_all_inquiry',
         ]);
     }

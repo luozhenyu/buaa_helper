@@ -3,17 +3,19 @@
 @push('js')
 <script>
     $(function () {
-        $('.destroy').click(function () {
-            $.ajax({
-                url: "{{ route('notification').'/'}}" + $(this).data("id") + "/unstar",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    location.reload();
-                }
-            });
+        $(".destroy").click(function () {
+            if (confirm("删除后不可恢复，确认删除？")) {
+                $.ajax({
+                    url: "{{ route('notification') }}/" + $(this).data("id"),
+                    type: "DELETE",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+            }
         });
     });
 </script>
@@ -21,8 +23,8 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ route("notification") }}">通知中心</a></li>
-<li class="active">我收藏的</li>
+<li><a href="{{ route('notification') }}">通知中心</a></li>
+<li class="active">草稿箱</li>
 @endpush
 
 @section('content')
@@ -36,7 +38,6 @@
             <th>类别</th>
             <th>标题</th>
             <th>发布时间</th>
-            <th>收藏时间</th>
             <th></th>
         </tr>
         </thead>
@@ -54,13 +55,16 @@
                     </a>
                 </td>
                 <td>{{ \App\Func\Time::format($notification->updated_at) }}</td>
-                <td>{{ (new Carbon\Carbon($notification->pivot->stared_at))->diffForHumans() }}</td>
                 <td>
                     <div class="btn-group">
                         <button type="button" class="btn btn-danger btn-xs destroy"
                                 data-id="{{ $notification->id }}">
-                            <span class="glyphicon glyphicon-star-empty">取消收藏</span>
+                            <span class="glyphicon glyphicon-remove">删除</span>
                         </button>
+                        <a target="_blank" href="{{ route('notification') . "/{$notification->id}/preview" }}"
+                           class="btn btn-success btn-xs preview">
+                            <span class="glyphicon glyphicon-eye-open">预览</span>
+                        </a>
                     </div>
                 </td>
             </tr>

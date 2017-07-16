@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
@@ -30,12 +31,38 @@ class Notification extends Model
     }
 
     /**
+     * 所有收到通知的用户
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function notifiedUsers()
+    {
+        return $this->belongsToMany('App\Models\User')
+            ->withPivot('stared_at', 'read_at');
+    }
+
+    /**
      * 此通知的附件
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function files()
     {
         return $this->belongsToMany('App\Models\File');
+    }
+
+    public function publish()
+    {
+        $this->published_at = Carbon::now();
+        $this->save();
+    }
+
+    public function isPublished()
+    {
+        return (bool)$this->published_at;
+    }
+
+    public function isDraft()
+    {
+        return !$this->published_at;
     }
 
     /**
@@ -64,16 +91,6 @@ class Notification extends Model
     {
         return $this->notifiedUsers()
             ->wherePivot('stared_at', '!=', null);
-    }
-
-    /**
-     * 所有收到通知的用户
-     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
-     */
-    public function notifiedUsers()
-    {
-        return $this->belongsToMany('App\Models\User')
-            ->withPivot('stared_at', 'read_at');
     }
 
     /**

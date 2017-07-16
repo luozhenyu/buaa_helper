@@ -104,16 +104,7 @@
         display: none;
     }
 
-    table.bh-account-show-left .bh-account-list-phone,
-    table.bh-account-show-left .bh-account-list-email,
-    table.bh-account-show-left .bh-account-head-phone,
-    table.bh-account-show-left .bh-account-head-email {
-        display: none;
-    }
 
-    @media (max-width: 600px) {
-
-    }
 </style>
 @endpush
 
@@ -188,13 +179,13 @@
                         for (var i = 0; i < json.data.length; i++) {
                             var dat = json.data[i];
                             var btn_modify = $("<td></td>");
-                            if (!(dat.url === null)) {
-                                btn_modify.append(
-                                    $("<button></button>").append("修改")
-                                        .addClass("btn").addClass("btn-info").addClass("btn-xs")
-                                        .attr("type", "button").attr("onclick", "window.open('" + dat.url + "')")
-                                )
-                            }
+
+                            dat.url && btn_modify.append(
+                                $("<a></a>").append("修改")
+                                    .addClass("btn btn-xs btn-info")
+                                    .attr("href", dat.url)
+                            );
+
 
                             $("#table_content").append(
                                 $("<tr></tr>").append(
@@ -206,9 +197,9 @@
                                 ).append(
                                     $("<td>").addClass("bh-account-list-role").append(dat.role_display_name)
                                 ).append(
-                                    $("<td>").addClass("bh-account-list-phone").append(dat.phone)
+                                    $("<td>").addClass("bh-account-list-phone").append(dat.phone || '未填')
                                 ).append(
-                                    $("<td>").addClass("bh-account-list-email").append(dat.email)
+                                    $("<td>").addClass("bh-account-list-email").append(dat.email || '未填')
                                 ).append(
                                     btn_modify
                                 )

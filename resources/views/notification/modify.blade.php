@@ -27,9 +27,9 @@
 @push('js')
 <script>
     $(function () {
-        window.onbeforeunload = function () {
-            return "您确认要退出此页面?";
-        };
+//        window.onbeforeunload = function () {
+//            return "您确认要退出此页面?";
+//        };
 
         flatpickr("#timeRange", {
             locale: "zh",
@@ -78,7 +78,6 @@
             $("#attachment").val(allFiles.join(','));
         });
 
-        $("#department").selectpicker("val", "{{ $notification->department_id }}");
         $("#important").selectpicker("val", "{{ $notification->important }}");
         var files = {!! $files->toJson() !!};
         for (var i = 0; i < files.length; i++) {
@@ -90,8 +89,8 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ url("/notification") }}">通知中心</a></li>
-<li><a href="{{ url("/notification/manage") }}">通知管理</a></li>
+<li><a href="{{ route('notification') }}">通知中心</a></li>
+<li><a href="{{ route('notification').'/draft' }}">草稿箱</a></li>
 <li class="active">修改通知</li>
 @endpush
 
@@ -116,29 +115,13 @@
             </div>
         </div>
 
-        <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
+        <div class="form-group">
             <label for="department" class="col-md-2 control-label">发布院系/部门</label>
             <div class="col-md-9">
-                @if(Entrust::hasRole('admin'))
-                    <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" name="department" required>
-                        @foreach(\App\Models\Department::get() as $department)
-                            <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" name="department" disabled>
-                        @php($department = Auth::user()->department)
-                        <option value="{{ $department->id }}">{{ ($department->number<100?$department->number.'-':'').$department->name }}</option>
-                    </select>
-                @endif
-
-                @if ($errors->has('department'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('department') }}</strong>
-                    </span>
-                @endif
+                <select class="selectpicker form-control" id="department" disabled>
+                    @php($department = Auth::user()->department)
+                    <option value="{{ $department->number }}">{{ $department->display_name }}</option>
+                </select>
             </div>
         </div>
 
@@ -230,47 +213,9 @@
         <div class="form-group">
             <div class="col-md-3 pull-right">
                 <button type="submit" class="btn btn-primary" onclick="window.onbeforeunload=null;">
-                    保存通知
+                    保存修改并预览
                 </button>
             </div>
         </div>
     </form>
-
-    {{--
-    勿删，临时用于测试的modal
-    <!--
-    <script>
-        function fuck(){
-
-            $("#pp").html($("#content").html());
-            $("#myModal").modal("show");
-        }
-    </script>
-    <button onclick = "fuck();">
-        保存通知233
-    </button>
-
-
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"
-                            aria-hidden="true">&times;
-                    </button>
-                    <h4 class="modal-title" id="myModalLabel">阅读统计</h4>
-                </div>
-                <div class="modal-body">
-                    <article class="col-md-12" id = "pp"></article>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-info"
-                            data-dismiss="modal">关闭
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>-->
-    --}}
 @endsection

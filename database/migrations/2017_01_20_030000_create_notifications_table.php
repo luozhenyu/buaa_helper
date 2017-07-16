@@ -23,6 +23,7 @@ class CreateNotificationsTable extends Migration
             $table->boolean('important');
             $table->string('excerpt', 280);
             $table->mediumText('content');
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
 
             $table->fulltext(['title', 'content']);

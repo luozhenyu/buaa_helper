@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Exception;
-use \Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 
 class Admin extends User
@@ -13,7 +13,7 @@ class Admin extends User
         parent::__construct($attributes);
         $this->permission = array_merge($this->permission, [
             'view_owned_student',
-            'create_notification', 'modify_owned_notification',
+            'create_notification',
             'view_owned_inquiry',
         ]);
     }
@@ -71,6 +71,16 @@ class Admin extends User
     }
 
     /**
+     * 此用户编写的通知草稿
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function draftNotifications()
+    {
+        return $this->writtenNotifications()
+            ->where('published_at', null);
+    }
+
+    /**
      * 此用户编写的通知
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -78,4 +88,15 @@ class Admin extends User
     {
         return $this->hasMany('App\Models\Notification', 'user_id', 'id');
     }
+
+    /**
+     * 此用户发布的通知
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function publishedNotifications()
+    {
+        return $this->writtenNotifications()
+            ->where('published_at', '!=', null);
+    }
+
 }

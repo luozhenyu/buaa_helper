@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Notification;
-use App\Models\SuperAdmin;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,7 +32,7 @@ class NotificationController extends Controller
             'by' => 'asc',
         ],
         'updated_at' => [
-            'name' => '更新时间',
+            'name' => '发布时间',
             'by' => 'desc',
         ],
     ];
@@ -85,6 +84,14 @@ class NotificationController extends Controller
     public function show($id)
     {
         $notification = Auth::user()->receivedNotifications()->findOrFail($id);
+
+        if (!$notification->isPublished()) {
+            return view('error', [
+                'errmsg' => '该通知还未发布，只允许预览',
+                'redirect' => route('notification') . "/{$notification->id}/preview",
+            ]);
+        }
+
         $pivot = $notification->pivot;
         if (!$notification->important) {
             $pivot->read_at = Carbon::now();
@@ -98,50 +105,41 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function manage(Request $request)
+    public function draft(Request $request)
     {
-        $authUser = Auth::user();
-        if ($authUser->hasPermission('modify_all_notification')) {
-            $query = new Notification();
-        } else if ($authUser->hasPermission('modify_owned_notification')) {
-            $query = $authUser->writtenNotifications();
-        } else {
-            return abort(403);
-        }
-
-        //search
-        if ($wd = $request->input('wd')) {
-            $query = $query->whereRaw("MATCH(`title`,`excerpt`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
-        }
-        //orderBy
-        $sort = $request->input('sort');
-        $by = $request->input('by');
-        if (!$wd || $sort || $by) {
-            if (!array_key_exists($sort, $this->orders)) {
-                $sort = 'updated_at';//默认updated_at
-            }
-            if (!in_array($by, ['asc', 'desc'])) {
-                $by = $this->orders[$sort]['by'];
-            }
-            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
-            $query = $query->orderBy($sort, $by);
-        }
-
-        //paginate
-        $notifications = $query->with('department')->paginate(15)
-            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+        $notifications = Auth::user()->draftNotifications()->paginate(15);
 
         if ($page = intval($request->input('page'))) {
-            if ($page > ($lastPage = $notifications->lastPage()))
+            if ($page > ($lastPage = $notifications->lastPage())) {
                 return redirect($notifications->url($lastPage));
-            if ($page < 1)
+            }
+            if ($page < 1) {
                 return redirect($notifications->url(1));
+            }
         }
 
-        return view('notification.manage', [
+        return view('notification.draft', [
             'notifications' => $notifications,
-            'wd' => $wd,
-            'orders' => $this->orders,
+        ]);
+    }
+
+    public function published(Request $request)
+    {
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+        $notifications = Auth::user()->publishedNotifications()->paginate(15);
+
+        if ($page = intval($request->input('page'))) {
+            if ($page > ($lastPage = $notifications->lastPage())) {
+                return redirect($notifications->url($lastPage));
+            }
+            if ($page < 1) {
+                return redirect($notifications->url(1));
+            }
+        }
+
+        return view('notification.published', [
+            'notifications' => $notifications,
         ]);
     }
 
@@ -156,28 +154,17 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         abort_unless(Auth::user()->hasPermission('create_notification'), 403);
-        if ($user instanceof SuperAdmin) {
-            $this->validate($request, [
-                'title' => 'required|max:40',
-                'department' => 'required|exists:departments,id',
-                'start_date' => 'required|date|after:today',
-                'finish_date' => 'required|date|after:start_date',
-                'important' => 'required|in:0,1',
-                'excerpt' => 'required|max:70',
-                'content' => 'required|max:1048576',//2MB
-                'attachment' => 'nullable',
-            ]);
-        } else {
-            $this->validate($request, [
-                'title' => 'required|max:40',
-                'start_date' => 'required|date|after:today',
-                'finish_date' => 'required|date|after:start_date',
-                'important' => 'required|in:0,1',
-                'excerpt' => 'required|max:70',
-                'content' => 'required|max:1048576',//2MB
-                'attachment' => 'nullable',
-            ]);
-        }
+
+        $this->validate($request, [
+            'title' => 'required|max:40',
+            'start_date' => 'required|date|after:today',
+            'finish_date' => 'required|date|after:start_date',
+            'important' => 'required|in:0,1',
+            'excerpt' => 'required|max:70',
+            'content' => 'required|max:1048576',//2MB
+            'attachment' => 'nullable',
+        ]);
+
 
         $fileList = [];
         foreach (explode(',', $request->input('attachment')) as $hash) {
@@ -190,10 +177,9 @@ class NotificationController extends Controller
         $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
         $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
 
-
         $notification = $user->writtenNotifications()->create([
-            'title' => $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title,
-            'department_id' => $user instanceof SuperAdmin ? $request->input('department') : $user->department_id,
+            'title' => $title,
+            'department_id' => $user->department_id,
             'start_date' => $start_date,
             'finish_date' => $finish_date,
             'important' => $request->input('important') === "1",
@@ -207,26 +193,58 @@ class NotificationController extends Controller
         });
         $notification->notifiedUsers()->sync($users);
 
-        return redirect(route('notification') . '/' . $notification->id);
+        return redirect(route('notification') . "/{$notification->id}/preview");
     }
 
-    public function delete($id)
+    public function delete(Request $request, $id)
     {
-        abort_unless(EntrustFacade::can('delete_notification'), 403);
-        $notification = Notification::findOrFail($id);
+        if (Auth::user()->hasPermission('delete_notification')) {
+            $notification = Notification::findOrFail($id);
+        } else if (Auth::user()->hasPermission('create_notification')) {
+            $notification = Auth::user()->draftNotifications()->findOrFail($id);
+        } else {
+            return abort(403);
+        }
         $notification->delete();
         return response('成功删除！');
     }
 
-
-    public function modify($id)
+    public function preview(Request $request, $id)
     {
-        if (EntrustFacade::can('modify_all_notification')) {
-            $notification = Notification::findOrFail($id);
-        } else if (EntrustFacade::can('modify_owned_notification')) {
-            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
-        } else {
-            return abort(403);
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        if ($notification->isPublished()) {
+            return view('error', [
+                'errmsg' => '该通知已发布，不能预览',
+                'redirect' => route('notification') . "/{$notification->id}",
+            ]);
+        }
+        return view('notification.preview', [
+            'notification' => $notification,
+        ]);
+    }
+
+    public function publish(Request $request, $id)
+    {
+        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        if (!$notification->isPublished()) {
+            $notification->published_at = Carbon::now();
+            $notification->save();
+        }
+        return redirect(route('notification') . "/{$notification->id}");
+    }
+
+    public function modify(Request $request, $id)
+    {
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        if ($notification->isPublished()) {
+            return view('error', [
+                'errmsg' => '该通知已发布，不能修改',
+                'redirect' => route('notification') . "/{$notification->id}",
+            ]);
         }
         return view('notification.modify', [
             'notification' => $notification,
@@ -235,32 +253,16 @@ class NotificationController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (EntrustFacade::can('modify_all_notification')) {
-            $notification = Notification::findOrFail($id);
-            $this->validate($request, [
-                'title' => 'required|max:40',
-                'department' => 'required|exists:departments,id',
-                'start_date' => 'required|date|after:today',
-                'finish_date' => 'required|date|after:start_date',
-                'important' => 'required|in:0,1',
-                'excerpt' => 'required|max:70',
-                'content' => 'required|max:1048576',
-                'attachment' => 'nullable',
-            ]);
-        } else if (EntrustFacade::can('modify_owned_notification')) {
-            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
-            $this->validate($request, [
-                'title' => 'required|max:40',
-                'start_date' => 'required|date|after:today',
-                'finish_date' => 'required|date|after:start_date',
-                'important' => 'required|in:0,1',
-                'excerpt' => 'required|max:70',
-                'content' => 'required|max:1048576',
-                'attachment' => 'nullable',
-            ]);
-        } else {
-            return abort(403);
-        }
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        $this->validate($request, [
+            'title' => 'required|max:40',
+            'start_date' => 'required|date|after:today',
+            'finish_date' => 'required|date|after:start_date',
+            'important' => 'required|in:0,1',
+            'excerpt' => 'required|max:70',
+            'content' => 'required|max:1048576',
+            'attachment' => 'nullable',
+        ]);
 
         $fileList = [];
         foreach (explode(',', $request->input('attachment')) as $hash) {
@@ -273,11 +275,10 @@ class NotificationController extends Controller
         $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
         $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
 
-
         $user = Auth::user();
 
-        $notification->title = $finish_date <= Carbon::now()->addDays(2) ? "[紧急]{$title}" : $title;
-        $notification->department_id = $user->hasRole('admin') ? $request->input('department') : $user->department_id;
+        $notification->title = $title;
+        $notification->department_id = $user->department_id;
         $notification->start_date = $start_date;
         $notification->finish_date = $finish_date;
         $notification->important = $request->input('important') === "1";
@@ -292,10 +293,10 @@ class NotificationController extends Controller
         });
         $notification->notifiedUsers()->sync($users);
 
-        return redirect(route('notification') . '/' . $notification->id);
+        return redirect(route('notification') . "/{$notification->id}/preview");
     }
 
-    public function star($id)
+    public function star(Request $request, $id)
     {
         abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
         $pivot = $notification->pivot;
@@ -304,7 +305,7 @@ class NotificationController extends Controller
         return response('Stared!');
     }
 
-    public function unstar($id)
+    public function unstar(Request $request, $id)
     {
         abort_unless($notification = Auth::user()->receivedNotifications()->find($id), 403);
         $pivot = $notification->pivot;
@@ -331,7 +332,7 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function read($id)
+    public function read(Request $request, $id)
     {
         $notification = Auth::user()->receivedNotifications()->find($id);
         abort_unless($notification && $notification->important, 403);

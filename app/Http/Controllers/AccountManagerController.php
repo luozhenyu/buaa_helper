@@ -263,6 +263,7 @@ class AccountManagerController extends Controller
         ) {
             $file->move($dirName = pathinfo($file->getRealPath())['dirname'], $fileName = $file->getClientOriginalName());
             $path = $dirName . '/' . $fileName;
+            $sheetData = null;
             try {
                 $spreadsheet = IOFactory::load($path);
                 $sheetData = $spreadsheet->getActiveSheet()
@@ -275,7 +276,6 @@ class AccountManagerController extends Controller
 
             list($success, $skip, $fail) = [0, 0, 0];
 
-            $normal = Role::where('name', 'normal')->firstOrFail();
             $msg = [];
             foreach ($sheetData as $key => $value) {
                 if (empty(reset($value)) || $key === 1)
@@ -304,14 +304,13 @@ class AccountManagerController extends Controller
                     continue;
                 }
 
-                $user = Department::where('number', $value['C'])->firstOrFail()->users()->create([
+                Department::where('number', $value['C'])->firstOrFail()->students()->create([
                     'number' => $value['A'],
                     'name' => $value['B'],
                     'email' => $value['D'],
                     'phone' => $value['E'],
                 ]);
 
-                $user->attachRole($normal);
                 $success++;
             }
 

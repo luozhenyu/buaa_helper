@@ -81,6 +81,20 @@ class Student extends User implements HasPersonalAvatar
         ];
     }
 
+    public function needCompleteInformation()
+    {
+        if (parent::needCompleteInformation()) {
+            return true;
+        }
+        $attrs = ['grade', 'class', 'political_status', 'native_place', 'financial_difficulty'];
+        foreach ($attrs as $attr) {
+            if (empty($this->$attr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 设置用户的头像
      * @param File $file

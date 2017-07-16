@@ -41,10 +41,9 @@ $this->get('/city/{code}/children', 'CityController@children');
 
 //Notification
 $this->get('/notification', 'NotificationController@index')->name('notification');
-$this->get('/notification/manage', 'NotificationController@manage');
-$this->get('/notification/stared', 'NotificationController@stared');
+$this->get('/notification/published', 'NotificationController@published');
 $this->get('/notification/draft', 'NotificationController@draft');
-
+$this->get('/notification/stared', 'NotificationController@stared');
 
 $this->get('/notification/create', 'NotificationController@create');
 $this->post('/notification', 'NotificationController@store');

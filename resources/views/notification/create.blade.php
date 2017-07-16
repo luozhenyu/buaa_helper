@@ -86,7 +86,6 @@
             $("#attachment").val(allFiles.join(','));
         });
 
-        $("#department").selectpicker("val", "{{ old('department')?: Auth::user()->department_id }}");
         $("#important").selectpicker("val", "{{ old('important') }}");
         var files = {!! $files->toJson() !!};
         for (var i = 0; i < files.length; i++) {
@@ -98,8 +97,8 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ url("/notification") }}">通知中心</a></li>
-<li><a href="{{ url("/notification/manage") }}">通知管理</a></li>
+<li><a href="{{ route('notification') }}">通知中心</a></li>
+<li><a href="{{ route('notification').'/draft' }}">草稿箱</a></li>
 <li class="active">创建新通知</li>
 @endpush
 
@@ -120,29 +119,13 @@
             </div>
         </div>
 
-        <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
+        <div class="form-group">
             <label for="department" class="col-md-2 control-label">发布院系/部门</label>
             <div class="col-md-9">
-                @if(Auth::user() instanceof \App\Models\Admin)
-                    <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" name="department" required>
-                        @foreach(\App\Models\Department::orderBy('number')->get() as $department)
-                            <option value="{{ $department->number }}">{{ $department->display_name }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                            id="department" disabled>
-                        @php($department = Auth::user()->department)
-                        <option value="{{ $department->number }}">{{ $department->display_name }}</option>
-                    </select>
-                @endif
-
-                @if ($errors->has('department'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first('department') }}</strong>
-                    </span>
-                @endif
+                <select class="selectpicker form-control" id="department" disabled>
+                    @php($department = Auth::user()->department)
+                    <option value="{{ $department->number }}">{{ $department->display_name }}</option>
+                </select>
             </div>
         </div>
 
@@ -233,7 +216,7 @@
         <div class="form-group">
             <div class="col-md-3 pull-right">
                 <button type="submit" class="btn btn-primary" onclick="window.onbeforeunload=null;">
-                    保存通知
+                    存入草稿箱并预览
                 </button>
             </div>
         </div>
