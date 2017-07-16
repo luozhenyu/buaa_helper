@@ -8,35 +8,13 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use LuoZhenyu\PostgresFullText\FulltextBuilder;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet;
 
 class NotificationController extends Controller
 {
-    private $orders = [
-        'department_id' => [
-            'name' => '部门',
-            'by' => 'asc',
-        ],
-        'important' => [
-            'name' => '类别',
-            'by' => 'asc',
-        ],
-        'read' => [
-            'name' => '阅读情况',
-            'by' => 'asc',
-        ],
-        'title' => [
-            'name' => '标题',
-            'by' => 'asc',
-        ],
-        'updated_at' => [
-            'name' => '发布时间',
-            'by' => 'desc',
-        ],
-    ];
-
     function __construct()
     {
         $this->middleware('auth');
@@ -45,27 +23,20 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $query = Auth::user()->receivedNotifications();
+
         //search
-        if ($wd = $request->input('wd')) {
-            $query = $query->whereRaw("MATCH(`title`,`excerpt`,`content`) AGAINST (? IN NATURAL LANGUAGE MODE)", $wd);
-        }
-        //orderBy
-        $sort = $request->input('sort');
-        $by = $request->input('by');
-        if (!$wd || $sort || $by) {
-            if (!array_key_exists($sort, $this->orders)) {
-                $sort = 'updated_at';//默认updated_at
-            }
-            if (!in_array($by, ['asc', 'desc'])) {
-                $by = $this->orders[$sort]['by'];
-            }
-            $this->orders[$sort]['by'] = $by === 'asc' ? 'desc' : 'asc';
-            $query = $query->orderBy($sort, $by);
+        $wd = null;
+        if ($request->has('wd')) {
+            $wd = $request->input('wd');
+            $fulltext = new FulltextBuilder(['title', 'content']);
+            $query = $query->where($fulltext->search($wd));
         }
 
         //paginate
-        $notifications = $query->with('department')->paginate(15)
-            ->appends(['wd' => $wd, 'sort' => $sort, 'by' => $by]);
+        $notifications = $query->with('department')->orderBy('published_at', 'desc')->paginate(15);
+        if (!is_null($wd)) {
+            $notifications = $notifications->appends(['wd' => $wd]);
+        }
 
         if ($page = intval($request->input('page'))) {
             if ($page > ($lastPage = $notifications->lastPage()))
@@ -77,21 +48,14 @@ class NotificationController extends Controller
         return view('notification.index', [
             'notifications' => $notifications,
             'wd' => $wd,
-            'orders' => $this->orders,
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $notification = Auth::user()->receivedNotifications()->findOrFail($id);
 
-        if (!$notification->isPublished()) {
-            return view('error', [
-                'errmsg' => '该通知还未发布，只允许预览',
-                'redirect' => route('notification') . "/{$notification->id}/preview",
-            ]);
-        }
-
+        //普通通知标记为已读
         $pivot = $notification->pivot;
         if (!$notification->important) {
             $pivot->read_at = Carbon::now();
@@ -152,8 +116,8 @@ class NotificationController extends Controller
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+        $authUser = Auth::user();
+        abort_unless($authUser->hasPermission('create_notification'), 403);
 
         $this->validate($request, [
             'title' => 'required|max:40',
@@ -162,31 +126,27 @@ class NotificationController extends Controller
             'important' => 'required|in:0,1',
             'excerpt' => 'required|max:70',
             'content' => 'required|max:1048576',//2MB
-            'attachment' => 'nullable',
+            'attachment.*' => 'size:40|exists:files,hash',
         ]);
 
-
-        $fileList = [];
-        foreach (explode(',', $request->input('attachment')) as $hash) {
-            if ($file = File::where('hash', $hash)->first()) {
-                $fileList[] = $file->id;
-            }
-        }
-
-        $title = $request->input('title');
-        $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
-        $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
-
-        $notification = $user->writtenNotifications()->create([
-            'title' => $title,
-            'department_id' => $user->department_id,
-            'start_date' => $start_date,
-            'finish_date' => $finish_date,
-            'important' => $request->input('important') === "1",
+        $notification = $authUser->writtenNotifications()->create([
+            'title' => $request->input('title'),
+            'department_id' => $authUser->department_id,
+            'start_date' => $this->ISOStringToCarbon($request->input('start_date')),
+            'finish_date' => $this->ISOStringToCarbon($request->input('finish_date')),
+            'important' => (bool)$request->input('important'),
             'excerpt' => $request->input('excerpt'),
             'content' => clean($request->input('content')),
         ]);
-        $notification->files()->sync($fileList);
+
+        if ($request->has('attachment')) {
+            $attachment = array_unique($request->input('attachment'));
+            foreach ($attachment as $hash) {
+                if ($file = File::where('hash', $hash)->first()) {
+                    $notification->files()->attach($file);
+                }
+            }
+        }
 
         $users = User::get()->map(function ($item, $key) {
             return $item->id;
@@ -194,6 +154,11 @@ class NotificationController extends Controller
         $notification->notifiedUsers()->sync($users);
 
         return redirect(route('notification') . "/{$notification->id}/preview");
+    }
+
+    protected function ISOStringToCarbon(string $time)
+    {
+        return Carbon::createFromTimestamp(strtotime($time));
     }
 
     public function delete(Request $request, $id)
@@ -260,33 +225,30 @@ class NotificationController extends Controller
             'finish_date' => 'required|date|after:start_date',
             'important' => 'required|in:0,1',
             'excerpt' => 'required|max:70',
-            'content' => 'required|max:1048576',
-            'attachment' => 'nullable',
+            'content' => 'required|max:1048576',//2MB
+            'attachment.*' => 'size:40|exists:files,hash',
         ]);
 
-        $fileList = [];
-        foreach (explode(',', $request->input('attachment')) as $hash) {
-            if ($file = File::where('hash', $hash)->first()) {
-                $fileList[] = $file->id;
-            }
-        }
+        $authUser = Auth::user();
 
-        $title = $request->input('title');
-        $start_date = Carbon::createFromTimestamp(strtotime($request->input('start_date')));
-        $finish_date = Carbon::createFromTimestamp(strtotime($request->input('finish_date')));
-
-        $user = Auth::user();
-
-        $notification->title = $title;
-        $notification->department_id = $user->department_id;
-        $notification->start_date = $start_date;
-        $notification->finish_date = $finish_date;
-        $notification->important = $request->input('important') === "1";
+        $notification->title = $request->input('title');
+        $notification->department_id = $authUser->department_id;
+        $notification->start_date = $this->ISOStringToCarbon($request->input('start_date'));
+        $notification->finish_date = $this->ISOStringToCarbon($request->input('finish_date'));
+        $notification->important = (bool)$request->input('important');
         $notification->excerpt = $request->input('excerpt');
         $notification->content = clean($request->input('content'));
         $notification->save();
 
-        $notification->files()->sync($fileList);
+        $notification->files()->detach();
+        if ($request->has('attachment')) {
+            $attachment = array_unique($request->input('attachment'));
+            foreach ($attachment as $hash) {
+                if ($file = File::where('hash', $hash)->first()) {
+                    $notification->files()->attach($file);
+                }
+            }
+        }
 
         $users = User::get()->map(function ($item, $key) {
             return $item->id;

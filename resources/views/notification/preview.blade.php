@@ -1,12 +1,5 @@
 @extends('layouts.app')
 
-@php
-    $files = collect();
-    foreach ($notification->files as $file) {
-        $files->push($file->downloadInfo);
-    }
-@endphp
-
 @push('css')
 <style>
     .label-block {
@@ -57,10 +50,6 @@
             width: 100%;
         }
     }
-
-    #excerpt {
-        font-size: 16px;
-    }
 </style>
 @endpush
 
@@ -71,10 +60,10 @@
 @push('js')
 <script>
     $(function () {
-        var files = {!! $files->toJson() !!};
+        var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
         if (files.length > 0) {
             for (var i = 0; i < files.length; i++) {
-                $("#attachmentContainer").append(parseFile(files[i], false));
+                $("#attachmentContainer").append(parseFile(files[i]));
             }
         } else {
             $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");

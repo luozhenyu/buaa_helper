@@ -450,7 +450,7 @@ class APIController extends Controller
             'notification' => [
                 'content' => $notification->content,
                 'files' => $notification->files->map(function ($item, $key) {
-                    return $item->downloadInfo;
+                    return $item->file_info;
                 }),
             ]
         ]);

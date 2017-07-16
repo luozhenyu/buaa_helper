@@ -1,14 +1,5 @@
 @extends('layouts.app')
 
-@php
-    $files = collect();
-    foreach (explode(',', old('attachment')) as $hash) {
-        if ($file = \App\Models\File::where('hash', $hash)->first()) {
-            $files->push($file->downloadInfo);
-        }
-    }
-@endphp
-
 @push('cssLink')
 <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 <link rel="stylesheet" href="{{ url('/components/flatpickr/dist/flatpickr.min.css') }}">
@@ -29,9 +20,9 @@
 @push('js')
 <script>
     $(function () {
-//        window.onbeforeunload = function () {
-//            return "您确认要退出此页面?";
-//        };
+        window.onbeforeunload = function () {
+            return "您确认要退出此页面?";
+        };
         flatpickr("#timeRange", {
             locale: "zh",
             enableTime: true,
@@ -61,13 +52,14 @@
         });
 
         var editor = CKEDITOR.replace("content");
-        editor.on('fileUploadRequest', function (evt) {
+        editor.on("fileUploadRequest", function (evt) {
             var xhr = evt.data.fileLoader.xhr;
-            xhr.setRequestHeader('X-CSRF-TOKEN', $("meta[name='csrf-token']").attr("content"));
+            xhr.setRequestHeader("X-CSRF-TOKEN", $("meta[name='csrf-token']").attr("content"));
         });
 
         $("#attachmentBtn").click(function () {
             $(this).upload({
+                url: "{{ route('upload') }}",
                 success: function (json) {
                     if (json.uploaded) {
                         $("#attachmentContainer").append(parseFile(json, true));
@@ -78,16 +70,9 @@
             });
         });
 
-        $("#form").submit(function () {
-            var allFiles = [];
-            $("#attachmentContainer").find("p").each(function () {
-                allFiles.push($(this).data('hash'));
-            });
-            $("#attachment").val(allFiles.join(','));
-        });
-
         $("#important").selectpicker("val", "{{ old('important') }}");
-        var files = {!! $files->toJson() !!};
+        var files = {!! $files = collect(old('attachment'))->map(function ($item, $key) {
+        if ($file = \App\Models\File::where('hash', $item)->first()) {return $file->file_info;}})->toJson() !!};
         for (var i = 0; i < files.length; i++) {
             $("#attachmentContainer").append(parseFile(files[i], true));
         }
@@ -188,7 +173,6 @@
             </div>
         </div>
 
-        <input id="attachment" name="attachment" type="hidden">
         <div class="form-group">
             <div class="col-md-10 col-md-offset-1">
                 <div class="panel panel-success">

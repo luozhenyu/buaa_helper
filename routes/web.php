@@ -96,5 +96,5 @@ $this->post('/password/reset', 'Auth\ResetPasswordController@reset')->name('pass
 
 
 //File upload
-$this->post('/file/upload', 'FileController@upload');
+$this->post('/file/upload', 'FileController@upload')->name('upload');
 $this->get('/file/{sha1}', 'FileController@download');
