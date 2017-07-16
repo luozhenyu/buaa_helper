@@ -143,7 +143,7 @@ $.fn.user_select = function (options) {
             properties[data.key].push(data.value);
         });
 
-        return {departments: departments, properties: properties};
+        return {departments: departments, properties: properties, search: searchBox.val()};
     }
 
     //按钮按下响应事件
@@ -306,16 +306,20 @@ $.fn.user_select = function (options) {
      mainPanel.append(panel);
      }*/
 
+    //搜索框
+    var searchBox = $("<input>").addClass("form-control")
+        .attr("placeholder", "自定义搜索（学号／工号／姓名）")
+        .css("margin-bottom", "7px");
+
     // 被选中内容部分
     // 无选中文字显示
     var nobodyLabel = $("<h4 class = 'empty_label'>(无任何选中对象)</h4>").css("margin", "2px")
         .css("color", "darkgray").css("text-align", "center");
 
     // 显示框
-    var selectHit = $("<div>").css("min-height", "50px")
+    var selectHit = $("<div>").css("min-height", "60px")
         .css("box-shadow", "inset 1px 1px 1px rgba(0, 0, 0, 0.1)").css("border-radius", "5px")
         .css("padding", "6px").css("background-color", "#dedede").append(nobodyLabel);
-
 
     // 筛选按钮部分
     var filterButton = $("<div></div>").css("padding-top", "6px").css("text-align", "right")
@@ -336,7 +340,9 @@ $.fn.user_select = function (options) {
         );
 
     // 整个组件
-    var userSelect = $("<div>").append(selectHit).append(filterButton).append(mainPanel);
+    var userSelect = $("<div>")
+        .append(searchBox).append(selectHit)
+        .append(filterButton).append(mainPanel);
 
     $(this).empty().append(userSelect);
     return $(this);

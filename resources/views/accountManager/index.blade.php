@@ -235,6 +235,8 @@
             callback_filter: function (data) {  //单击筛选
                 selected_data.range = data.departments;
                 selected_data.property = data.properties;
+                selected_data.search = data.search;
+                console.log(selected_data);
                 new_page(1, selected_data);
             }
         });
@@ -266,20 +268,6 @@
             <td id="td_search_tools">
                 <div id="search_tools" style="position: relative;min-height: 580px;">
                     <div style="position: absolute;left: 0px; right: 0px; top: 0px; bottom: 0px;">
-                        <div>
-                            <form class="form-iniline" role="form" method="get"
-                                  action="{{ route('accountManager') }}">
-                                <div class="input-group">
-                                    <input type="search" class="form-control" name="wd" value="{{ "" }}"
-                                           placeholder="学号／工号／姓名">
-                                    <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-primary">
-                                        <span class="glyphicon glyphicon-search"></span> 搜索
-                                    </button>
-                                </span>
-                                </div>
-                            </form>
-                        </div>
                         <div class="bh-account-selector">
                         </div>
                     </div>
