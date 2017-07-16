@@ -154,21 +154,21 @@ class FileController extends Controller
     }
 
     /**
+     * @param Request $request
      * @param string $hash
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function download($hash)
+    public function download(Request $request, $hash)
     {
         $file = File::where('hash', $hash)->firstOrFail();
         $realFile = $file->realFile;
-        unset($file);
-        $absolutePath = Storage::url($realFile->relativePath);
 
+        $absolutePath = Storage::url($realFile->relativePath);
         if (str_is('image/*', $realFile->mime)) {
             return response()->file($absolutePath, [
                 'Content-Type' => $realFile->mime
             ]);
         }
-        return response()->download($absolutePath, $realFile->fileName);
+        return response()->download($absolutePath, $file->fileName);
     }
 }

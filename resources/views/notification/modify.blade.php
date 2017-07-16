@@ -1,12 +1,5 @@
 @extends('layouts.app')
 
-@php
-    $files = collect();
-    foreach ($notification->files as $file) {
-        $files->push($file->downloadInfo);
-    }
-@endphp
-
 @push('cssLink')
 <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 <link rel="stylesheet" href="{{ url('/components/flatpickr/dist/flatpickr.min.css') }}">
@@ -27,9 +20,9 @@
 @push('js')
 <script>
     $(function () {
-//        window.onbeforeunload = function () {
-//            return "您确认要退出此页面?";
-//        };
+        window.onbeforeunload = function () {
+            return "您确认要退出此页面?";
+        };
 
         flatpickr("#timeRange", {
             locale: "zh",
@@ -60,6 +53,7 @@
 
         $("#attachmentBtn").click(function () {
             $(this).upload({
+                url: "{{ route('upload') }}",
                 success: function (json) {
                     if (json.uploaded) {
                         $("#attachmentContainer").append(parseFile(json, true));
@@ -70,16 +64,8 @@
             });
         });
 
-        $("#form").submit(function () {
-            var allFiles = [];
-            $("#attachmentContainer").find("p").each(function () {
-                allFiles.push($(this).data('hash'));
-            });
-            $("#attachment").val(allFiles.join(','));
-        });
-
-        $("#important").selectpicker("val", "{{ $notification->important }}");
-        var files = {!! $files->toJson() !!};
+        $("#important").selectpicker("val", "{{ (int)$notification->important }}");
+        var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
         for (var i = 0; i < files.length; i++) {
             $("#attachmentContainer").append(parseFile(files[i], true));
         }

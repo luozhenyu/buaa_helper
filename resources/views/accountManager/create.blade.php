@@ -4,15 +4,6 @@
 <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
-@push('css')
-<style>
-    #avatarImg {
-        width: 150px;
-        height: 150px;
-    }
-</style>
-@endpush
-
 @push('jsLink')
 <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>

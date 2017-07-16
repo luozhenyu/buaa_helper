@@ -1,12 +1,12 @@
 'use strict';
 
-$.fn.upload = function (fun) {
+$.fn.upload = function (param) {
     $("<input>", {type: "file"}).change(function () {
         var formData = new FormData();
         formData.append("upload", $(this)[0].files[0]);
-        formData.append("type", fun.type);
+        formData.append("type", param.type);
         $.ajax({
-            url: fun.url,
+            url: param.url,
             type: "POST",
             data: formData,
             processData: false,
@@ -14,14 +14,14 @@ $.fn.upload = function (fun) {
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
             },
-            success: fun.success,
-            error: fun.error
+            success: param.success,
+            error: param.error
         });
     }).click();
 };
 
-function getFileIcon(url) {
-    var ext = url.substr(url.lastIndexOf('.') + 1).toLowerCase(),
+function getFileIcon(fileName) {
+    var ext = fileName.substr(fileName.lastIndexOf(".") + 1).toLowerCase(),
         maps = {
             "rar": "icon_rar.gif",
             "zip": "icon_rar.gif",
@@ -52,21 +52,30 @@ function getFileIcon(url) {
             "ico": "icon_jpg.gif",
             "bmp": "icon_jpg.gif"
         };
-    return maps[ext] ? maps[ext] : maps['txt'];
+    return maps[ext] ? maps[ext] : maps["txt"];
 }
 
-function parseFile(file, del) {
-    var html, iconDir = "/img/fileTypeImages/";
-    var icon = iconDir + getFileIcon(file["fileName"]);
-
-    var btn = del ? '<a class="glyphicon glyphicon-remove" style="color:red;display:inline-block" href="javascript:void(0)" onclick="this.parentNode.remove();"></a>' : '';
-
-    html = '<p style="line-height: 16px;" data-hash="' + file["hash"] + '">'
-        + '<img style="vertical-align: middle; margin-right: 2px;" src="' + icon + '" />'
-        + '<a style="font-size:12px; color:#0066cc;" href="' + file["url"] + '" title="' + file["fileName"] + '">'
-        + file["fileName"]
-        + '</a>'
-        + btn
-        + '</p>';
+function parseFile(file, editable) {
+    var iconUrl = "/img/fileTypeImages/" + getFileIcon(file["fileName"]),
+        hash = file["hash"],
+        url = file["url"],
+        fileName = file["fileName"];
+    var html = $("<p>").css("line-height", "16px").append(
+        $("<img>").css("vertical-align", "middle").css("margin-right", "2px").attr("src", iconUrl)
+    ).append(
+        $("<a>").css("font-size", "12px").css("color", "#0066CC").attr("href", url).attr("title", fileName).text(fileName)
+    );
+    editable = editable || false;
+    if (editable) {
+        html.append(
+            $("<input>").css("display", "none").attr("name", "attachment[]").val(hash)
+        ).append(
+            $("<span>").addClass("glyphicon glyphicon-remove")
+                .css("color", "red").css("display", "inline-block").css("cursor", "pointer")
+                .click(function () {
+                    $(this).parent().remove();
+                })
+        );
+    }
     return html;
 }

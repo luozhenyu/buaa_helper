@@ -45,11 +45,11 @@
         </caption>
         <thead>
         <tr>
-            @foreach($orders as $key => $value)
-                <th>
-                    <a href="{{ route('notification').'?wd='.$wd.'&sort='.$key.'&by='.$value['by'] }}">{{ $value['name'] }}</a>
-                </th>
-            @endforeach
+            <th>部门</th>
+            <th>类别</th>
+            <th>阅读情况</th>
+            <th>标题</th>
+            <th>发布时间</th>
         </tr>
         </thead>
         <tbody>
