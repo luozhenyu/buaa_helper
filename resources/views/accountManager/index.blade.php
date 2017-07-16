@@ -355,19 +355,7 @@
                                     </div>
 
                                     <div class="modal-body container">
-                                        <div class="col-md-4 list-group">
-                                            <li class="list-group-item active">
-                                                <h4 class="list-group-item-heading">
-                                                    我的分组（{{ $groups->count() }}/10）
-                                                </h4>
-                                            </li>
-                                            @foreach($groups as $group)
-                                                <a class="list-group-item">
-                                                    {{ $group->name }}
-                                                    <span class="badge">{{ $group->users->count() }}</span>
-                                                </a>
-                                            @endforeach
-                                        </div>
+                                        <iframe src="{{ route('accountManager').'/group' }}" style="width: 100%;border: 0"></iframe>
                                     </div>
 
                                     <div class="modal-footer">
