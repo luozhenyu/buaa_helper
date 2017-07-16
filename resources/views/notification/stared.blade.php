@@ -22,7 +22,7 @@
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
 <li><a href="{{ route("notification") }}">通知中心</a></li>
-<li class="active">我收藏的</li>
+<li class="active">收藏</li>
 @endpush
 
 @section('content')

@@ -2,7 +2,8 @@
 
 @push("crumb")
 <li><a href="{{ url("/") }}">主页</a></li>
-<li class="active">通知中心（我收到的）</li>
+<li><a href="{{ route('notification') }}">通知中心</a></li>
+<li class="active">我的通知</li>
 @endpush
 
 @section('content')
@@ -15,19 +16,19 @@
                     <span class="glyphicon glyphicon-pencil"></span> 新通知
                 </a>
                 <a type="button" class="btn btn-primary" href="{{ route('notification') . '/draft' }}">
-                    <span class="glyphicon glyphicon-trash"></span> 草稿箱
+                    <span class="glyphicon glyphicon-edit"></span> 草稿箱
                 </a>
                 <a type="button" class="btn btn-primary" href="{{ route('notification') . '/published' }}">
-                    <span class="glyphicon glyphicon-send"></span> 已发布的
+                    <span class="glyphicon glyphicon-send"></span> 已发布
                 </a>
                 @endpermission
             </div>
             <div class="btn-group">
                 <a type="button" class="btn btn-default" href="{{ route('notification') }}">
-                    <span class="glyphicon glyphicon-envelope"></span> 我收到的
+                    <span class="glyphicon glyphicon-envelope"></span> 我的通知
                 </a>
                 <a type="button" class="btn btn-default" href="{{ route('notification') . '/stared' }}">
-                    <span class="glyphicon glyphicon-star"></span> 我收藏的
+                    <span class="glyphicon glyphicon-star"></span> 收藏
                 </a>
             </div>
 

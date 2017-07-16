@@ -104,6 +104,12 @@
         display: none;
     }
 
+    table.bh-account-show-left .bh-account-list-phone,
+    table.bh-account-show-left .bh-account-list-email,
+    table.bh-account-show-left .bh-account-head-phone,
+    table.bh-account-show-left .bh-account-head-email {
+        display: none;
+    }
 
 </style>
 @endpush
