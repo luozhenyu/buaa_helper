@@ -123,7 +123,7 @@
                 group_list_update();
             }
 
-            //生成新的组
+            //生成新的组（注意：请最好不要直接调用该函数，因为不包含数据维护动作）
             var make_new_group = function(settings){
                 var defaults = {
                     name: "",
@@ -217,7 +217,7 @@
                 selection_state_update();
             }
 
-            //生成新的一行数据
+            //生成新的一行数据（注意：请不要直接调用该函数，因为不包含数据维护动作）
             var make_new_row = function(settings){
                 var defaults = {
                     checked: false,  //是否选中（默认不选中）
@@ -363,6 +363,7 @@
                 页面初始化动作
              */
             //初始化页面样例（请一次性准备好所有组的数据）
+            //可以在每行数据处添加data值，用来方便后端处理等
             create_new_group_list([
                 {
                     name: "蛤蛤蛤",
