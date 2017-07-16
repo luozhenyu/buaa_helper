@@ -30,8 +30,7 @@
         .bh-group-list .bh-group-list-item.active:focus {
             background-color: #7ee8f0;
         }
-        .bh-group-manage .bh-group-manage-group,
-        .bh-group-manage .bh-group-manage-member {
+        .bh-group-manage > * {
             margin-bottom: 5px;
         }
 
@@ -45,6 +44,12 @@
     <script src="{{ url('/components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
     <script>
         $(function(){
+            /*
+                保存设置
+            */
+            $(".bh-group-save").click(function(){
+                console.log(get_all_data());
+            })
             /*
                 group内成员管理按钮
              */
@@ -109,11 +114,13 @@
             var create_new_groups = function(data) {
                 for (var i = 0; i < data.length; i++)
                     $(".bh-group-list").append(make_new_group(data[i]));
+                group_list_update();
             }
 
             //创建新的组
             var create_new_group = function(settings) {
                 $(".bh-group-list").append(make_new_group(settings));
+                group_list_update();
             }
 
             //生成新的组
@@ -125,6 +132,7 @@
                 settings = $.extend(defaults, settings);
 
                 return $("<li>")
+                    .data("name", settings.name)
                     .data("group_data", settings.data)
                     .addClass("list-group-item bh-group-list-item slow-down clear-fix")
                     .append(
@@ -158,6 +166,7 @@
                                                                 var my_item = $(this).parents(".list-group-item");
                                                                 var new_name = $(my_item).find("input").val() || "未命名组";
                                                                 $(my_item).find("b").empty().append(new_name);
+                                                                $(my_item).data("name", new_name);
                                                                 $(my_item).find("span").removeClass("hidden");
                                                             })
                                                     )
@@ -172,6 +181,10 @@
                             .append(settings.data.length)
                     ).click(function(){
                         if ($(this).hasClass("active")) return;
+                        var active_group = $(".bh-group-list-item.active");
+                        if ($(active_group).length > 0)
+                            $(active_group).data("group_data", get_present_table_data());
+
                         present_group = $(this);
                         $(".bh-group-list-item").removeClass("active");
                         $(this).addClass("active");
@@ -302,11 +315,54 @@
                         .text($("table tbody tr td:first-child input[type=checkbox]").length);
             }
 
+            var group_list_update = function(){
+                $(".bh-group-list-head b").empty().append("（" + $(".bh-group-list-item").length + " / " + group_count_limit + "）")
+            }
+
+            /*
+                数据读取
+            */
+            //获取某一数据行
+            var get_row_data = function(row){
+                return {
+                    checked: $(row).find("td:nth-child(1) input").prop("checked"),
+                    department: $(row).find("td:nth-child(2)").text(),
+                    number: $(row).find("td:nth-child(3)").text(),
+                    name: $(row).find("td:nth-child(4)").text(),
+                    role: $(row).find("td:nth-child(5)").text(),
+                    data: $(row).data("attached_data")
+                }
+            }
+
+            //获取当前表内信息
+            var get_present_table_data = function() {
+                if ($(".bh-group-member").hasClass("hidden")) return null;
+                var data = [];
+                var rows = $("table tbody tr");
+                for (var i = 0; i < rows.length; i++)
+                    data.push(get_row_data(rows[i]));
+                return data;
+            }
+
+            //获取当前页面全部信息
+            var get_all_data = function() {
+                var groups = $(".bh-group-list-item");
+                var data = [];
+                for (var i = 0; i < groups.length; i++) {
+                    var group = groups[i], group_data;
+                    data.push({
+                        name: $(group).data("name"),
+                        data: ($(group).hasClass("active")) ? get_present_table_data() : $(group).data("group_data")
+                    });
+                }
+                return data;
+            }
+
 
             /*
                 页面初始化动作
              */
-
+            //初始化页面样例（请一次性准备好所有组的数据）
             create_new_group_list([
                 {
                     name: "蛤蛤蛤",
@@ -339,12 +395,18 @@
 <div class="col-xs-3 list-group bh-group-list">
     <li class="list-group-item active bh-group-list-head">
         <h4 class="list-group-item-heading">
-            我的分组（{{ $groups->count() }} / 10）
+            我的分组<br>
+            <b></b>
         </h4>
     </li>
 </div>
 <div class="col-xs-9">
+
     <div class = "bh-group-manage">
+        <button class="btn btn-success bh-group-save btn-sm">
+            <span class = "glyphicon glyphicon-ok"></span>
+            保存设置
+        </button>
         <div class = "btn-group btn-group-sm bh-group-manage-group">
             <button class="btn btn-success bh-group-add">
                 <span class = "glyphicon glyphicon-plus"></span>
