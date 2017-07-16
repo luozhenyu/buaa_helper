@@ -264,4 +264,14 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\InquiryReply', 'user_id', 'id');
     }
+
+    public function groups()
+    {
+        return $this->hasMany('App\Models\Group', 'user_id', 'id');
+    }
+
+    public function belongsToGroups()
+    {
+        return $this->belongsToMany('App\Models\Group', 'group_user', 'user_id', 'group_id');
+    }
 }

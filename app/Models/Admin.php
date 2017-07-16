@@ -43,22 +43,28 @@ class Admin extends User
             return $query->whereRaw('FALSE');
         }
 
-        if (!key_exists('range', $condition)) {
-            throw new Exception('range键不存在');
+        if (key_exists('search', $condition)) {
+            $search = $condition['search'];
+            $query = $query->where(function ($query) use ($search) {
+                $query->where(DB::raw('cast(number as text)'), 'like', "%{$search}%");
+            });
         }
-        $range = $condition['range'];
 
-        $query = $query->where(function ($query) use ($range) {
-            foreach ($range as $item) {
-                if (!key_exists('department', $item)) {
-                    throw new Exception('department键不存在');
+        if (key_exists('range', $condition)) {
+            $range = $condition['range'];
+
+            $query = $query->where(function ($query) use ($range) {
+                foreach ($range as $item) {
+                    if (!key_exists('department', $item)) {
+                        throw new Exception('department键不存在');
+                    }
+                    $department = intval($item['department']);
+                    $query = $query->orWhereHas('department', function ($query) use ($department) {
+                        $query->where('number', $department);
+                    });
                 }
-                $department = intval($item['department']);
-                $query = $query->orWhereHas('department', function ($query) use ($department) {
-                    $query->where('number', $department);
-                });
-            }
-        });
+            });
+        }
         return $query;
     }
 

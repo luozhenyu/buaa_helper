@@ -152,7 +152,7 @@
                     } else {
                         $("#tips").html(resp["errmsg"]);
                     }
-                    $("#myModal").on("hidden.bs.modal", function () {
+                    $("#importModal").on("hidden.bs.modal", function () {
                         window.location.reload();
                     });
                 },
@@ -172,8 +172,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (json) {
-                    console.log(json);
-                    //return;
                     $("#table_content").empty();
                     $("#information")
                         .empty().append("共搜到 ")
@@ -296,36 +294,30 @@
                 <table class="table table-condensed table-hover">
                     <caption>
                         @permission('create_user')
-                        <div class="col-xs-12">
-                            <div style="display: inline-block;">
-                                <div class="btn-group">
-                                    <a type="button" class="btn btn-primary"
-                                       href="{{route('accountManager').'/create'}}">创建新用户
-                                    </a>
-                                    <button type="button" class="btn btn-success" data-toggle="modal"
-                                            data-target="#myModal">
-                                        导入Excel
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="pull-right" style="display: inline-block;">
-                                <h5 id="information"></h5>
+                        <div style="display: inline-block;">
+                            <div class="btn-group">
+                                <a type="button" class="btn btn-primary"
+                                   href="{{route('accountManager').'/create'}}">创建新用户
+                                </a>
+                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                        data-target="#importModal">
+                                    导入Excel
+                                </button>
                             </div>
                         </div>
                         <!-- 模态框（Modal） -->
-                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
-                             aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="importModal" tabindex="-1" role="dialog"
+                             aria-labelledby="importModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <button type="button" class="close" data-dismiss="modal"
                                                 aria-hidden="true">&times;
                                         </button>
-                                        <h4 class="modal-title" id="myModalLabel">批量导入用户信息</h4>
+                                        <h4 class="modal-title" id="importModalLabel">批量导入用户信息</h4>
                                     </div>
 
                                     <div class="modal-body">
-                                        {{ csrf_field() }}
                                         <div class="form-group">
                                             <label>第一步：</label>
                                             <a type="button" class="btn btn-info"
@@ -352,8 +344,55 @@
                                 </div>
                             </div>
                         </div>
-                        @endpermission
+                    @endpermission
+                    <!-- BEGIN GROUP -->
+                        <div style="display: inline-block;">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info" data-toggle="modal"
+                                        data-target="#groupModal">
+                                    分组管理
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 模态框（Modal） -->
+                        <div class="modal fade" id="groupModal" tabindex="-1" role="dialog"
+                             aria-labelledby="groupModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                            &times;
+                                        </button>
+                                        <h4 class="modal-title" id="groupModalLabel">用户分组管理</h4>
+                                    </div>
 
+                                    <div class="modal-body container">
+                                        <div class="col-md-4 list-group">
+                                            <li class="list-group-item active">
+                                                <h4 class="list-group-item-heading">
+                                                    我的分组（{{ $groups->count() }}/10）
+                                                </h4>
+                                            </li>
+                                            @foreach($groups as $group)
+                                                <a class="list-group-item">
+                                                    {{ $group->name }}
+                                                    <span class="badge">{{ $group->users->count() }}</span>
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END GROUP -->
+                        <div class="pull-right" style="display: inline-block;">
+                            <h5 id="information"></h5>
+                        </div>
                     </caption>
 
                     <thead>

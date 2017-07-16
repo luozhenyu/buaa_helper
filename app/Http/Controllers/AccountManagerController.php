@@ -30,8 +30,7 @@ class AccountManagerController extends Controller
 
     public function index(Request $request)
     {
-        $college[] = ['name' => null, 'display_name' => '本年级学生'];
-
+        $college = [];
         foreach (Department::where('number', '<', 100)->get() as $department) {
             $college [] = [
                 'name' => $department->number,
@@ -45,17 +44,29 @@ class AccountManagerController extends Controller
         $students[] = ['name' => ',', 'display_name' => '全校学生'];
         $students = array_merge($students, $grade->propertyValues->map(function ($item, $key) use ($college) {
             $gradeNumber = $item->name;
+            $tot[] = ['name' => ",{$gradeNumber}", 'display_name' => '本年级学生'];
+
             return [
                 'display_name' => $item->display_name,
-                'children' => collect($college)->map(function ($item, $key) use ($gradeNumber) {
+                'children' => array_merge($tot, collect($college)->map(function ($item, $key) use ($gradeNumber) {
                     return [
                         'name' => "{$item['name']},{$gradeNumber}",
                         'display_name' => $item['display_name'],
                     ];
-                })->toArray(),
+                })->toArray()),
             ];
         })->toArray());
-
+        //group
+        $groups = Auth::user()->groups;
+        $students[] = [
+            'display_name' => '我的分组',
+            'children' => $groups->map(function ($item, $key) {
+                return [
+                    'name' => "{$item->id},0",
+                    'display_name' => $item->name,
+                ];
+            })->toArray()
+        ];
 
         //properties
         $propertyNames = ['political_status', 'financial_difficulty'];
@@ -79,7 +90,13 @@ class AccountManagerController extends Controller
             'department' => $students,
             'property' => $properties,
         ];
-        return view('accountManager.index', ['selectData' => $selectData]);
+
+
+        return view('accountManager.index', [
+                'selectData' => $selectData,
+                'groups' => $groups,
+            ]
+        );
     }
 
     public function show(Request $request, $id)

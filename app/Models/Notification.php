@@ -60,11 +60,6 @@ class Notification extends Model
         return (bool)$this->published_at;
     }
 
-    public function isDraft()
-    {
-        return !$this->published_at;
-    }
-
     /**
      * 此通知的作者
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
