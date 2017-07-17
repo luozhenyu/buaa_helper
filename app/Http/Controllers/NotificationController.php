@@ -306,17 +306,11 @@ class NotificationController extends Controller
 
     public function statistic(Request $request, $id)
     {
-        if (EntrustFacade::can('modify_all_notification')) {
-            $notification = Notification::findOrFail($id);
-        } else if (EntrustFacade::can('modify_owned_notification')) {
-            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
-        } else {
-            return abort(403);
-        }
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
 
         return response()->json([
             'title' => $notification->title,
-            'link' => route('notification') . '/' . $notification->id . '/statistic',
+            'link' => route('notification') . "/{$notification->id}/statistic",
             'user_read_cnt' => $notification->readUsers->count(),
             'user_not_read_cnt' => ($user_not_read = $notification->notReadUsers)->count(),
             'users' => $user_not_read->take(50)->map(function ($item, $key) {
@@ -327,13 +321,7 @@ class NotificationController extends Controller
 
     public function statisticExcel(Request $request, $id)
     {
-        if (EntrustFacade::can('modify_all_notification')) {
-            $notification = Notification::findOrFail($id);
-        } else if (EntrustFacade::can('modify_owned_notification')) {
-            $notification = Auth::user()->writtenNotifications()->findOrFail($id);
-        } else {
-            return abort(403);
-        }
+        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
 
         $title = $notification->title;
 
