@@ -173,6 +173,7 @@ return [
         Torann\GeoIP\GeoIPServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         LuoZhenyu\PostgresFullText\PostgresqlSchemaServiceProvider::class,
+        Xavrsl\Cas\CasServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -236,6 +237,7 @@ return [
         'Purifier' => Mews\Purifier\Facades\Purifier::class,
         'GeoIP' => Torann\GeoIP\Facades\GeoIP::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'Cas' => Xavrsl\Cas\Facades\Cas::class,
     ],
 
 ];
