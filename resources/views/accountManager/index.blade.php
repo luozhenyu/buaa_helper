@@ -123,7 +123,6 @@
 @push('js')
 <script>
     $(function () {
-        $("[data-toggle='tooltip']").tooltip();
         $("#btn_upload").click(function () {
             var formData = new FormData();
             formData.append("file", $("#file")[0].files[0]);
@@ -182,14 +181,13 @@
                     if (json.data.length > 0) {
                         for (var i = 0; i < json.data.length; i++) {
                             var dat = json.data[i];
-                            var btn_modify = $("<td></td>");
+                            var btn_modify = $("<td>");
 
                             dat.url && btn_modify.append(
-                                $("<a></a>").append("修改")
+                                $("<a>").text("修改")
                                     .addClass("btn btn-xs btn-info")
                                     .attr("href", dat.url)
                             );
-
 
                             $("#table_content").append(
                                 $("<tr></tr>").append(
@@ -241,8 +239,7 @@
             }
         });
         new_page(1, selected_data);
-    });
-    $(function () {
+
         $("#show_hide").click(function () {
             if ($("#show_hide .glyphicon").hasClass("glyphicon-chevron-left")) {
                 $("#show_hide .glyphicon").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right");
@@ -252,6 +249,49 @@
                 $("table#main").removeClass("bh-account-hide-left").addClass("bh-account-show-left");
             }
         });
+    });
+
+    $(function () {
+        function groupRefresh(id, text) {
+            $("#group_title").text(" - " + text);
+            $.get("{{ route('group') }}" + "/" + id, function (data) {
+                var users = data.data;
+
+                var groupContainer = $("#group_container").empty();
+                for (var i = 0; i < users.length; i++) {
+                    groupContainer.append(
+                        $("<tr>").append(
+                            $("<td>").text(users[i].department_name)
+                        ).append(
+                            $("<td>").text(users[i].number)
+                        ).append(
+                            $("<td>").text(users[i].name)
+                        )
+                    )
+                }
+            });
+        }
+
+        function groupsRefresh() {
+            $.get("{{ route('group') }}", function (data) {
+                var groups = data.data;
+
+                $("#group_count").text(groups.length);
+
+                var groupList = $("#group_list").empty();
+                for (var i = 0; i < groups.length; i++) {
+                    groupList.append(
+                        $("<a>").addClass("list-group-item").attr("href", "javascript:void(0)").data("id", groups[i].id).text(groups[i].name)
+                            .click(function () {
+                                var that = $(this);
+                                groupRefresh(that.data("id"), that.text())
+                            })
+                    )
+                }
+            })
+        }
+
+        groupsRefresh();
     });
 
 </script>
@@ -351,11 +391,68 @@
                                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                                             &times;
                                         </button>
-                                        <h4 class="modal-title" id="groupModalLabel">用户分组管理</h4>
+                                        <h4 class="modal-title" id="groupModalLabel">用户分组管理<span
+                                                    id="group_title"></span></h4>
                                     </div>
 
                                     <div class="modal-body container">
-                                        <iframe src="{{ route('accountManager').'/group' }}" style="width: 100%;border: 0"></iframe>
+                                        <div class="col-xs-3">
+                                            <div class="list-group-item active">
+                                                <h4 class="list-group-item-heading">
+                                                    我的分组
+                                                </h4>
+                                                <span id="group_count">0</span>/{{ \App\Http\Controllers\GroupController::MAX_GROUPS }}
+                                            </div>
+
+                                            <ul class="list-group" id="group_list"></ul>
+
+                                            <button class="btn btn-default" id="group_create">
+                                                <span class="glyphicon glyphicon-plus"></span>
+                                                添加分组
+                                            </button>
+                                        </div>
+                                        <div class="col-xs-9">
+                                            <div class="container">
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-success" id="group_insert">
+                                                        <span class="glyphicon glyphicon-plus"></span>
+                                                        添加成员
+                                                    </button>
+                                                    <button class="btn btn-danger" id="group_insert">
+                                                        <span class="glyphicon glyphicon-remove"></span>
+                                                        删除成员
+                                                    </button>
+                                                </div>
+
+                                                <div class="btn-group btn-group-sm pull-right">
+                                                    <button class="btn btn-success">
+                                                        全选
+                                                    </button>
+                                                    <button class="btn btn-info">
+                                                        全不选
+                                                    </button>
+                                                    <button class="btn btn-primary">
+                                                        反选
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <table class="table table-hover table-condensed">
+                                                <thead>
+                                                <tr>
+                                                    <th>院系 / 部门</th>
+                                                    <th>学号 / 工号</th>
+                                                    <th>姓名</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="group_container">
+                                                </tbody>
+                                            </table>
+                                            <button class="btn btn-danger pull-right" id="group_delete">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                                删除此分组
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="modal-footer">

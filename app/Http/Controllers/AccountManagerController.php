@@ -149,27 +149,6 @@ class AccountManagerController extends Controller
         return $query->orderBy('number', 'asc')->paginate(15);
     }
 
-    public function group(Request $request)
-    {
-        $groups = Auth::user()->groups;
-
-        if ($groups->count() === 0) {
-            for ($i = 0; $i < 5; $i++) :
-                $group = Auth::user()->groups()->create([
-                    'name' => '测试分组' . $i,
-                ]);
-
-                for ($j = 0, $tot = rand(2, 10); $j < $tot; $j++) {
-                    $group->users()->syncWithoutDetaching(rand(5, 40));
-                }
-            endfor;
-        }
-        $groups = Auth::user()->groups()->get();
-        return view('accountManager.group', [
-            'groups' => $groups,
-        ]);
-    }
-
     public function create(Request $request)
     {
         abort_unless(Auth::user()->hasPermission('create_user'), 403);

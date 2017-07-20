@@ -21,7 +21,6 @@ $this->post('/account/password', 'HomeController@updatePassword');
 
 //account_manager
 $this->get('/account_manager', 'AccountManagerController@index')->name('accountManager');
-$this->get('/account_manager/group', 'AccountManagerController@group');
 $this->post('/account_manager/ajax', 'AccountManagerController@ajaxIndex');
 $this->get('/account_manager/create', 'AccountManagerController@create');
 $this->post('/account_manager', 'AccountManagerController@store');
@@ -32,6 +31,15 @@ $this->post('/account_manager/import', 'AccountManagerController@import');
 $this->get('/account_manager/{id}', 'AccountManagerController@show');
 $this->put('/account_manager/{id}', 'AccountManagerController@update');
 $this->delete('/account_manager/{id}', 'AccountManagerController@destroy');
+
+//group
+$this->get('/group', 'GroupController@index')->name('group');
+$this->post('/group', 'GroupController@store');
+$this->put('/group/{id}', 'GroupController@update');
+$this->delete('/group/{id}', 'GroupController@delete');
+$this->get('/group/{id}', 'GroupController@show');
+$this->post('/group/{id}/insert', 'GroupController@insert');
+$this->post('/group/{id}/erase', 'GroupController@erase');
 
 //ajax
 $this->get('/city', 'CityController@index');

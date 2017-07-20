@@ -57,6 +57,12 @@ class User extends Authenticatable
         static::deleted(function (User $user) {
             $user->receivedNotifications()->detach();
 
+            $user->belongsToGroups()->detach();
+
+            foreach ($user->groups as $group) {
+                $group->delete();
+            }
+
             foreach ($user->devices as $device) {
                 $device->delete();
             }
@@ -84,6 +90,11 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Notification', 'notification_user', 'user_id', 'notification_id')
             ->where('published_at', '!=', null)
             ->withPivot('read_at', 'stared_at', 'deleted_at');
+    }
+
+    public function belongsToGroups()
+    {
+        return $this->belongsToMany('App\Models\Group', 'group_user', 'user_id', 'group_id');
     }
 
     /**
@@ -268,10 +279,5 @@ class User extends Authenticatable
     public function groups()
     {
         return $this->hasMany('App\Models\Group', 'user_id', 'id');
-    }
-
-    public function belongsToGroups()
-    {
-        return $this->belongsToMany('App\Models\Group', 'group_user', 'user_id', 'group_id');
     }
 }
