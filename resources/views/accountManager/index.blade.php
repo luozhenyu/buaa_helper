@@ -274,7 +274,11 @@
                                     $("<td>").text(data[i].number)
                                 ).append(
                                     $("<td>").text(data[i].name)
-                                )
+                                ).click(function () {
+                                    var checkbox = $(this).find("input:checkbox"),
+                                        checked = checkbox.prop("checked");
+                                    checkbox.prop("checked", !checked);
+                                })
                             )
                         }
 
@@ -583,7 +587,7 @@
                             <div class="btn-group">
                                 <button type="button" class="btn btn-info" data-toggle="modal"
                                         data-target="#groupModal">
-                                    分组管理
+                                    用户分组管理
                                 </button>
                             </div>
                         </div>
