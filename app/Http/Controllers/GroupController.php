@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -130,11 +130,11 @@ class GroupController extends Controller
             ]);
         }
 
-        $users = $group->users()->orderBy('number', 'asc')->get();
-        return response()->json([
-            'msg' => $users->count() . '条记录',
-            'data' => $users,
-        ]);
+        $users = $group->users()->orderBy('number', 'asc')->paginate(8);
+
+        $paginate = $users->toArray();
+        $paginate['name'] = $group->name;
+        return response()->json($paginate);
     }
 
     public function insert(Request $request, $id)
@@ -153,24 +153,31 @@ class GroupController extends Controller
         $count = 0;
         $failed = [];
 
-        $query = new User;
+        $query = new Student;
         if (!$authUser->hasPermission('view_all_student')) {
             $query->where('department_id', $authUser->department_id);
         }
 
         foreach ($numbers as $number) {
-            $q = clone $query;
-            if ($user = $q->where('number', $number)->first()) {
-                $group->users()->syncWithoutDetaching($user->id);
-                $count++;
-            } else {
-                $failed[] = $number;
+            if ($this->isInteger($number)) {
+                $q = clone $query;
+                if ($user = $q->where('number', $number)->first()) {
+                    $group->users()->syncWithoutDetaching($user->id);
+                    $count++;
+                } else {
+                    $failed[] = $number;
+                }
             }
         }
 
         return response()->json([
             'msg' => "成功添加{$count}人" . (count($failed) > 0 ? '，失败名单：' . implode(',', $failed) : ''),
         ]);
+    }
+
+    function isInteger($input)
+    {
+        return ctype_digit(strval($input));
     }
 
     public function erase(Request $request, $id)
