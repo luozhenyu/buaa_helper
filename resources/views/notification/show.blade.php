@@ -1,119 +1,120 @@
 @extends('layouts.app')
 
 @push('css')
-<style>
-    .label-block {
-        display: inline-block;
-        margin: 10px 5px 20px 5px;
-    }
-
-    .information-line-1 .label-block > label {
-        text-shadow: black 2px 2px 1px;
-        font-size: 14px;
-    }
-
-    .information-line-2 .label-block > span {
-        font-weight: 900;
-    }
-
-    #star:hover {
-        background-color: #00a0e9;
-        border-color: #00a0e9;
-    }
-
-    #progress_div {
-        width: 80%;
-        margin-left: 10%;
-        height: 15px;
-        background-color: #eeeeee;
-        margin-bottom: 15px;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    #inner_progress_div {
-        height: 100%;
-        /*animation: progress-bar-stripes 2s linear infinite;*/
-        animation: reverse progress-bar-stripes 0.7s linear infinite, animate-positive 2s,
-        myfirst 1.2s;
-        background-size: 40px 40px;
-    }
-
-    #progress_div, #inner_progress_div {
-        border-radius: 4px;
-    }
-
-    @keyframes myfirst {
-        from {
-            width: 0;
+    <style>
+        .label-block {
+            display: inline-block;
+            margin: 10px 5px 20px 5px;
         }
-        to {
-            width: 100%;
+
+        .information-line-1 .label-block > label {
+            text-shadow: black 2px 2px 1px;
+            font-size: 14px;
         }
-    }
-</style>
+
+        .information-line-2 .label-block > span {
+            font-weight: 900;
+        }
+
+        #star:hover {
+            background-color: #00a0e9;
+            border-color: #00a0e9;
+        }
+
+        #progress_div {
+            width: 80%;
+            margin-left: 10%;
+            height: 15px;
+            background-color: #eeeeee;
+            margin-bottom: 15px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #inner_progress_div {
+            height: 100%;
+            /*animation: progress-bar-stripes 2s linear infinite;*/
+            animation: reverse progress-bar-stripes 0.7s linear infinite, animate-positive 2s,
+            myfirst 1.2s;
+            background-size: 40px 40px;
+        }
+
+        #progress_div, #inner_progress_div {
+            border-radius: 4px;
+        }
+
+        @keyframes myfirst {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+    </style>
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/js/file_upload.js') }}"></script>
+    <script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
-<script>
-    $(function () {
-        function setStarState(self, stared) {
-            if (stared) {
-                self.innerHTML = '<span class="glyphicon glyphicon-star">已收藏</span>';
-            } else {
-                self.innerHTML = '<span class="glyphicon glyphicon-star-empty">收藏</span>';
-            }
-            self.dataset.stared = stared;
-        }
-
-        var star = document.getElementById("star");
-        star.onclick = function () {
-            var stared = star.dataset.stared !== "true";
-            var url = "{{ route('notification') . '/' . $notification->id }}";
-            url += stared ? "/star" : "/unstar";
-
-            $.ajax({
-                url: url,
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    star.dataset.stared = stared;
-                    setStarState(star, stared);
+    <script>
+        $(function () {
+            function setStarState(self, stared) {
+                if (stared) {
+                    self.innerHTML = '<span class="glyphicon glyphicon-star">已收藏</span>';
+                } else {
+                    self.innerHTML = '<span class="glyphicon glyphicon-star-empty">收藏</span>';
                 }
-            });
-        };
-        setStarState(star,{{ $stared_at? 'true': 'false' }});
-
-        var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
-        if (files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                $("#attachmentContainer").append(parseFile(files[i]));
+                self.dataset.stared = stared;
             }
-        } else {
-            $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
-        }
 
-        $(window).scroll(function () {
-            var bottom = $(".panel-success").offset().top + no_px($(".panel-success").css("height"));
-            console.log($(document).scrollTop() + $(window).height()
-                , $(document).height(), bottom);
-        })
-    });
-    function no_px(st) {
-        return parseInt(st.substr(0, st.length - 2));
-    }
-</script>
+            var star = document.getElementById("star");
+            star.onclick = function () {
+                var stared = star.dataset.stared !== "true";
+                var url = "{{ route('notification') . '/' . $notification->id }}";
+                url += stared ? "/star" : "/unstar";
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        star.dataset.stared = stared;
+                        setStarState(star, stared);
+                    }
+                });
+            };
+            setStarState(star,{{ $stared_at? 'true': 'false' }});
+
+            var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
+            if (files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    $("#attachmentContainer").append(parseFile(files[i]));
+                }
+            } else {
+                $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
+            }
+
+            $(window).scroll(function () {
+                var bottom = $(".panel-success").offset().top + no_px($(".panel-success").css("height"));
+                console.log($(document).scrollTop() + $(window).height()
+                    , $(document).height(), bottom);
+            })
+        });
+
+        function no_px(st) {
+            return parseInt(st.substr(0, st.length - 2));
+        }
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url('/') }}">主页</a></li>
-<li><a href="{{ route('notification') }}">通知中心</a></li>
-<li class="active">通知 - {{ $notification->title }}</li>
+    <li><a href="{{ url('/') }}">主页</a></li>
+    <li><a href="{{ route('notification') }}">通知中心</a></li>
+    <li class="active">通知 - {{ $notification->title }}</li>
 @endpush
 
 @section('content')

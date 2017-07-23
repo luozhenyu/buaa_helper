@@ -69,7 +69,7 @@ class Department extends Model
             return $this->name;
         }
 
-        if ($this->number > 80) {
+        if ($this->number >= 80) {
             return $this->name . '-北航学院';
         }
 

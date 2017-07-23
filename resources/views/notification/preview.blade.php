@@ -1,93 +1,93 @@
 @extends('layouts.app')
 
 @push('css')
-<style>
-    .label-block {
-        display: inline-block;
-        margin: 10px 5px 20px 5px;
-    }
-
-    .information-line-1 .label-block > label {
-        text-shadow: black 2px 2px 1px;
-        font-size: 14px;
-    }
-
-    .information-line-2 .label-block > span {
-        font-weight: 900;
-    }
-
-    #star:hover {
-        background-color: #00a0e9;
-        border-color: #00a0e9;
-    }
-
-    #progress_div {
-        width: 80%;
-        margin-left: 10%;
-        height: 15px;
-        background-color: #eeeeee;
-        margin-bottom: 15px;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    #inner_progress_div {
-        height: 100%;
-        /*animation: progress-bar-stripes 2s linear infinite;*/
-        animation: reverse progress-bar-stripes 0.7s linear infinite, animate-positive 2s,
-        myfirst 1.2s;
-        background-size: 40px 40px;
-    }
-
-    #progress_div, #inner_progress_div {
-        border-radius: 4px;
-    }
-
-    @keyframes myfirst {
-        from {
-            width: 0;
+    <style>
+        .label-block {
+            display: inline-block;
+            margin: 10px 5px 20px 5px;
         }
-        to {
-            width: 100%;
+
+        .information-line-1 .label-block > label {
+            text-shadow: black 2px 2px 1px;
+            font-size: 14px;
         }
-    }
-</style>
+
+        .information-line-2 .label-block > span {
+            font-weight: 900;
+        }
+
+        #star:hover {
+            background-color: #00a0e9;
+            border-color: #00a0e9;
+        }
+
+        #progress_div {
+            width: 80%;
+            margin-left: 10%;
+            height: 15px;
+            background-color: #eeeeee;
+            margin-bottom: 15px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #inner_progress_div {
+            height: 100%;
+            /*animation: progress-bar-stripes 2s linear infinite;*/
+            animation: reverse progress-bar-stripes 0.7s linear infinite, animate-positive 2s,
+            myfirst 1.2s;
+            background-size: 40px 40px;
+        }
+
+        #progress_div, #inner_progress_div {
+            border-radius: 4px;
+        }
+
+        @keyframes myfirst {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+    </style>
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/js/file_upload.js') }}"></script>
+    <script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
-<script>
-    $(function () {
-        var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
-        if (files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-                $("#attachmentContainer").append(parseFile(files[i]));
+    <script>
+        $(function () {
+            var files = {!! $notification->files->map(function ($item, $key) {return $item->file_info;})->toJson() !!};
+            if (files.length > 0) {
+                for (var i = 0; i < files.length; i++) {
+                    $("#attachmentContainer").append(parseFile(files[i]));
+                }
+            } else {
+                $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
             }
-        } else {
-            $("#attachmentContainer").html("<h3 style='text-align:center;color:gray;margin:0;'>(无附件)</h3>");
-        }
-    });
-</script>
+        });
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ route('notification') }}">通知中心</a></li>
-<li><a href="{{ route('notification').'/draft' }}">草稿箱</a></li>
-<li class="active">通知 - {{ $notification->title }}</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li><a href="{{ route('notification') }}">通知中心</a></li>
+    <li><a href="{{ route('notification').'/draft' }}">草稿箱</a></li>
+    <li class="active">通知 - {{ $notification->title }}</li>
 @endpush
 
 @section('content')
-    <div class="col-md-12">
-        <h3 class="text-center">
+    <div class="col-md-12 text-center">
+        <h3>
             @if($notification->important)
                 <span class="label label-danger">必读</span>
             @endif
             {{ $notification->title }}
         </h3>
-        <div class="text-center information-line-1">
+        <div class="information-line-1">
             <div class="label-block">
                 <label class="label label-info">发布部门</label>
                 {{ $notification->department->name }} - {{ $notification->user->name}}
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <div class="text-center information-line-2">
+        <div class="information-line-2">
             @if($notification->start_date)
                 <div class="label-block">
                     <span style="color:darkgreen">起始日期:</span> {{ $notification->start_date }}
@@ -114,7 +114,8 @@
                 </div>
             @endif
         </div>
-        <div class="text-center">
+
+        <div>
             @if($notification->start_date && $notification->finish_date)
                 @php
                     function color($c1, $c2, $ratio) {
@@ -161,6 +162,10 @@
                 </div>
             @endif
         </div>
+
+        <h3>
+            将发给{{ $target_count = $notification->notifiedUsers->count() }}人
+        </h3>
     </div>
 
     <article class="col-md-12">
@@ -178,14 +183,14 @@
     </div>
 
     <form method="POST" action="{{ route('notification')."/{$notification->id}/publish" }}"
-          onsubmit="return confirm('此通知将发给 {{ $notification->notifiedUsers->count() }} 人，发布后将无法更改任何信息，是否确认发布此通知？')">
+          onsubmit="return confirm('此通知将发给 {{ $target_count }} 人，发布后将无法更改任何信息，是否确认发布此通知？')">
         {{ csrf_field() }}
         <div class="col-md-4 pull-right">
             <a href="{{ route('notification')."/{$notification->id}/modify" }}" class="btn btn-default">
                 返回修改
             </a>
 
-            <button type="submit" class="btn btn-primary">
+            <button class="btn btn-primary">
                 确认无误并发布
             </button>
         </div>

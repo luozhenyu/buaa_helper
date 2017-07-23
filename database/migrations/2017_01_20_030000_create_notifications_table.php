@@ -22,6 +22,8 @@ class CreateNotificationsTable extends Migration
             $table->timestamp('finish_date')->nullable();
             $table->boolean('important');
             $table->string('excerpt', 280);
+            $table->json('target')->nullable();
+
             $table->mediumText('content');
             $table->timestamp('published_at')->nullable();
             $table->timestamps();

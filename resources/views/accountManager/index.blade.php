@@ -96,10 +96,6 @@
             min-width: 180px;
         }
 
-        #table_content td {
-            text-align: center;
-        }
-
         table.bh-account-hide-left td#td_search_tools {
             display: none;
         }
@@ -161,84 +157,77 @@
                 });
             });
 
-            function new_page(page, data) {
+            function new_page(condition, page) {
+                condition = condition || {type: "student"};
+
                 $.ajax({
-                    url: "/account_manager/ajax?page=" + page,
+                    url: "/account_manager/ajax" + (page ? "?page=" + page : ""),
                     type: 'POST',
                     contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(data),
+                    data: JSON.stringify(condition),
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr("content")
                     },
                     success: function (json) {
-                        $("#table_content").empty();
-                        $("#information")
-                            .empty().append("共搜到 ")
-                            .append(
-                                $("<b>").append(json.total)
-                            )
-                            .append(" 条记录");
-                        if (json.data.length > 0) {
-                            for (var i = 0; i < json.data.length; i++) {
-                                var dat = json.data[i];
-                                var btn_modify = $("<td>");
+                        $("#user_count").html("共搜到 <b>" + json.total + "</b> 条记录");
 
-                                dat.url && btn_modify.append(
-                                    $("<a>").text("修改")
-                                        .addClass("btn btn-xs btn-info")
-                                        .attr("href", dat.url)
-                                );
+                        var data = json.data,
+                            html = $("#table_content").empty();
 
-                                $("#table_content").append(
-                                    $("<tr></tr>").append(
-                                        $("<td>").addClass("bh-account-list-department").append(dat.department_name)
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                var user = data[i];
+
+                                html.addClass("text-center").append(
+                                    $("<tr>").append(
+                                        $("<td>").addClass("bh-account-list-department").append(user.department_name)
                                     ).append(
-                                        $("<td>").addClass("bh-account-list-number").append(dat.number)
+                                        $("<td>").addClass("bh-account-list-number").append(user.number)
                                     ).append(
-                                        $("<td>").addClass("bh-account-list-name").append(dat.name)
+                                        $("<td>").addClass("bh-account-list-name").append(user.name)
                                     ).append(
-                                        $("<td>").addClass("bh-account-list-role").append(dat.role_display_name)
+                                        $("<td>").addClass("bh-account-list-role").append(user.role_display_name)
                                     ).append(
-                                        $("<td>").addClass("bh-account-list-phone").append(dat.phone || '未填')
+                                        $("<td>").addClass("bh-account-list-phone").append(user.phone || '未填')
                                     ).append(
-                                        $("<td>").addClass("bh-account-list-email").append(dat.email || '未填')
+                                        $("<td>").addClass("bh-account-list-email").append(user.email || '未填')
                                     ).append(
-                                        btn_modify
+                                        $("<td>").append(
+                                            user.url && $("<a>").addClass("btn btn-xs btn-info")
+                                                .attr("href", user.url).text("修改")
+                                        )
                                     )
                                 )
                             }
-                            $("#nobody").addClass("hidden");
-                            $("[data-toggle='tooltip']").tooltip();
-
-                            $("#page").paginate({
-                                currentPage: json.current_page,
-                                lastPage: json.last_page,
-                                callback: function (page) {
-                                    new_page(page, selected_data);
-                                }
-                            });
+                            $("#no_user").css("display", "none");
                         } else {
-                            $("#page").empty();
-                            $("#nobody").removeClass("hidden");
+                            $("#no_user").css("display", "block");
                         }
+
+                        $("#paginate").paginate({
+                            currentPage: json.current_page,
+                            lastPage: json.last_page,
+                            callback: function (page) {
+                                new_page(condition, page);
+                            }
+                        });
                     }
                 });
             }
 
-
-            var selected_data = {type: "student", range: [], property: []};
             //user_select 生成
-            $(".bh-account-selector").user_select({
+            $("#user_selector").user_select({
                 data: {!! json_encode($selectData) !!},
                 callback_filter: function (data) {  //单击筛选
-                    selected_data.range = data.departments;
-                    selected_data.property = data.properties;
-                    selected_data.search = data.search;
-                    console.log(selected_data);
-                    new_page(1, selected_data);
+                    new_page({
+                        type: "student",
+                        range: data.departments,
+                        property: data.properties,
+                        search: data.search
+                    });
                 }
             });
-            new_page(1, selected_data);
+            new_page();
 
             $("#show_hide").click(function () {
                 if ($("#show_hide .glyphicon").hasClass("glyphicon-chevron-left")) {
@@ -249,7 +238,8 @@
                     $("table#main").removeClass("bh-account-hide-left").addClass("bh-account-show-left");
                 }
             });
-        });
+        })
+        ;
 
         {{-- 用户分组管理js --}}
         $(function () {
@@ -517,7 +507,7 @@
             <td id="td_search_tools">
                 <div id="search_tools" style="position: relative;min-height: 580px;">
                     <div style="position: absolute;left: 0px; right: 0px; top: 0px; bottom: 0px;">
-                        <div class="bh-account-selector">
+                        <div id="user_selector">
                         </div>
                     </div>
                 </div>
@@ -681,7 +671,7 @@
                         </div>
                         <!-- END GROUP -->
                         <div class="pull-right" style="display: inline-block;">
-                            <h5 id="information"></h5>
+                            <h5 id="user_count"></h5>
                         </div>
                     </caption>
 
@@ -701,8 +691,8 @@
                     <tbody id="table_content"></tbody>
                 </table>
 
-                <h2 id="nobody" style="color:gray;text-align:center;" class="hidden">(没有用户)</h2>
-                <div id="page" class="text-center"></div>
+                <h2 id="no_user" style="color: gray;text-align: center;display: none">(没有用户)</h2>
+                <div id="paginate" class="text-center"></div>
             </td>
         </tr>
     </table>

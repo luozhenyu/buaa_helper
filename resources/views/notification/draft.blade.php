@@ -1,30 +1,30 @@
 @extends('layouts.app')
 
 @push('js')
-<script>
-    $(function () {
-        $(".destroy").click(function () {
-            if (confirm("删除后不可恢复，确认删除？")) {
-                $.ajax({
-                    url: "{{ route('notification') }}/" + $(this).data("id"),
-                    type: "DELETE",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function (data) {
-                        location.reload();
-                    }
-                });
-            }
+    <script>
+        $(function () {
+            $(".destroy").click(function () {
+                if (confirm("删除后不可恢复，确认删除？")) {
+                    $.ajax({
+                        url: "{{ route('notification') }}/" + $(this).data("id"),
+                        type: "DELETE",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (data) {
+                            location.reload();
+                        }
+                    });
+                }
+            });
         });
-    });
-</script>
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ route('notification') }}">通知中心</a></li>
-<li class="active">草稿箱</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li><a href="{{ route('notification') }}">通知中心</a></li>
+    <li class="active">草稿箱</li>
 @endpush
 
 @section('content')

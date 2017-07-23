@@ -11,7 +11,6 @@ use App\Models\Property;
 use App\Models\Student;
 use App\Models\SuperAdmin;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -30,68 +29,7 @@ class AccountManagerController extends Controller
 
     public function index(Request $request)
     {
-        $college = [];
-        foreach (Department::where('number', '<', 100)->get() as $department) {
-            $college [] = [
-                'name' => $department->number,
-                'display_name' => $department->display_name,
-            ];
-        }
-
-        //grade
-        $grade = Property::where('name', 'grade')->firstOrFail();
-
-        $students[] = ['name' => ',', 'display_name' => '全校学生'];
-        $students = array_merge($students, $grade->propertyValues->map(function ($item, $key) use ($college) {
-            $gradeNumber = $item->name;
-            $tot[] = ['name' => ",{$gradeNumber}", 'display_name' => '本年级学生'];
-
-            return [
-                'display_name' => $item->display_name,
-                'children' => array_merge($tot, collect($college)->map(function ($item, $key) use ($gradeNumber) {
-                    return [
-                        'name' => "{$item['name']},{$gradeNumber}",
-                        'display_name' => $item['display_name'],
-                    ];
-                })->toArray()),
-            ];
-        })->toArray());
-        //group
-        $groups = Auth::user()->groups;
-        $students[] = [
-            'display_name' => '我的分组',
-            'children' => $groups->map(function ($item, $key) {
-                return [
-                    'name' => "{$item->id},0",
-                    'display_name' => $item->name,
-                ];
-            })->toArray()
-        ];
-
-        //properties
-        $propertyNames = ['political_status', 'financial_difficulty'];
-        $properties = [];
-        foreach ($propertyNames as $propertyName) {
-            $property = Property::where('name', $propertyName)->firstOrFail();
-            $propertyValues = $property->propertyValues->map(function ($item, $key) {
-                return [
-                    'name' => $item->name,
-                    'display_name' => $item->display_name,
-                ];
-            })->toArray();
-            $properties[] = [
-                'name' => $property->name,
-                'display_name' => $property->display_name,
-                'children' => $propertyValues,
-            ];
-        }
-
-        $selectData = [
-            'department' => $students,
-            'property' => $properties,
-        ];
-
-
+        $selectData = Auth::user()->selectData();
         return view('accountManager.index', [
                 'selectData' => $selectData,
             ]
@@ -127,23 +65,12 @@ class AccountManagerController extends Controller
                 'errmsg' => '您的请求不是有效的JSON.',
             ]);
         }
-        try {
-            $condition = $request->toArray();
+        $condition = $request->toArray();
 
-            if (!key_exists('type', $condition)) {
-                throw new Exception('type键不存在');
-            }
-            if ($condition['type'] === 'admin') {
-                $query = Admin::select($condition, $authUser);
-            } else if ($condition['type'] === 'student') {
-                $query = Student::select($condition, $authUser);
-            } else {
-                throw new Exception('type只能为student或admin');
-            }
-        } catch (Exception $e) {
-            return response()->json([
-                'errmsg' => $e->getMessage(),
-            ]);
+        if (key_exists('type', $condition) && $condition['type'] === 'admin') {
+            $query = Admin::selectByCondition($condition, $authUser);
+        } else {
+            $query = Student::selectByCondition($condition, $authUser);
         }
 
         return $query->orderBy('number', 'asc')->paginate(15);

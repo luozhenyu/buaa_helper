@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Notification;
-use App\Models\User;
+use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,7 +111,11 @@ class NotificationController extends Controller
     public function create(Request $request)
     {
         abort_unless(Auth::user()->hasPermission('create_notification'), 403);
-        return view('notification.create');
+
+        $selectData = Auth::user()->selectData();
+        return view('notification.create', [
+            'selectData' => $selectData,
+        ]);
     }
 
     public function store(Request $request)
@@ -125,6 +129,7 @@ class NotificationController extends Controller
             'finish_date' => 'required|date|after:start_date',
             'important' => 'required|in:0,1',
             'excerpt' => 'required|max:70',
+            'target' => 'nullable|json',
             'content' => 'required|max:1048576',//2MB
             'attachment.*' => 'size:40|exists:files,hash',
         ]);
@@ -136,6 +141,7 @@ class NotificationController extends Controller
             'finish_date' => $this->ISOStringToCarbon($request->input('finish_date')),
             'important' => (bool)$request->input('important'),
             'excerpt' => $request->input('excerpt'),
+            'target' => $request->input('target'),
             'content' => clean($request->input('content')),
         ]);
 
@@ -148,10 +154,13 @@ class NotificationController extends Controller
             }
         }
 
-        $users = User::get()->map(function ($item, $key) {
-            return $item->id;
-        });
-        $notification->notifiedUsers()->sync($users);
+        if ($notification->target) {
+            $target = json_decode($notification->target, true);
+            $users = Student::selectByCondition($target, $authUser)->get()->map(function ($item, $key) {
+                return $item->id;
+            });
+            $notification->notifiedUsers()->sync($users);
+        }
 
         return redirect(route('notification') . "/{$notification->id}/preview");
     }
@@ -192,9 +201,10 @@ class NotificationController extends Controller
 
     public function publish(Request $request, $id)
     {
-        abort_unless(Auth::user()->hasPermission('create_notification'), 403);
+        $authUser = Auth::user();
+        abort_unless($authUser->hasPermission('create_notification'), 403);
 
-        $notification = Auth::user()->writtenNotifications()->findOrFail($id);
+        $notification = $authUser->writtenNotifications()->findOrFail($id);
         if (!$notification->isPublished()) {
             $notification->published_at = Carbon::now();
             $notification->save();
@@ -211,8 +221,11 @@ class NotificationController extends Controller
                 'redirect' => route('notification') . "/{$notification->id}",
             ]);
         }
+
+        $selectData = Auth::user()->selectData();
         return view('notification.modify', [
             'notification' => $notification,
+            'selectData' => $selectData,
         ]);
     }
 
@@ -225,6 +238,7 @@ class NotificationController extends Controller
             'finish_date' => 'required|date|after:start_date',
             'important' => 'required|in:0,1',
             'excerpt' => 'required|max:70',
+            'target' => 'nullable|json',
             'content' => 'required|max:1048576',//2MB
             'attachment.*' => 'size:40|exists:files,hash',
         ]);
@@ -237,6 +251,7 @@ class NotificationController extends Controller
         $notification->finish_date = $this->ISOStringToCarbon($request->input('finish_date'));
         $notification->important = (bool)$request->input('important');
         $notification->excerpt = $request->input('excerpt');
+        $notification->target = $request->input('target');
         $notification->content = clean($request->input('content'));
         $notification->save();
 
@@ -250,10 +265,13 @@ class NotificationController extends Controller
             }
         }
 
-        $users = User::get()->map(function ($item, $key) {
-            return $item->id;
-        });
-        $notification->notifiedUsers()->sync($users);
+        if ($notification->target) {
+            $target = json_decode($notification->target, true);
+            $users = Student::selectByCondition($target, $authUser)->get()->map(function ($item, $key) {
+                return $item->id;
+            });
+            $notification->notifiedUsers()->sync($users);
+        }
 
         return redirect(route('notification') . "/{$notification->id}/preview");
     }

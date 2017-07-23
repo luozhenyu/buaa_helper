@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\ModelInterface\HasDepartmentAvatar;
+use Illuminate\Support\Facades\Auth;
 
 class Counsellor extends Admin implements HasDepartmentAvatar
 {
@@ -58,5 +59,67 @@ class Counsellor extends Admin implements HasDepartmentAvatar
         $department = $this->department;
         $department->customAvatar()->dissociate();
         $department->save();
+    }
+
+    public function selectData()
+    {
+        $department = $this->department;
+
+        $college [] = [
+            'name' => $department->number,
+            'display_name' => $department->display_name,
+        ];
+
+        //grade
+        $grade = Property::where('name', 'grade')->firstOrFail();
+
+        $students[] = ['name' => ',', 'display_name' => '所有学生'];
+        $students = array_merge($students, $grade->propertyValues->map(function ($item, $key) use ($college) {
+            $gradeNumber = $item->name;
+
+            return [
+                'display_name' => $item->display_name,
+                'children' => collect($college)->map(function ($item, $key) use ($gradeNumber) {
+                    return [
+                        'name' => "{$item['name']},{$gradeNumber}",
+                        'display_name' => $item['display_name'],
+                    ];
+                })->toArray(),
+            ];
+        })->toArray());
+        //group
+        $groups = Auth::user()->groups()->orderBy('name')->get();
+        $students[] = [
+            'display_name' => '我的分组',
+            'children' => $groups->map(function ($item, $key) {
+                return [
+                    'name' => "{$item->id},0",
+                    'display_name' => $item->name,
+                ];
+            })->toArray()
+        ];
+
+        //properties
+        $propertyNames = ['political_status', 'financial_difficulty'];
+        $properties = [];
+        foreach ($propertyNames as $propertyName) {
+            $property = Property::where('name', $propertyName)->firstOrFail();
+            $propertyValues = $property->propertyValues->map(function ($item, $key) {
+                return [
+                    'name' => $item->name,
+                    'display_name' => $item->display_name,
+                ];
+            })->toArray();
+            $properties[] = [
+                'name' => $property->name,
+                'display_name' => $property->display_name,
+                'children' => $propertyValues,
+            ];
+        }
+
+        return [
+            'department' => $students,
+            'property' => $properties,
+        ];
     }
 }

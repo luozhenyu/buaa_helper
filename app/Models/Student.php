@@ -30,7 +30,7 @@ class Student extends User implements HasPersonalAvatar
      * @return mixed
      * @throws Exception
      */
-    public static function select(array $condition, Authenticatable $authUser)
+    public static function selectByCondition(array $condition, Authenticatable $authUser)
     {
         $query = new static;
 

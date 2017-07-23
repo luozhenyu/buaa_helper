@@ -91,7 +91,7 @@ $.fn.user_select = function (options) {
                 );
 
             case undefined:  //按钮
-                return $("<button>").addClass("list-group-item").addClass("slow_down")
+                return $("<span>").addClass("list-group-item").addClass("slow_down")
                     .text(displayName).click(function () {
                         buttonTriggered({
                             display_name: choice_array.concat(displayName).join(" - "),
@@ -261,7 +261,7 @@ $.fn.user_select = function (options) {
             var sel = {key: property.name, value: choice.name};
             var display_name = property.display_name + " - " + choice.display_name;
             list_group.append(
-                $("<button>").addClass("list-group-item").addClass("slow_down")
+                $("<span>").addClass("list-group-item").addClass("slow_down")
                     .text(choice.display_name)
                     .click(
                         {
@@ -299,12 +299,6 @@ $.fn.user_select = function (options) {
             );
         mainPanel.append(panel);
     }
-    /*console.log("yyy");
-     for (var i = 0; i < properties.length; i++) {
-     console.log(properties[i]);
-     var panel = parsePanel(accordionID, properties[i], [], 1);
-     mainPanel.append(panel);
-     }*/
 
     //搜索框
     var searchBox = $("<input>").addClass("form-control")
@@ -324,15 +318,15 @@ $.fn.user_select = function (options) {
     // 筛选按钮部分
     var filterButton = $("<div></div>").css("padding-top", "6px").css("text-align", "right")
         .append(
-            $("<button class = 'btn btn-warning'></button>")
+            $("<span>").addClass("btn btn-warning")
                 .append(" <span class = 'glyphicon glyphicon-remove'></span> 清空 ")
                 .css("margin-bottom", "6px").css("margin-right", "4px")
                 .click(function () {
                     clearFilter();
                 })
         ).append(
-            $("<button class = 'btn_query btn btn-primary'></button>")
-                .append(" <span class = 'glyphicon glyphicon-filter'></span> 筛选 ")
+            $("<span>").addClass("btn_query btn btn-primary")
+                .append(" <span class = 'glyphicon glyphicon-filter'></span> 立即筛选 ")
                 .css("margin-bottom", "6px")
                 .click(function () {
                     callback_filter(getData());

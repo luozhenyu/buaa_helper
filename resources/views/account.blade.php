@@ -1,57 +1,57 @@
 @extends('layouts.app')
 
 @push('cssLink')
-<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+    <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push("css")
-<style>
-    .tab-content {
-        padding-top: 20px;
-        border: 1px solid #ddd;
-        border-top: 0 solid #ddd;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
-    }
+    <style>
+        .tab-content {
+            padding-top: 20px;
+            border: 1px solid #ddd;
+            border-top: 0 solid #ddd;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
 
-    label.control-label {
-        padding-left: 30px;
-    }
+        label.control-label {
+            padding-left: 30px;
+        }
 
-    #avatarImg {
-        width: 150px;
-        height: 150px;
-    }
+        #avatarImg {
+            width: 150px;
+            height: 150px;
+        }
 
-</style>
+    </style>
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-<script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 
-<script src="{{ url('/js/file_upload.js') }}"></script>
+    <script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
-<script>
-    $(function () {
-        $("#department").selectpicker("val", "{{ $user->department->number }}");
+    <script>
+        $(function () {
+            $("#department").selectpicker("val", "{{ $user->department->number }}");
 
-        @if($user instanceof \App\Models\Student)
-        $("#grade").selectpicker("val", "{{ $user->grade }}");
-        $("#class").selectpicker("val", "{{ $user->class }}");
-        $("#political_status").selectpicker("val", "{{ $user->political_status }}");
-        $("#native_place").selectpicker("val", "{{ $user->native_place }}");
-        $("#financial_difficulty").selectpicker("val", "{{ $user->financial_difficulty }}");
-        @endif
-    });
-</script>
+            @if($user instanceof \App\Models\Student)
+            $("#grade").selectpicker("val", "{{ $user->grade }}");
+            $("#class").selectpicker("val", "{{ $user->class }}");
+            $("#political_status").selectpicker("val", "{{ $user->political_status }}");
+            $("#native_place").selectpicker("val", "{{ $user->native_place }}");
+            $("#financial_difficulty").selectpicker("val", "{{ $user->financial_difficulty }}");
+            @endif
+        });
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li class="active">个人中心</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li class="active">个人中心</li>
 @endpush
 
 @section('content')
@@ -110,15 +110,17 @@
                         @else
                             <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                                     id="department" name="department">
-                                @php($department = $user->department)
+                                @php
+                                    $department = $user->department
+                                @endphp
                                 <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                             </select>
                             @endpermission
 
                             @if ($errors->has('department'))
                                 <span class="help-block">
-                        <strong>{{ $errors->first('department') }}</strong>
-                    </span>
+                                    <strong>{{ $errors->first('department') }}</strong>
+                                </span>
                             @endif
                     </div>
                 </div>
@@ -305,7 +307,7 @@
 
                 <div class="form-group">
                     <div class="col-md-8 col-md-offset-4">
-                        <button type="submit" class="btn btn-primary">
+                        <button class="btn btn-primary">
                             提交
                         </button>
                     </div>

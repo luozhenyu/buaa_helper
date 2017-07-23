@@ -12,7 +12,7 @@
         <caption>
             <div class="btn-group">
                 @permission('create_notification')
-                <a type="button" class="btn btn-primary" href="{{ route('notification') . '/create' }}">
+                <a type="button" class="btn btn-info" href="{{ route('notification') . '/create' }}">
                     <span class="glyphicon glyphicon-pencil"></span> 新通知
                 </a>
                 <a type="button" class="btn btn-primary" href="{{ route('notification') . '/draft' }}">

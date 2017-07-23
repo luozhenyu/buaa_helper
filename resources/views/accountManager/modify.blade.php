@@ -1,64 +1,64 @@
 @extends('layouts.app')
 
 @push('cssLink')
-<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+    <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push('css')
-<style>
-    #avatarImg {
-        width: 150px;
-        height: 150px;
-    }
-</style>
+    <style>
+        #avatarImg {
+            width: 150px;
+            height: 150px;
+        }
+    </style>
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-<script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 @endpush
 
 @push('js')
-<script>
-    $(function () {
-        $("#department").selectpicker("val", "{{ $user->department->number }}");
+    <script>
+        $(function () {
+            $("#department").selectpicker("val", "{{ $user->department->number }}");
 
-        @if($user instanceof \App\Models\Student)
-        $("#grade").selectpicker("val", "{{ $user->grade }}");
-        $("#class").selectpicker("val", "{{ $user->class }}");
-        $("#political_status").selectpicker("val", "{{ $user->political_status }}");
-        $("#native_place").selectpicker("val", "{{ $user->native_place }}");
-        $("#financial_difficulty").selectpicker("val", "{{ $user->financial_difficulty }}");
-        @endif
+            @if($user instanceof \App\Models\Student)
+            $("#grade").selectpicker("val", "{{ $user->grade }}");
+            $("#class").selectpicker("val", "{{ $user->class }}");
+            $("#political_status").selectpicker("val", "{{ $user->political_status }}");
+            $("#native_place").selectpicker("val", "{{ $user->native_place }}");
+            $("#financial_difficulty").selectpicker("val", "{{ $user->financial_difficulty }}");
+            @endif
 
-        @permission('delete_user')
-        $("#btn_del").click(function () {
-            if (confirm('你真的要删除此账号吗？')) {
-                $.ajax({
-                    url: "{{ route('accountManager').'/'.$user->id }}",
-                    type: "DELETE",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    error: function () {
-                        alert("您没有权限访问！");
-                    },
-                    success: function (data) {
-                        alert(data);
-                        window.close();
-                    }
-                });
-            }
+            @permission('delete_user')
+            $("#btn_del").click(function () {
+                if (confirm('你真的要删除此账号吗？')) {
+                    $.ajax({
+                        url: "{{ route('accountManager').'/'.$user->id }}",
+                        type: "DELETE",
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        error: function () {
+                            alert("您没有权限访问！");
+                        },
+                        success: function (data) {
+                            alert(data);
+                            window.close();
+                        }
+                    });
+                }
+            });
+            @endpermission
         });
-        @endpermission
-    });
-</script>
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ url("/account_manager") }}">用户管理</a></li>
-<li class="active">用户信息修改</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li><a href="{{ url("/account_manager") }}">用户管理</a></li>
+    <li class="active">用户信息修改</li>
 @endpush
 
 @section('content')
@@ -106,7 +106,9 @@
                 @else
                     <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                             id="department" name="department">
-                        @php($department = $user->department)
+                        @php
+                            $department = $user->department
+                        @endphp
                         <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                     </select>
                     @endpermission

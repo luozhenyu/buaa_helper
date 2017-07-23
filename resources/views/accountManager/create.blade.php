@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
 @push('cssLink')
-<link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
+    <link rel="stylesheet" href="{{ url('/components/bootstrap-select/dist/css/bootstrap-select.min.css') }}">
 @endpush
 
 @push('jsLink')
-<script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-<script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ url('/components/bootstrap-select/dist/js/i18n/defaults-zh_CN.js') }}"></script>
 
-<script src="{{ url('/js/file_upload.js') }}"></script>
+    <script src="{{ url('/js/file_upload.js') }}"></script>
 @endpush
 
 @push('js')
-<script>
-    $(function () {
-        $("#department").selectpicker("val", "{{ old('department' )}}");
-    });
-</script>
+    <script>
+        $(function () {
+            $("#department").selectpicker("val", "{{ old('department' )}}");
+        });
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ url("/account_manager") }}">用户管理</a></li>
-<li class="active">创建新用户</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li><a href="{{ url("/account_manager") }}">用户管理</a></li>
+    <li class="active">创建新用户</li>
 @endpush
 
 @section('content')
@@ -82,8 +82,7 @@
                 <select class="selectpicker form-control{{ $errors->has('role') ? ' has-error' : '' }}" id="role"
                         name="role">
                     @foreach($userType as $type)
-                        @php($role = (new $type)->role)
-                        <option value="{{ $role->name }}">{{ $role->display_name }}</option>
+                        <option value="{{ ($role = (new $type)->role)->name }}">{{ $role->display_name }}</option>
                     @endforeach
                 </select>
                 @if ($errors->has('role'))
@@ -96,7 +95,7 @@
 
         <div class="form-group">
             <div class="col-md-8 col-md-offset-4">
-                <button type="submit" class="btn btn-primary">
+                <button class="btn btn-primary">
                     <span class="glyphicon glyphicon-ok"></span> 保存并创建用户
                 </button>
             </div>

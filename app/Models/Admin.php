@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Auth;
 
 
 class Admin extends User
@@ -35,7 +36,7 @@ class Admin extends User
      * @return mixed
      * @throws Exception
      */
-    public static function select(array $condition, Authenticatable $authUser)
+    public static function selectByCondition(array $condition, Authenticatable $authUser)
     {
         $query = new static;
 
@@ -66,6 +67,70 @@ class Admin extends User
             });
         }
         return $query;
+    }
+
+    public function selectData()
+    {
+        $college = [];
+        foreach (Department::where('number', '<', 100)->get() as $department) {
+            $college [] = [
+                'name' => $department->number,
+                'display_name' => $department->display_name,
+            ];
+        }
+
+        //grade
+        $grade = Property::where('name', 'grade')->firstOrFail();
+
+        $students[] = ['name' => ',', 'display_name' => '全校学生'];
+        $students = array_merge($students, $grade->propertyValues->map(function ($item, $key) use ($college) {
+            $gradeNumber = $item->name;
+            $tot[] = ['name' => ",{$gradeNumber}", 'display_name' => '本年级学生'];
+
+            return [
+                'display_name' => $item->display_name,
+                'children' => array_merge($tot, collect($college)->map(function ($item, $key) use ($gradeNumber) {
+                    return [
+                        'name' => "{$item['name']},{$gradeNumber}",
+                        'display_name' => $item['display_name'],
+                    ];
+                })->toArray()),
+            ];
+        })->toArray());
+        //group
+        $groups = Auth::user()->groups()->orderBy('name')->get();
+        $students[] = [
+            'display_name' => '我的分组',
+            'children' => $groups->map(function ($item, $key) {
+                return [
+                    'name' => "{$item->id},0",
+                    'display_name' => $item->name,
+                ];
+            })->toArray()
+        ];
+
+        //properties
+        $propertyNames = ['political_status', 'financial_difficulty'];
+        $properties = [];
+        foreach ($propertyNames as $propertyName) {
+            $property = Property::where('name', $propertyName)->firstOrFail();
+            $propertyValues = $property->propertyValues->map(function ($item, $key) {
+                return [
+                    'name' => $item->name,
+                    'display_name' => $item->display_name,
+                ];
+            })->toArray();
+            $properties[] = [
+                'name' => $property->name,
+                'display_name' => $property->display_name,
+                'children' => $propertyValues,
+            ];
+        }
+
+        return [
+            'department' => $students,
+            'property' => $properties,
+        ];
     }
 
     public function getRoleAttribute()

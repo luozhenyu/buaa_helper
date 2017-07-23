@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
 @push('js')
-<script>
-    $(function () {
-        $('.destroy').click(function () {
-            $.ajax({
-                url: "{{ route('notification').'/'}}" + $(this).data("id") + "/unstar",
-                type: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (data) {
-                    location.reload();
-                }
+    <script>
+        $(function () {
+            $('.destroy').click(function () {
+                $.ajax({
+                    url: "{{ route('notification').'/'}}" + $(this).data("id") + "/unstar",
+                    type: "POST",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
             });
         });
-    });
-</script>
+    </script>
 @endpush
 
 @push("crumb")
-<li><a href="{{ url("/") }}">主页</a></li>
-<li><a href="{{ route("notification") }}">通知中心</a></li>
-<li class="active">收藏</li>
+    <li><a href="{{ url("/") }}">主页</a></li>
+    <li><a href="{{ route("notification") }}">通知中心</a></li>
+    <li class="active">收藏</li>
 @endpush
 
 @section('content')
