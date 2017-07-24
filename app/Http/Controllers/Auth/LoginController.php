@@ -50,7 +50,9 @@ class LoginController extends Controller
         $attributes = Cas::getAttributes();
         $number = intval($attributes['employeeNumber']);
 
-        if (!$user = User::findAndDowncasting($number)) {
+        if ($user = User::where('number', $number)->first()) {
+            $user = User::downcasting($user);
+        } else {
             $username = Cas::getCurrentUser();
 
             $user = Student::create([
@@ -60,7 +62,7 @@ class LoginController extends Controller
             ]);
         }
         Auth::login($user);
-        dd(url());
+
         Cas::logout(['service' => url()]);
     }
 
