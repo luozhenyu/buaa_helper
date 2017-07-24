@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Xavrsl\Cas\Facades\Cas;
 
 class LoginController extends Controller
@@ -40,27 +43,25 @@ class LoginController extends Controller
 
     public function cas(Request $request)
     {
-        Cas::authenticate();
+        if (!Cas::isAuthenticated()) {
+            Cas::authenticate();
+        }
 
-
-        $username = Cas::getCurrentUser();
         $attributes = Cas::getAttributes();
         $number = intval($attributes['employeeNumber']);
 
-        echo "<p>{$username}</p>";
+        if (!$user = User::findAndDowncasting($number)) {
+            $username = Cas::getCurrentUser();
 
-        echo "<p>{$number}</p>";
+            $user = Student::create([
+                'number' => $number,
+                'name' => $username,
+                'department_id' => 21,
+            ]);
+            Auth::login($user);
+        }
 
-
-//        if (!$user = User::findAndDowncasting($number)) {
-//            $user = Student::create([
-//                'number' => $request->input('number'),
-//                'name' => $request->input('name'),
-//                'department_id' => $department->id,
-//            ]);
-//        }
-
-        Cas::logout(['service' => 'https://www.baidu.com/']);
+        Cas::logout(['service' => url()]);
     }
 
     /**
