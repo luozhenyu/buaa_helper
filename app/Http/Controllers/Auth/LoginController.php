@@ -61,7 +61,7 @@ class LoginController extends Controller
                 'department_id' => 21,
             ]);
         }
-        dd($user);
+
         Auth::login($user, true);
         Cas::logout(['service' => url('/')]);
     }
