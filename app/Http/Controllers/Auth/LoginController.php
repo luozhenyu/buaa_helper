@@ -60,7 +60,7 @@ class LoginController extends Controller
             ]);
         }
         Auth::login($user);
-
+        dd(url());
         Cas::logout(['service' => url()]);
     }
 
