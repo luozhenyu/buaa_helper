@@ -47,7 +47,7 @@ class LoginController extends Controller
         }
 
         $attributes = Cas::getAttributes();
-        $number = intval($attributes['employeeNumber']);
+        $number = ($attributes['employeeNumber']);
 
         if ($user = User::where('number', $number)->first()) {
             $user = User::downcasting($user);
@@ -57,7 +57,7 @@ class LoginController extends Controller
             $user = Student::create([
                 'number' => $number,
                 'name' => $username,
-                'department_id' => 21,
+                'department_id' => substr(strval($number), 2, 2),
             ]);
         }
 
