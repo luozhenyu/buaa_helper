@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use phpCAS;
 use Xavrsl\Cas\Facades\Cas;
 
 class LoginController extends Controller
@@ -44,13 +45,18 @@ class LoginController extends Controller
             Cas::authenticate();
         }
 
-        $username = Cas::getCurrentUser();
-        $attributes = Cas::getAttributes();
+//        $username = Cas::getCurrentUser();
+//        $attributes = Cas::getAttributes();
+//
+//        echo "<p>{$username}</p>";
+//
+//        dd($attributes);
 
-        echo "<p>{$username}</p>";
-
-        dd($attributes);
-
+        echo "mail=" . phpCAS::getAttribute("mail") . "<br>";
+        echo "employeeType=" . phpCAS::getAttribute("employeeType") . "<br>";
+        echo "uid=" . phpCAS::getAttribute("uid") . "<br>";
+        echo "displayName=" . phpCAS::getAttribute("displayName") . "<br>";
+        echo phpCAS::getUser();
 
 //        if (!$user = User::findAndDowncasting($number)) {
 //            $user = Student::create([
