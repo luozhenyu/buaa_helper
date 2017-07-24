@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Xavrsl\Cas\Facades\Cas;
 
 class LoginController extends Controller
 {
@@ -35,6 +36,31 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
+    }
+
+    public function cas(Request $request)
+    {
+        if (!Cas::isAuthenticated()) {
+            Cas::authenticate();
+        }
+
+        $number = Cas::getCurrentUser();
+        $attributes = Cas::getAttributes();
+
+        echo "<p>{$number}</p>";
+
+        echo "<p>{$attributes}</p>";
+
+
+//        if (!$user = User::findAndDowncasting($number)) {
+//            $user = Student::create([
+//                'number' => $request->input('number'),
+//                'name' => $request->input('name'),
+//                'department_id' => $department->id,
+//            ]);
+//        }
+
+        Cas::logout();
     }
 
     /**

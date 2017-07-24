@@ -1,276 +1,276 @@
 @extends('layouts.index')
 
 @push("css_2")
-<style>
+    <style>
 
-    #title_one, #title_two, #title_three, #tool_area {
-        filter: alpha(opacity=1);
-        -moz-opacity: 0.01;
-        opacity: 0.01;
-    }
-
-    @media (min-width: 1200px) {
-        #title_one {
-            font-size: 80px;
+        #title_one, #title_two, #title_three, #tool_area {
+            filter: alpha(opacity=1);
+            -moz-opacity: 0.01;
+            opacity: 0.01;
         }
 
-        #title_two {
-            font-weight: 800;
-            font-size: 60px;
+        @media (min-width: 1200px) {
+            #title_one {
+                font-size: 80px;
+            }
+
+            #title_two {
+                font-weight: 800;
+                font-size: 60px;
+            }
+
+            #title_three {
+                font-size: 30px;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            #start {
+                font-size: 50px;
+            }
+
+            #tool_area {
+                margin-top: 30px;
+            }
+
+            .function_btn {
+                margin-bottom: 15px;
+                padding: 15px 20px;
+                margin-left: 2%;
+                margin-right: 2%;
+                width: 45%;
+            }
+
+            .function_btn .icon {
+                font-size: 60px;
+            }
+
+            .function_btn .content {
+                padding-left: 20px;
+            }
+
+            .function_btn .content p {
+                font-size: 26px;
+            }
+
+            .function_btn .content .content_title {
+                font-size: 38px;
+            }
+
+            .function_btn .content_box {
+                margin-right: 60px;
+            }
         }
 
-        #title_three {
-            font-size: 30px;
-            padding: 10px;
-            border-radius: 10px;
+        @media (min-width: 768px ) and (max-width: 1199px) {
+            #title_one {
+                font-size: 55px;
+            }
+
+            #title_two {
+                font-weight: 800;
+                font-size: 38px;
+            }
+
+            #title_three {
+                font-size: 23px;
+                padding: 8px;
+                border-radius: 8px;
+            }
+
+            #start {
+                font-size: 35px;
+            }
+
+            #tool_area {
+                margin-top: 18px;
+            }
+
+            .function_btn {
+                margin-bottom: 15px;
+                padding: 18px 24px;
+                margin-left: 2%;
+                margin-right: 2%;
+                width: 45%;
+            }
+
+            .function_btn .icon {
+                font-size: 40px;
+            }
+
+            .function_btn .content {
+                padding-left: 12px;
+            }
+
+            .function_btn .content p {
+                font-size: 18px;
+            }
+
+            .function_btn .content .content_title {
+                font-size: 25px;
+            }
+
+            .function_btn .content_box {
+                margin-right: 40px;
+            }
         }
 
-        #start {
-            font-size: 50px;
+        @media (max-width: 767px ) {
+            #title_one {
+                font-size: 40px;
+            }
+
+            #title_two {
+                font-weight: 600;
+                font-size: 28px;
+            }
+
+            #title_three {
+                font-size: 13px;
+                padding: 6px;
+                border-radius: 6px;
+            }
+
+            #start {
+                font-size: 25px;
+            }
+
+            #tool_area {
+                /*margin-top: 18px;*/
+            }
+
+            .function_btn {
+                margin-bottom: 5px;
+                padding: 8px 8px;
+                margin-left: 0%;
+                margin-right: 0%;
+                width: 100%;
+            }
+
+            .function_btn .icon {
+                font-size: 18px;
+            }
+
+            .function_btn .content {
+                padding-left: 4px;
+            }
+
+            .function_btn .content p {
+                font-size: 12px;
+            }
+
+            .function_btn .content .content_title {
+                font-size: 18px;
+            }
+
+            .function_btn .content_box {
+                margin-right: 18px;
+            }
         }
 
-        #tool_area {
-            margin-top: 30px;
-        }
-
-        .function_btn {
-            margin-bottom: 15px;
-            padding: 15px 20px;
-            margin-left: 2%;
-            margin-right: 2%;
-            width: 45%;
-        }
-
-        .function_btn .icon {
-            font-size: 60px;
-        }
-
-        .function_btn .content {
-            padding-left: 20px;
-        }
-
-        .function_btn .content p {
-            font-size: 26px;
-        }
-
-        .function_btn .content .content_title {
-            font-size: 38px;
-        }
-
-        .function_btn .content_box {
-            margin-right: 60px;
-        }
-    }
-
-    @media (min-width: 768px ) and (max-width: 1199px) {
-        #title_one {
-            font-size: 55px;
-        }
-
-        #title_two {
-            font-weight: 800;
-            font-size: 38px;
-        }
-
-        #title_three {
-            font-size: 23px;
-            padding: 8px;
-            border-radius: 8px;
-        }
-
-        #start {
-            font-size: 35px;
-        }
-
-        #tool_area {
-            margin-top: 18px;
-        }
-
-        .function_btn {
-            margin-bottom: 15px;
-            padding: 18px 24px;
-            margin-left: 2%;
-            margin-right: 2%;
-            width: 45%;
-        }
-
-        .function_btn .icon {
-            font-size: 40px;
-        }
-
-        .function_btn .content {
-            padding-left: 12px;
-        }
-
-        .function_btn .content p {
-            font-size: 18px;
-        }
-
-        .function_btn .content .content_title {
-            font-size: 25px;
-        }
-
-        .function_btn .content_box {
-            margin-right: 40px;
-        }
-    }
-
-    @media (max-width: 767px ) {
-        #title_one {
-            font-size: 40px;
-        }
-
-        #title_two {
-            font-weight: 600;
-            font-size: 28px;
-        }
-
-        #title_three {
-            font-size: 13px;
-            padding: 6px;
-            border-radius: 6px;
-        }
-
-        #start {
-            font-size: 25px;
-        }
-
-        #tool_area {
-            /*margin-top: 18px;*/
-        }
-
-        .function_btn {
-            margin-bottom: 5px;
-            padding: 8px 8px;
-            margin-left: 0%;
-            margin-right: 0%;
+        .functions .function_block {
+            display: inline-block;
+            vertical-align: middle;
             width: 100%;
+            text-align: left;
         }
 
-        .function_btn .icon {
-            font-size: 18px;
+        .function_btn {
+            text-align: left;
+        }
+
+        #title_one {
+            -webkit-text-stroke: 0.8px #e8f5fd;
+            color: #975860;
+            font-weight: bold;
+            margin-top: 0px;
+        }
+
+        #title_two {
+        }
+
+        #title_three {
+            word-wrap: break-word;
+            background-color: rgba(255, 255, 255, 0.45);
+            color: #828282;
+            font-weight: bold;
+        }
+
+        .btn {
+            font-size: 25px;
+        }
+
+        #tool_area > .btn, #tool_area > .btn-group {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        {{-- 功能区 --}}
+    .function_btn .icon,
+        .function_btn .content {
+            display: inline-block;
+            vertical-align: middle;
         }
 
         .function_btn .content {
-            padding-left: 4px;
+
         }
 
         .function_btn .content p {
-            font-size: 12px;
+            white-space: normal;
+            margin-bottom: 0px;
+            color: gray;
         }
 
         .function_btn .content .content_title {
-            font-size: 18px;
+            font-weight: bold;
+            margin-top: 0px;
+            margin-bottom: 5px;
         }
 
-        .function_btn .content_box {
-            margin-right: 18px;
+        .function_btn {
+            opacity: 0;
+            white-space: nowrap;
+            /*width: 100%;*/
+            border-radius: 5px;
+            min-height: 20px;
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.6);
         }
-    }
 
-    .functions .function_block {
-        display: inline-block;
-        vertical-align: middle;
-        width: 100%;
-        text-align: left;
-    }
+        .function_btn:hover {
+            background-color: rgba(255, 255, 255, 0.82);
+        }
 
-    .function_btn {
-        text-align: left;
-    }
-
-    #title_one {
-        -webkit-text-stroke: 0.8px #e8f5fd;
-        color: #975860;
-        font-weight: bold;
-        margin-top: 0px;
-    }
-
-    #title_two {
-    }
-
-    #title_three {
-        word-wrap: break-word;
-        background-color: rgba(255, 255, 255, 0.45);
-        color: #828282;
-        font-weight: bold;
-    }
-
-    .btn {
-        font-size: 25px;
-    }
-
-    #tool_area > .btn, #tool_area > .btn-group {
-        width: 100%;
-        margin-bottom: 12px;
-    }
-
-    {{-- 功能区 --}}
-    .function_btn .icon,
-    .function_btn .content {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    .function_btn .content {
-
-    }
-
-    .function_btn .content p {
-        white-space: normal;
-        margin-bottom: 0px;
-        color: gray;
-    }
-
-    .function_btn .content .content_title {
-        font-weight: bold;
-        margin-top: 0px;
-        margin-bottom: 5px;
-    }
-
-    .function_btn {
-        opacity: 0;
-        white-space: nowrap;
-        /*width: 100%;*/
-        border-radius: 5px;
-        min-height: 20px;
-        display: inline-block;
-        background-color: rgba(255, 255, 255, 0.6);
-    }
-
-    .function_btn:hover {
-        background-color: rgba(255, 255, 255, 0.82);
-    }
-
-</style>
+    </style>
 @endpush
 
 @push("js_2")
-<script>
+    <script>
 
-    $(function () {
-        $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
-        @if (Auth::guest())
+        $(function () {
+            $("#back_div").fadeTo(1200, 0.8).delay(450).fadeTo(640, 0.7);
+            @if (Auth::guest())
             $("#title_one").delay(450).fadeTo(320, 1);
-        $("#title_two").delay(700).fadeTo(320, 1);
-        $("#title_three").delay(1150).fadeTo(500, 1);
-        $("#tool_area").delay(1600).fadeTo(400, 1);
+            $("#title_two").delay(700).fadeTo(320, 1);
+            $("#title_three").delay(1150).fadeTo(500, 1);
+            $("#tool_area").delay(1600).fadeTo(400, 1);
 
-        @else
+            @else
             $("#tool_area").delay(500).fadeTo(400, 1);
-        var main_delay = 150;
-        $(".function_block").each(function () {
-            var sub_delay = main_delay;
-            $(this).find(".function_btn").each(function () {
-                $(this).delay(sub_delay).fadeTo(300, 1);
-                sub_delay += 150;
+            var main_delay = 150;
+            $(".function_block").each(function () {
+                var sub_delay = main_delay;
+                $(this).find(".function_btn").each(function () {
+                    $(this).delay(sub_delay).fadeTo(300, 1);
+                    sub_delay += 150;
+                });
+                main_delay += 400;
             });
-            main_delay += 400;
+            @endif
         });
-        @endif
-    });
 
-</script>
+    </script>
 @endpush
 
 @section("content_full_2")

@@ -100,13 +100,13 @@
                 <div class="form-group{{ $errors->has('department') ? ' has-error' : '' }}">
                     <label for="department" class="col-md-4 control-label">院系或部门</label>
                     <div class="col-md-6">
-                        @permission(['modify_all_student', 'modify_admin'])
-                        <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
-                                id="department" name="department">
-                            @foreach(\App\Models\Department::orderBy('number')->get() as $department)
-                                <option value="{{ $department->number }}">{{ $department->display_name }}</option>
-                            @endforeach
-                        </select>
+                        @if(Auth::user()->hasPermission(['modify_all_student', 'modify_admin'])||Auth::user() instanceof \App\Models\Student)
+                            <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
+                                    id="department" name="department">
+                                @foreach(\App\Models\Department::orderBy('number')->get() as $department)
+                                    <option value="{{ $department->number }}">{{ $department->display_name }}</option>
+                                @endforeach
+                            </select>
                         @else
                             <select class="selectpicker form-control{{ $errors->has('department') ? ' has-error' : '' }}"
                                     id="department" name="department">
@@ -115,13 +115,13 @@
                                 @endphp
                                 <option value="{{ $department->number }}">{{ $department->display_name }}</option>
                             </select>
-                            @endpermission
+                        @endif
 
-                            @if ($errors->has('department'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('department') }}</strong>
-                                </span>
-                            @endif
+                        @if ($errors->has('department'))
+                            <span class="help-block">
+                                <strong>{{ $errors->first('department') }}</strong>
+                            </span>
+                        @endif
                     </div>
                 </div>
 
