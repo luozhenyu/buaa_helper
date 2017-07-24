@@ -48,7 +48,7 @@ class LoginController extends Controller
 
         echo "<p>{$username}</p>";
 
-        dd($attributes);
+        dd($attributes['employeeNumber']);
 
 
 //        if (!$user = User::findAndDowncasting($number)) {
