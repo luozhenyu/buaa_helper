@@ -49,7 +49,7 @@ class LoginController extends Controller
 
         echo "<p>{$number}</p>";
 
-        echo "<p>{$attributes}</p>";
+        var_dump($attributes);
 
 
 //        if (!$user = User::findAndDowncasting($number)) {
