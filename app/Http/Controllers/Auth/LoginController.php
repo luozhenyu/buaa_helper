@@ -41,9 +41,8 @@ class LoginController extends Controller
 
     public function cas(Request $request)
     {
-        if (!Cas::isAuthenticated()) {
-            Cas::authenticate();
-        }
+        Cas::authenticate();
+
 
 //        $username = Cas::getCurrentUser();
 //        $attributes = Cas::getAttributes();
@@ -66,7 +65,7 @@ class LoginController extends Controller
 //            ]);
 //        }
 
-        Cas::logout();
+        //Cas::logout();
     }
 
     /**
