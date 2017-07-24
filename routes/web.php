@@ -87,7 +87,7 @@ $this->post('/inquiry/{department_number}/{inquiry_id}', 'InquiryController@repl
 $this->get('/login', 'Auth\LoginController@showLoginForm')->name('login');
 $this->post('/login', 'Auth\LoginController@login');
 $this->get('/login/cas', 'Auth\LoginController@cas');
-$this->post('/logout', 'Auth\LoginController@logout');
+$this->post('/logout', 'Auth\LoginController@logout')->name('logout');
 
 
 // Registration Routes...

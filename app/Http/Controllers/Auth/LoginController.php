@@ -23,7 +23,9 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers {
+        AuthenticatesUsers::logout as doLogout;
+    }
 
     /**
      * Where to redirect users after login.
@@ -63,7 +65,21 @@ class LoginController extends Controller
         }
 
         Auth::login($user, true);
-        //Cas::logout(['service' => url('/')]);
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        if (Cas::isAuthenticated()) {
+            Cas::logout(['service' => route('logout')]);
+        }
+
+        return $this->doLogout($request);
     }
 
     /**
