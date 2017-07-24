@@ -7,7 +7,6 @@ use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Xavrsl\Cas\Facades\Cas;
 
 class LoginController extends Controller
@@ -62,7 +61,8 @@ class LoginController extends Controller
             ]);
         }
 
-        Auth::login($user, true);
+        $this->guard()->login($user, true);
+        return $this->sendLoginResponse($request);
     }
 
     /**
