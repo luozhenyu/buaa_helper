@@ -131,7 +131,7 @@ class User extends Authenticatable
                 return Student::find($id);
 
             default:
-                return abort(404);
+                return null;
         }
     }
 
