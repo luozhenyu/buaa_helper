@@ -44,12 +44,12 @@ class LoginController extends Controller
             Cas::authenticate();
         }
 
-        $number = Cas::getCurrentUser();
+        $username = Cas::getCurrentUser();
         $attributes = Cas::getAttributes();
 
-        echo "<p>{$number}</p>";
+        echo "<p>{$username}</p>";
 
-        var_dump($attributes);
+        dd($attributes);
 
 
 //        if (!$user = User::findAndDowncasting($number)) {
