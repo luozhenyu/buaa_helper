@@ -45,10 +45,11 @@ class LoginController extends Controller
 
         $username = Cas::getCurrentUser();
         $attributes = Cas::getAttributes();
+        $number = intval($attributes['employeeNumber']);
 
         echo "<p>{$username}</p>";
 
-        dd($attributes['employeeNumber']);
+        echo "<p>{$number}</p>";
 
 
 //        if (!$user = User::findAndDowncasting($number)) {
@@ -59,7 +60,7 @@ class LoginController extends Controller
 //            ]);
 //        }
 
-        //Cas::logout();
+        Cas::logout(['service' => 'https://www.baidu.com/']);
     }
 
     /**
