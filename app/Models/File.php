@@ -39,7 +39,7 @@ class File extends Model
     {
         $domain = env('APP_URL');
         $domain .= (substr($domain, -1) === '/' ? '' : '/');
-        return $domain . 'file/' . $this->hash;
+        return url('file/' . $this->hash);
     }
 
     /**
